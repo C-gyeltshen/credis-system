@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { 
   CreditCard, 
   Users, 
@@ -14,53 +13,20 @@ import {
   Menu,
   X
 } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
-
-interface User {
-  email: string;
-  user_metadata: {
-    shop_name?: string;
-    owner_name?: string;
-  };
-}
+import { useAuth } from '../../contexts/AuthContext';
+import ProtectedRoute from '../../components/ProtectedRoute';
 
 export default function Dashboard() {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const router = useRouter();
-
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        router.push('/auth/login');
-        return;
-      }
-
-      setUser(user as User);
-      setIsLoading(false);
-    };
-
-    getUser();
-  }, [router]);
+  const { user, signOut } = useAuth();
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push('/');
+    await signOut();
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <ProtectedRoute>
+      <div className="min-h-screen bg-gray-50">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div 
@@ -263,5 +229,6 @@ export default function Dashboard() {
         </div>
       </div>
     </div>
+    </ProtectedRoute>
   );
 }
