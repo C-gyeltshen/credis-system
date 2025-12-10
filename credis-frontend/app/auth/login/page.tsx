@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { CreditCard, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { supabase } from '../../../lib/supabase';
+import AuthRedirect from '../../../components/AuthRedirect';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -38,7 +39,8 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4">
+    <AuthRedirect>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
         {/* Header */}
         <div className="text-center mb-8">
@@ -138,5 +140,6 @@ export default function Login() {
         </div>
       </div>
     </div>
+    </AuthRedirect>
   );
 }
