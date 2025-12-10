@@ -54,18 +54,12 @@ export default function Home() {
                 Transform your manual credit tracking into an efficient, automated system. 
                 Manage borrowers, track transactions, and never miss a payment reminder again.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <div className="flex justify-center">
                 <Link 
                   href="/auth/register" 
                   className="px-8 py-4 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1"
                 >
                   Start Free Trial
-                </Link>
-                <Link 
-                  href="#demo" 
-                  className="px-8 py-4 border-2 border-gray-300 text-gray-700 rounded-xl hover:border-blue-600 hover:text-blue-600 transition-colors font-semibold text-lg"
-                >
-                  Watch Demo
                 </Link>
               </div>
             </div>
