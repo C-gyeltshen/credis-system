@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '../contexts/AuthContext';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "../contexts/AuthContext";
 
 interface AuthRedirectProps {
   children: React.ReactNode;
   redirectTo?: string;
 }
 
-export default function AuthRedirect({ 
-  children, 
-  redirectTo = '/dashboard' 
+export default function AuthRedirect({
+  children,
+  redirectTo = "/dashboard",
 }: AuthRedirectProps) {
   const { user, loading } = useAuth();
   const router = useRouter();

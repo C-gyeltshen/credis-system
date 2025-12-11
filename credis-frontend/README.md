@@ -5,26 +5,31 @@ A digital credit management solution designed specifically for Bhutanese shop ow
 ## Features
 
 ### 🏪 **Borrower Management**
+
 - Add, update, and manage borrower profiles
 - Comprehensive customer information tracking
 - Credit history management
 
 ### 💳 **Transaction Tracking**
+
 - Record credit entries and repayments
 - Real-time outstanding balance calculations
 - Transaction history tracking
 
 ### 📱 **SMS Reminders**
+
 - Automated monthly payment reminders
 - Direct SMS integration
 - Customizable notification templates
 
 ### 📊 **Financial Insights**
+
 - Real-time credit portfolio overview
 - Payment pattern analytics
 - Outstanding credit monitoring
 
 ### 🔒 **Security & Reliability**
+
 - Bank-grade security with Supabase
 - Encrypted data storage
 - Secure user authentication
@@ -49,37 +54,41 @@ A digital credit management solution designed specifically for Bhutanese shop ow
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd credis-system/credis-frontend
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Set up environment variables**
-   
+
    Create a `.env.local` file in the root directory:
+
    ```env
    NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
    ```
 
 4. **Set up Supabase**
-   
+
    - Create a new project at [supabase.com](https://supabase.com)
    - Copy your project URL and anon key to the `.env.local` file
    - Set up authentication in the Supabase dashboard
 
 5. **Run the development server**
+
    ```bash
    npm run dev
    ```
 
 6. **Open the application**
-   
+
    Visit [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### Database Setup
@@ -138,6 +147,7 @@ CREATE TABLE transactions (
 ## Features Roadmap
 
 ### Phase 1 (Current MVP)
+
 - [x] Landing page
 - [x] User authentication (login/register)
 - [x] Basic dashboard
@@ -146,6 +156,7 @@ CREATE TABLE transactions (
 - [ ] SMS notification setup
 
 ### Phase 2 (Future)
+
 - [ ] Advanced analytics
 - [ ] Multi-branch support
 - [ ] Accountant role management
@@ -154,10 +165,10 @@ CREATE TABLE transactions (
 
 ## Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL | Yes |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your Supabase anonymous key | Yes |
+| Variable                        | Description                 | Required |
+| ------------------------------- | --------------------------- | -------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Your Supabase project URL   | Yes      |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your Supabase anonymous key | Yes      |
 
 ## Contributing
 
@@ -174,6 +185,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Support
 
 For support and questions:
+
 - Email: support@credis.bt
 - Documentation: [Coming Soon]
 - GitHub Issues: [Repository Issues](https://github.com/your-repo/issues)
