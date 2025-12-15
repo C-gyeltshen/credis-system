@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 16, "column": 0}, "map": {"version":3,"sources":["turbopack:///[project]/middleware.ts"],"sourcesContent":["import { NextResponse } from \"next/server\";\nimport type { NextRequest } from \"next/server\";\n\nexport async function middleware(req: NextRequest) {\n  const res = NextResponse.next();\n\n  // For now, we'll handle authentication on the client side\n  // This middleware can be enhanced later for server-side auth protection\n  return res;\n}\n\nexport const config = {\n  matcher: [\"/dashboard/:path*\"],\n};\n"],"names":[],"mappings":";;;;;;AAAA;AAAA;;AAGO,eAAe,WAAW,GAAgB;IAC/C,MAAM,MAAM,gMAAY,CAAC,IAAI;IAE7B,0DAA0D;IAC1D,wEAAwE;IACxE,OAAO;AACT;AAEO,MAAM,SAAS;IACpB,SAAS;QAAC;KAAoB;AAChC"}}]
+}
