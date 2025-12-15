@@ -1,195 +1,50 @@
-# Credis - Credit Management System
+# Welcome to your Expo app 👋
 
-A digital credit management solution designed specifically for Bhutanese shop owners to efficiently track borrower information, manage credit transactions, and automate payment reminders.
+This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
-## Features
+## Get started
 
-### 🏪 **Borrower Management**
-
-- Add, update, and manage borrower profiles
-- Comprehensive customer information tracking
-- Credit history management
-
-### 💳 **Transaction Tracking**
-
-- Record credit entries and repayments
-- Real-time outstanding balance calculations
-- Transaction history tracking
-
-### 📱 **SMS Reminders**
-
-- Automated monthly payment reminders
-- Direct SMS integration
-- Customizable notification templates
-
-### 📊 **Financial Insights**
-
-- Real-time credit portfolio overview
-- Payment pattern analytics
-- Outstanding credit monitoring
-
-### 🔒 **Security & Reliability**
-
-- Bank-grade security with Supabase
-- Encrypted data storage
-- Secure user authentication
-
-## Tech Stack
-
-- **Frontend**: Next.js 16, React 19, TypeScript
-- **Styling**: Tailwind CSS
-- **Authentication**: Supabase Auth
-- **Database**: Supabase (PostgreSQL)
-- **Icons**: Lucide React
-- **Deployment**: Vercel (recommended)
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18.0 or later
-- npm or yarn
-- Supabase account
-
-### Installation
-
-1. **Clone the repository**
-
-   ```bash
-   git clone <repository-url>
-   cd credis-system/credis-frontend
-   ```
-
-2. **Install dependencies**
+1. Install dependencies
 
    ```bash
    npm install
    ```
 
-3. **Set up environment variables**
-
-   Create a `.env.local` file in the root directory:
-
-   ```env
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   ```
-
-4. **Set up Supabase**
-
-   - Create a new project at [supabase.com](https://supabase.com)
-   - Copy your project URL and anon key to the `.env.local` file
-   - Set up authentication in the Supabase dashboard
-
-5. **Run the development server**
+2. Start the app
 
    ```bash
-   npm run dev
+   npx expo start
    ```
 
-6. **Open the application**
+In the output, you'll find options to open the app in a
 
-   Visit [http://localhost:3000](http://localhost:3000) in your browser.
+- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
+- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
+- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
+- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
-### Database Setup
+You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-The application uses Supabase for authentication and will need the following database schema (to be implemented):
+## Get a fresh project
 
-```sql
--- Users profile table (extends Supabase auth.users)
-CREATE TABLE profiles (
-  id UUID REFERENCES auth.users ON DELETE CASCADE,
-  shop_name TEXT,
-  owner_name TEXT,
-  phone TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  PRIMARY KEY (id)
-);
+When you're ready, run:
 
--- Borrowers table
-CREATE TABLE borrowers (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES auth.users ON DELETE CASCADE,
-  name TEXT NOT NULL,
-  phone TEXT,
-  address TEXT,
-  national_id TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Credits table
-CREATE TABLE credits (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  borrower_id UUID REFERENCES borrowers ON DELETE CASCADE,
-  user_id UUID REFERENCES auth.users ON DELETE CASCADE,
-  amount DECIMAL(10,2) NOT NULL,
-  description TEXT,
-  due_date DATE,
-  status TEXT DEFAULT 'active', -- active, paid, overdue
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Transactions table
-CREATE TABLE transactions (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  credit_id UUID REFERENCES credits ON DELETE CASCADE,
-  user_id UUID REFERENCES auth.users ON DELETE CASCADE,
-  amount DECIMAL(10,2) NOT NULL,
-  type TEXT NOT NULL, -- credit, payment
-  description TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
+```bash
+npm run reset-project
 ```
 
-## Features Roadmap
+This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
-### Phase 1 (Current MVP)
+## Learn more
 
-- [x] Landing page
-- [x] User authentication (login/register)
-- [x] Basic dashboard
-- [ ] Borrower management
-- [ ] Transaction recording
-- [ ] SMS notification setup
+To learn more about developing your project with Expo, look at the following resources:
 
-### Phase 2 (Future)
+- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
+- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
 
-- [ ] Advanced analytics
-- [ ] Multi-branch support
-- [ ] Accountant role management
-- [ ] RMA integration
-- [ ] Mobile app
+## Join the community
 
-## Environment Variables
+Join our community of developers creating universal apps.
 
-| Variable                        | Description                 | Required |
-| ------------------------------- | --------------------------- | -------- |
-| `NEXT_PUBLIC_SUPABASE_URL`      | Your Supabase project URL   | Yes      |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your Supabase anonymous key | Yes      |
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Support
-
-For support and questions:
-
-- Email: support@credis.bt
-- Documentation: [Coming Soon]
-- GitHub Issues: [Repository Issues](https://github.com/your-repo/issues)
-
----
-
-**Made with ❤️ for Bhutanese Businesses**
+- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
+- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
