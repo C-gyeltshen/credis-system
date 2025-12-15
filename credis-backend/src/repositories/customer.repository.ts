@@ -5,7 +5,11 @@ export class CustomerRepository {
   async create(data: CreateCustomerInput, storeId: string) {
     return await prisma.customer.create({
       data: {
-        storeId: storeId,
+        store: {
+          connect: {
+            id: storeId || data.storeId
+          }
+        },
         name: data.name,
         email: data.email,
         phoneNumber: data.phone_number,
