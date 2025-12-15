@@ -12,7 +12,6 @@ CREATE TABLE stores (
     name TEXT NOT NULL,
     address TEXT,
     phone_number TEXT,
-    email TEXT,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     modified_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
@@ -49,8 +48,8 @@ CREATE TABLE customers (
     store_id UUID NOT NULL REFERENCES stores(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
     phone_number TEXT NOT NULL,
-    cid_number TEXT, -- Bhutanese Citizenship ID (optional)
-    address TEXT,
+    -- cid_number TEXT, -- Bhutanese Citizenship ID (optional)
+    -- address TEXT,
     email TEXT,
     credit_limit DECIMAL(12, 2), -- FR1.2: Optional maximum credit limit
     is_active BOOLEAN DEFAULT true,

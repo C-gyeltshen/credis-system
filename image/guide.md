@@ -13,7 +13,6 @@ Client → Routes → Middleware → Controller → Service → Repository → D
 
 ### Layer Responsibilities:
 
-1. **Routes** - Define API endpoints and HTTP methods
 2. **Middleware** - Validate requests, authenticate users
 3. **Controller** - Handle HTTP request/response
 4. **Service** - Business logic and rules
