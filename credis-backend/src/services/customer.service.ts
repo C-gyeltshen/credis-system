@@ -22,7 +22,7 @@ export class CustomerService {
     }
 
     // Create customer
-    const customer = await this.repository.create(data);
+    const customer = await this.repository.create(data, data.storeId);
     
     return customer;
   }

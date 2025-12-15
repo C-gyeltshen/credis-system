@@ -1,4 +1,5 @@
 export interface CreateCustomerInput {
+    storeId: string;
     name: string;
     phone_number: string;
     email: string;
