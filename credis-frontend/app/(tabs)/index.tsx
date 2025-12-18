@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  ScrollView,
-  TouchableOpacity,
-  Dimensions,
-  Image,
-} from "react-native";
+import { View, ScrollView, TouchableOpacity } from "react-native";
 import {
   Card,
   Text,
@@ -41,11 +35,6 @@ export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // Get screen dimensions for responsive design
-  const { width: screenWidth } = Dimensions.get("window");
-  const isTablet = screenWidth > 768;
-  const isMobile = screenWidth <= 480;
 
   const handleLogout = async () => {
     await logout();
@@ -142,153 +131,102 @@ export default function HomeScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#F8FAFB" }}>
-      {/* Header Section with Title and Logout */}
-      <View
-        style={{
-          paddingHorizontal: isMobile ? 16 : 24,
-          paddingVertical: 20,
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
+      {/* App Header */}
+      <Appbar.Header style={{ 
+        backgroundColor: "#1565C0", 
+        elevation: 6,
+        shadowColor: "#1565C0",
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.3,
+        shadowRadius: 6,
+      }}>
+        <Appbar.Content
+          title="CREDIS Dashboard"
+          titleStyle={{ 
+            fontSize: 22, 
+            fontWeight: "800", 
+            color: "#fff",
+            letterSpacing: 1,
+          }}
+        />
+        <Button
+          mode="outlined"
+          onPress={handleLogout}
+          compact
+          textColor="#fff"
+          style={{ 
+            marginRight: 12,
+            borderColor: "#fff",
+            borderWidth: 2,
+            borderRadius: 8,
+          }}
+          labelStyle={{
+            fontWeight: "600",
+          }}
+        >
+          Logout
+        </Button>
+      </Appbar.Header>
+
+      <ScrollView style={{ flex: 1 }}>
+        {/* Welcome Section */}
+        <View style={{ 
+          paddingTop: 24,
+          paddingBottom: 32, 
+          paddingHorizontal: 24,
           backgroundColor: "#FFFFFF",
-          borderBottomWidth: 1,
-          borderBottomColor: "#E5E7EB",
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.1,
-          shadowRadius: 4,
-          elevation: 3,
-        }}
-      >
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <View style={{ flex: 1, flexDirection: "row", alignItems: "center" }}>
-            <Image
-              source={require("../../logo.jpg")}
-              style={{
-                width: isTablet ? 50 : isMobile ? 35 : 40,
-                height: isTablet ? 50 : isMobile ? 35 : 40,
-                marginRight: 12,
-              }}
-              resizeMode="contain"
-            />
-            <View>
-              <Text
-                style={{
-                  fontSize: isTablet ? 28 : isMobile ? 20 : 24,
-                  fontWeight: "800",
-                  color: "#1F2937",
-                  letterSpacing: 0.5,
-                }}
-              >
-                CREDIS
-              </Text>
-              <Text
-                style={{
-                  fontSize: isTablet ? 16 : 14,
-                  color: "#6B7280",
-                  fontWeight: "500",
-                  marginTop: 2,
-                }}
-              >
-                Customer Credit Management
-              </Text>
-            </View>
-          </View>
-
-          <Button
-            mode="contained"
-            onPress={handleLogout}
-            buttonColor="#EF4444"
-            textColor="#FFFFFF"
-            style={{
-              borderRadius: 12,
-              elevation: 2,
-            }}
-            contentStyle={{
-              paddingHorizontal: isMobile ? 12 : 16,
-              paddingVertical: 8,
-            }}
-            labelStyle={{
-              fontSize: isMobile ? 13 : 14,
-              fontWeight: "600",
-            }}
-          >
-            Logout
-          </Button>
-        </View>
-      </View>
-
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{
-          paddingBottom: 24,
-        }}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Hero Section */}
-        <View
-          style={{
-            paddingHorizontal: isMobile ? 16 : 24,
-            paddingTop: 32,
-            paddingBottom: 24,
-          }}
-        >
-          <Text
-            style={{
-              fontSize: isTablet ? 36 : isMobile ? 28 : 32,
-              fontWeight: "700",
-              color: "#1565C0",
-              textAlign: "center",
-              marginBottom: 12,
-            }}
-          >
-            Welcome Back!
+          marginBottom: 16,
+        }}>
+          <Text style={{
+            fontSize: 32,
+            fontWeight: "800",
+            color: "#1565C0",
+            textAlign: "center",
+            letterSpacing: 1,
+            marginBottom: 8,
+          }}>
+            Welcome!
           </Text>
-          <Text
-            style={{
-              fontSize: isTablet ? 18 : 16,
-              color: "#64748B",
-              textAlign: "center",
-              fontWeight: "500",
-              lineHeight: 24,
-            }}
-          >
-            Manage your customer credits and track business performance
+          <Text style={{
+            fontSize: 16,
+            color: "#42A5F5",
+            textAlign: "center",
+            fontWeight: "500",
+            opacity: 0.8,
+          }}>
+            Manage your customer credits efficiently
           </Text>
         </View>
 
-        {/* Main Actions */}
-        <View
-          style={{
-            paddingHorizontal: isMobile ? 16 : 24,
-            marginBottom: 24,
-          }}
-        >
+        {/* Add Customer Button */}
+        <View style={{ 
+          paddingHorizontal: 24,
+          paddingVertical: 8,
+          alignItems: "center"
+        }}>
           <Button
             mode="contained"
             onPress={addNewCustomer}
-            icon="plus"
+            icon="account-plus"
             buttonColor="#FF8C00"
-            textColor="#FFFFFF"
+            textColor="#fff"
             contentStyle={{
-              paddingVertical: isTablet ? 20 : 16,
-              paddingHorizontal: isTablet ? 48 : 32,
+              paddingVertical: 18,
+              paddingHorizontal: 40,
+              flexDirection: "row",
             }}
             style={{
               borderRadius: 16,
               elevation: 6,
               shadowColor: "#FF8C00",
               shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.2,
+              shadowOpacity: 0.3,
               shadowRadius: 8,
-              width: "100%",
+              minWidth: 220,
             }}
             labelStyle={{
-              fontSize: isTablet ? 20 : 18,
+              fontSize: 18,
               fontWeight: "700",
               letterSpacing: 0.5,
             }}
@@ -297,193 +235,86 @@ export default function HomeScreen() {
           </Button>
         </View>
 
-        {/* Stats Dashboard */}
-        <View
-          style={{
-            paddingHorizontal: isMobile ? 16 : 24,
-            marginBottom: 24,
-          }}
-        >
-          <Card
-            style={{
-              borderRadius: 20,
-              elevation: 4,
-              backgroundColor: "#FFFFFF",
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.08,
-              shadowRadius: 12,
-            }}
-          >
-            <Card.Content
+        {/* Stats Overview */}
+        <Card style={{ 
+          margin: 20, 
+          marginTop: 24,
+          elevation: 4,
+          borderRadius: 16,
+          backgroundColor: "#FFFFFF"
+        }}>
+          <Card.Content style={{ padding: 20 }}>
+            <Text
               style={{
-                padding: isTablet ? 28 : 20,
+                fontSize: 20,
+                fontWeight: "700",
+                marginBottom: 20,
+                color: "#1565C0",
+                textAlign: "center",
+                letterSpacing: 0.5,
               }}
             >
-              <Text
-                style={{
-                  fontSize: isTablet ? 24 : 20,
-                  fontWeight: "700",
-                  color: "#1F2937",
-                  textAlign: "center",
-                  marginBottom: 24,
-                  letterSpacing: 0.5,
-                }}
-              >
-                Business Overview
-              </Text>
+              Business Overview
+            </Text>
 
-              <View
-                style={{
-                  flexDirection: isTablet ? "row" : "row",
-                  justifyContent: "space-around",
-                  alignItems: "center",
-                }}
-              >
-                <View
-                  style={{
-                    alignItems: "center",
-                    flex: 1,
-                    paddingVertical: 16,
-                  }}
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                marginBottom: 16,
+              }}
+            >
+              <View style={{ alignItems: "center", flex: 1 }}>
+                <Text
+                  style={{ fontSize: 24, fontWeight: "bold", color: "#6200ee" }}
                 >
-                  <View
-                    style={{
-                      backgroundColor: "#EBF5FF",
-                      borderRadius: 16,
-                      padding: 16,
-                      marginBottom: 12,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontSize: isTablet ? 32 : 28,
-                        fontWeight: "800",
-                        color: "#1565C0",
-                      }}
-                    >
-                      {customers.length}
-                    </Text>
-                  </View>
-                  <Text
-                    style={{
-                      color: "#64748B",
-                      fontSize: isTablet ? 16 : 14,
-                      fontWeight: "600",
-                      textAlign: "center",
-                    }}
-                  >
-                    Total Customers
-                  </Text>
-                </View>
-
-                <Divider
-                  style={{
-                    width: 2,
-                    height: 60,
-                    backgroundColor: "#E5E7EB",
-                  }}
-                />
-
-                <View
-                  style={{
-                    alignItems: "center",
-                    flex: 1,
-                    paddingVertical: 16,
-                  }}
-                >
-                  <View
-                    style={{
-                      backgroundColor: "#FFF7ED",
-                      borderRadius: 16,
-                      padding: 16,
-                      marginBottom: 12,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontSize: isTablet ? 32 : 28,
-                        fontWeight: "800",
-                        color: "#FF8C00",
-                      }}
-                    >
-                      {
-                        customers.filter(
-                          (customer) => customer.isActive !== false
-                        ).length
-                      }
-                    </Text>
-                  </View>
-                  <Text
-                    style={{
-                      color: "#64748B",
-                      fontSize: isTablet ? 16 : 14,
-                      fontWeight: "600",
-                      textAlign: "center",
-                    }}
-                  >
-                    Active Accounts
-                  </Text>
-                </View>
+                  {customers.length}
+                </Text>
+                <Text style={{ color: "#666", fontSize: 12 }}>
+                  Total Customers
+                </Text>
               </View>
-            </Card.Content>
-          </Card>
-        </View>
+              <Divider style={{ width: 1, height: 40 }} />
+              <View style={{ alignItems: "center", flex: 1 }}>
+                <Text
+                  style={{ fontSize: 24, fontWeight: "bold", color: "#ff6f00" }}
+                >
+                  {
+                    customers.filter((customer) => customer.isActive !== false)
+                      .length
+                  }
+                </Text>
+                <Text style={{ color: "#666", fontSize: 12 }}>
+                  Active Records
+                </Text>
+              </View>
+            </View>
+          </Card.Content>
+        </Card>
 
-        {/* Search Section */}
-        <View
-          style={{
-            paddingHorizontal: isMobile ? 16 : 24,
-            marginBottom: 24,
-          }}
-        >
+        {/* Search Bar */}
+        <View style={{ padding: 16 }}>
           <Searchbar
-            placeholder="Search customers by name, phone, or CID..."
+            placeholder="Search customers..."
             onChangeText={setSearchQuery}
             value={searchQuery}
-            style={{
-              elevation: 3,
-              borderRadius: 16,
-              backgroundColor: "#FFFFFF",
-            }}
-            inputStyle={{
-              fontSize: isTablet ? 16 : 14,
-            }}
-            iconColor="#64748B"
-            placeholderTextColor="#9CA3AF"
+            style={{ elevation: 2 }}
+            icon="magnify"
           />
         </View>
 
-        {/* Customer Tables */}
-        <View
-          style={{
-            paddingHorizontal: isMobile ? 16 : 24,
-            paddingBottom: 24,
-          }}
-        >
-          <Card
-            style={{
-              borderRadius: 20,
-              elevation: 4,
-              backgroundColor: "#FFFFFF",
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.08,
-              shadowRadius: 12,
+        {/* Advanced Customer Tables */}
+        <View style={{ paddingBottom: 20 }}>
+          <FixedCustomerTables
+            onCustomerDelete={(customerIds: string[]) => {
+              console.log("Delete customers:", customerIds);
+              // Here you would implement actual deletion logic
+              // For now, just refresh the customers list
+              setCustomers((prev) =>
+                prev.filter((c) => !customerIds.includes(c.id))
+              );
             }}
-          >
-            <Card.Content style={{ padding: 0 }}>
-              <FixedCustomerTables
-                searchQuery={searchQuery}
-                onCustomerDelete={(customerIds: string[]) => {
-                  console.log("Delete customers:", customerIds);
-                  setCustomers((prev) =>
-                    prev.filter((c) => !customerIds.includes(c.id))
-                  );
-                }}
-              />
-            </Card.Content>
-          </Card>
+          />
         </View>
       </ScrollView>
     </SafeAreaView>

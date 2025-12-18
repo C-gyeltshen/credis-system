@@ -40,12 +40,10 @@ interface CreditHistory {
 
 interface AdvancedCustomerTablesProps {
   onCustomerDelete?: (customerIds: string[]) => void;
-  searchQuery?: string;
 }
 
 export default function AdvancedCustomerTables({
   onCustomerDelete,
-  searchQuery = "",
 }: AdvancedCustomerTablesProps) {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -200,24 +198,6 @@ export default function AdvancedCustomerTables({
     fetchCustomers();
   }, []);
 
-  // Filter customers based on search query
-  const filteredCustomers = React.useMemo(() => {
-    if (!searchQuery.trim()) {
-      return customers;
-    }
-
-    const query = searchQuery.toLowerCase().trim();
-    return customers.filter((customer) => {
-      return (
-        customer.name.toLowerCase().includes(query) ||
-        customer.phoneNumber.toLowerCase().includes(query) ||
-        customer.cidNumber?.toLowerCase().includes(query) ||
-        customer.email?.toLowerCase().includes(query) ||
-        customer.address?.toLowerCase().includes(query)
-      );
-    });
-  }, [customers, searchQuery]);
-
   const toggleRowExpansion = (customerId: string) => {
     const newExpanded = new Set(expandedRows);
     if (newExpanded.has(customerId)) {
@@ -239,10 +219,10 @@ export default function AdvancedCustomerTables({
   };
 
   const toggleSelectAll = () => {
-    if (selectedCustomers.size === filteredCustomers.length) {
+    if (selectedCustomers.size === customers.length) {
       setSelectedCustomers(new Set());
     } else {
-      setSelectedCustomers(new Set(filteredCustomers.map((c) => c.id)));
+      setSelectedCustomers(new Set(customers.map((c) => c.id)));
     }
   };
 
@@ -333,141 +313,74 @@ export default function AdvancedCustomerTables({
 
                   {/* Actions Column */}
                   <DataTable.Title style={styles.actionColumn}>
-                    <View
-                      style={{
-                        flex: 1,
-                        justifyContent: "center",
-                        alignItems: "center",
-                        height: "100%",
-                      }}
-                    >
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', height: '100%' }}>
                       <Text style={styles.headerText}>Actions</Text>
                     </View>
                   </DataTable.Title>
 
                   {/* Name Column */}
                   <DataTable.Title style={styles.nameColumn}>
-                    <View
-                      style={{
-                        flex: 1,
-                        justifyContent: "center",
-                        alignItems: "flex-start",
-                        height: "100%",
-                      }}
-                    >
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-start', height: '100%' }}>
                       <Text style={styles.headerText}>Name</Text>
                     </View>
                   </DataTable.Title>
 
                   {/* Phone Column */}
                   <DataTable.Title style={styles.phoneColumn}>
-                    <View
-                      style={{
-                        flex: 1,
-                        justifyContent: "center",
-                        alignItems: "flex-start",
-                        height: "100%",
-                      }}
-                    >
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-start', height: '100%' }}>
                       <Text style={styles.headerText}>Phone</Text>
                     </View>
                   </DataTable.Title>
 
                   {/* CID Number Column */}
                   <DataTable.Title style={styles.cidColumn}>
-                    <View
-                      style={{
-                        flex: 1,
-                        justifyContent: "center",
-                        alignItems: "flex-start",
-                        height: "100%",
-                      }}
-                    >
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-start', height: '100%' }}>
                       <Text style={styles.headerText}>CID</Text>
                     </View>
                   </DataTable.Title>
 
                   {/* Email Column */}
                   <DataTable.Title style={styles.emailColumn}>
-                    <View
-                      style={{
-                        flex: 1,
-                        justifyContent: "center",
-                        alignItems: "flex-start",
-                        height: "100%",
-                      }}
-                    >
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-start', height: '100%' }}>
                       <Text style={styles.headerText}>Email</Text>
                     </View>
                   </DataTable.Title>
 
                   {/* Address Column */}
                   <DataTable.Title style={styles.addressColumn}>
-                    <View
-                      style={{
-                        flex: 1,
-                        justifyContent: "center",
-                        alignItems: "flex-start",
-                        height: "100%",
-                      }}
-                    >
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-start', height: '100%' }}>
                       <Text style={styles.headerText}>Address</Text>
                     </View>
                   </DataTable.Title>
 
                   {/* Credit Limit Column */}
                   <DataTable.Title style={styles.creditColumn}>
-                    <View
-                      style={{
-                        flex: 1,
-                        justifyContent: "center",
-                        alignItems: "flex-end",
-                        height: "100%",
-                      }}
-                    >
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-end', height: '100%' }}>
                       <Text style={styles.headerText}>Credit Limit</Text>
                     </View>
                   </DataTable.Title>
 
                   {/* Outstanding Balance Column */}
                   <DataTable.Title style={styles.balanceColumn}>
-                    <View
-                      style={{
-                        flex: 1,
-                        justifyContent: "center",
-                        alignItems: "flex-end",
-                        height: "100%",
-                      }}
-                    >
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-end', height: '100%' }}>
                       <Text style={styles.headerText}>Outstanding</Text>
                     </View>
                   </DataTable.Title>
 
                   {/* Status Column */}
                   <DataTable.Title style={styles.statusColumn}>
-                    <View
-                      style={{
-                        flex: 1,
-                        justifyContent: "center",
-                        alignItems: "center",
-                        height: "100%",
-                      }}
-                    >
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', height: '100%' }}>
                       <Text style={styles.headerText}>Status</Text>
                     </View>
                   </DataTable.Title>
                 </DataTable.Header>
 
-                {filteredCustomers.length === 0 ? (
+                {customers.length === 0 ? (
                   <View style={styles.emptyState}>
-                    <Text style={styles.emptyText}>
-                      {searchQuery.trim()
-                        ? `No customers found matching "${searchQuery}"`
-                        : "No customers found"}
-                    </Text>
+                    <Text style={styles.emptyText}>No customers found</Text>
                   </View>
                 ) : (
-                  filteredCustomers.map((customer) => (
+                  customers.map((customer) => (
                     <View key={customer.id}>
                       <DataTable.Row
                         style={
@@ -507,18 +420,8 @@ export default function AdvancedCustomerTables({
 
                         {/* Name Cell */}
                         <DataTable.Cell style={styles.nameColumn}>
-                          <View
-                            style={{
-                              flex: 1,
-                              justifyContent: "center",
-                              alignItems: "flex-start",
-                              paddingVertical: 8,
-                            }}
-                          >
-                            <Text
-                              style={[styles.cellText, { fontWeight: "500" }]}
-                              numberOfLines={1}
-                            >
+                          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-start', paddingVertical: 8 }}>
+                            <Text style={[styles.cellText, { fontWeight: '500' }]} numberOfLines={1}>
                               {customer.name}
                             </Text>
                           </View>
@@ -526,20 +429,8 @@ export default function AdvancedCustomerTables({
 
                         {/* Phone Cell */}
                         <DataTable.Cell style={styles.phoneColumn}>
-                          <View
-                            style={{
-                              flex: 1,
-                              justifyContent: "center",
-                              alignItems: "flex-start",
-                              paddingVertical: 8,
-                            }}
-                          >
-                            <Text
-                              style={[
-                                styles.cellText,
-                                { fontFamily: "monospace" },
-                              ]}
-                            >
+                          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-start', paddingVertical: 8 }}>
+                            <Text style={[styles.cellText, { fontFamily: 'monospace' }]}>
                               {formatPhoneNumber(customer.phoneNumber)}
                             </Text>
                           </View>
@@ -547,20 +438,8 @@ export default function AdvancedCustomerTables({
 
                         {/* CID Cell */}
                         <DataTable.Cell style={styles.cidColumn}>
-                          <View
-                            style={{
-                              flex: 1,
-                              justifyContent: "center",
-                              alignItems: "flex-start",
-                              paddingVertical: 8,
-                            }}
-                          >
-                            <Text
-                              style={[
-                                styles.cellText,
-                                { fontFamily: "monospace" },
-                              ]}
-                            >
+                          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-start', paddingVertical: 8 }}>
+                            <Text style={[styles.cellText, { fontFamily: 'monospace' }]}>
                               {customer.cidNumber || "N/A"}
                             </Text>
                           </View>
@@ -568,19 +447,8 @@ export default function AdvancedCustomerTables({
 
                         {/* Email Cell */}
                         <DataTable.Cell style={styles.emailColumn}>
-                          <View
-                            style={{
-                              flex: 1,
-                              justifyContent: "center",
-                              alignItems: "flex-start",
-                              paddingVertical: 8,
-                            }}
-                          >
-                            <Text
-                              style={styles.cellText}
-                              numberOfLines={1}
-                              ellipsizeMode="tail"
-                            >
+                          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-start', paddingVertical: 8 }}>
+                            <Text style={styles.cellText} numberOfLines={1} ellipsizeMode="tail">
                               {customer.email || "N/A"}
                             </Text>
                           </View>
@@ -588,19 +456,8 @@ export default function AdvancedCustomerTables({
 
                         {/* Address Cell */}
                         <DataTable.Cell style={styles.addressColumn}>
-                          <View
-                            style={{
-                              flex: 1,
-                              justifyContent: "center",
-                              alignItems: "flex-start",
-                              paddingVertical: 8,
-                            }}
-                          >
-                            <Text
-                              style={styles.cellText}
-                              numberOfLines={1}
-                              ellipsizeMode="tail"
-                            >
+                          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-start', paddingVertical: 8 }}>
+                            <Text style={styles.cellText} numberOfLines={1} ellipsizeMode="tail">
                               {customer.address || "N/A"}
                             </Text>
                           </View>
@@ -608,17 +465,8 @@ export default function AdvancedCustomerTables({
 
                         {/* Credit Limit Cell */}
                         <DataTable.Cell style={styles.creditColumn}>
-                          <View
-                            style={{
-                              flex: 1,
-                              justifyContent: "center",
-                              alignItems: "flex-end",
-                              paddingVertical: 8,
-                            }}
-                          >
-                            <Text
-                              style={[styles.cellText, styles.creditAmount]}
-                            >
+                          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-end', paddingVertical: 8 }}>
+                            <Text style={[styles.cellText, styles.creditAmount]}>
                               {formatCurrency(customer.creditLimit || 0)}
                             </Text>
                           </View>
@@ -626,14 +474,7 @@ export default function AdvancedCustomerTables({
 
                         {/* Outstanding Balance Cell */}
                         <DataTable.Cell style={styles.balanceColumn}>
-                          <View
-                            style={{
-                              flex: 1,
-                              justifyContent: "center",
-                              alignItems: "flex-end",
-                              paddingVertical: 8,
-                            }}
-                          >
+                          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-end', paddingVertical: 8 }}>
                             <Text
                               style={[
                                 styles.cellText,
@@ -643,27 +484,18 @@ export default function AdvancedCustomerTables({
                                       ? "#FF8C00"
                                       : "#1E88E5",
                                   fontWeight: "700",
-                                  fontFamily: "monospace",
+                                  fontFamily: 'monospace',
                                 },
                               ]}
                             >
-                              {formatCurrency(
-                                getOutstandingBalance(customer.id)
-                              )}
+                              {formatCurrency(getOutstandingBalance(customer.id))}
                             </Text>
                           </View>
                         </DataTable.Cell>
 
                         {/* Status Cell */}
                         <DataTable.Cell style={styles.statusColumn}>
-                          <View
-                            style={{
-                              flex: 1,
-                              justifyContent: "center",
-                              alignItems: "center",
-                              paddingVertical: 8,
-                            }}
-                          >
+                          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 8 }}>
                             <Chip
                               mode="flat"
                               compact={true}
@@ -679,7 +511,7 @@ export default function AdvancedCustomerTables({
                                     ? "#1E88E5"
                                     : "#FF8C00",
                                 fontSize: 12,
-                                fontWeight: "600",
+                                fontWeight: '600',
                               }}
                             >
                               {customer.isActive !== false
@@ -765,12 +597,7 @@ export default function AdvancedCustomerTables({
                                   <DataTable.Cell
                                     style={styles.historyTypeColumn}
                                   >
-                                    <View
-                                      style={{
-                                        justifyContent: "center",
-                                        alignItems: "flex-start",
-                                      }}
-                                    >
+                                    <View style={{ justifyContent: 'center', alignItems: 'flex-start' }}>
                                       <Text
                                         style={{
                                           color: getTransactionTypeColor(
