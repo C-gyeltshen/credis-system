@@ -1,5 +1,3 @@
-// This is your Prisma schema file
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,43 +7,37 @@ datasource db {
 }
 
 model Store {
-  id                      String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name                    String
-  address                 String?
-  phoneNumber             String?                  @map("phone_number")
-  email                   String?
-  createdAt               DateTime                 @default(now()) @map("created_at") @db.Timestamptz
-  modifiedAt              DateTime                 @default(now()) @updatedAt @map("modified_at") @db.Timestamptz
-
-  // Relations
-  storeOwners             StoreOwner[]
-  customers               Customer[]
-  credits                 Credit[]
-  paymentSubmissions      PaymentSubmission[]
-  customerBalances        CustomerBalance[]
-  notifications           Notification[]
-  notificationSchedules   NotificationSchedule[]
-  otpCodes                OtpCode[]
+  id                    String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                  String
+  address               String?
+  phoneNumber           String?                @map("phone_number")
+  createdAt             DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  modifiedAt            DateTime               @default(now()) @updatedAt @map("modified_at") @db.Timestamptz(6)
+  credits               Credit[]
+  customerBalances      CustomerBalance[]
+  customers             Customer[]
+  notificationSchedules NotificationSchedule[]
+  notifications         Notification[]
+  otpCodes              OtpCode[]
+  paymentSubmissions    PaymentSubmission[]
+  storeOwners           StoreOwner[]
 
   @@map("stores")
 }
 
 model StoreOwner {
-  id                      String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name                    String
-  email                   String                   @unique
-  passwordHash            String                   @map("password_hash")
-  storeId                 String?                  @map("store_id") @db.Uuid
-  isActive                Boolean                  @default(true) @map("is_active")
-  lastLoginAt             DateTime?                @map("last_login_at") @db.Timestamptz
-  createdAt               DateTime                 @default(now()) @map("created_at") @db.Timestamptz
-  modifiedAt              DateTime                 @default(now()) @updatedAt @map("modified_at") @db.Timestamptz
-
-  // Relations
-  store                   Store?                   @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  creditsCreated          Credit[]                 @relation("CreatedByOwner")
-  paymentsValidated       PaymentSubmission[]      @relation("ValidatedByOwner")
-  auditLogs               AuditLog[]               @relation("StoreOwnerAuditLogs")
+  id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name              String
+  email             String              @unique
+  passwordHash      String              @map("password_hash")
+  storeId           String?             @map("store_id") @db.Uuid
+  isActive          Boolean             @default(true) @map("is_active")
+  lastLoginAt       DateTime?           @map("last_login_at") @db.Timestamptz(6)
+  createdAt         DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  modifiedAt        DateTime            @default(now()) @updatedAt @map("modified_at") @db.Timestamptz(6)
+  creditsCreated    Credit[]            @relation("CreatedByOwner")
+  paymentsValidated PaymentSubmission[] @relation("ValidatedByOwner")
+  store             Store?              @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
   @@index([storeId])
   @@index([email])
@@ -53,45 +45,36 @@ model StoreOwner {
 }
 
 model Admin {
-  id                      String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name                    String
-  email                   String                   @unique
-  passwordHash            String                   @map("password_hash")
-  isSuperAdmin            Boolean                  @default(false) @map("is_super_admin")
-  isActive                Boolean                  @default(true) @map("is_active")
-  lastLoginAt             DateTime?                @map("last_login_at") @db.Timestamptz
-  createdAt               DateTime                 @default(now()) @map("created_at") @db.Timestamptz
-  modifiedAt              DateTime                 @default(now()) @updatedAt @map("modified_at") @db.Timestamptz
-
-  // Relations
-  auditLogs               AuditLog[]               @relation("AdminAuditLogs")
+  id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String
+  email        String     @unique
+  passwordHash String     @map("password_hash")
+  isSuperAdmin Boolean    @default(false) @map("is_super_admin")
+  isActive     Boolean    @default(true) @map("is_active")
+  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  modifiedAt   DateTime   @default(now()) @updatedAt @map("modified_at") @db.Timestamptz(6)
 
   @@map("admins")
 }
 
 model Customer {
-  id                      String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  storeId                 String                   @map("store_id") @db.Uuid
-  name                    String
-  phoneNumber             String                   @map("phone_number")
-  cidNumber               String?                  @map("cid_number")
-  address                 String?
-  email                   String?
-  creditLimit             Decimal?                 @map("credit_limit") @db.Decimal(12, 2)
-  isActive                Boolean                  @default(true) @map("is_active")
-  createdAt               DateTime                 @default(now()) @map("created_at") @db.Timestamptz
-  modifiedAt              DateTime                 @default(now()) @updatedAt @map("modified_at") @db.Timestamptz
-
-  // Relations
-  store                   Store                    @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  credits                 Credit[]
-  paymentSubmissions      PaymentSubmission[]
-  customerBalances        CustomerBalance[]
-  notifications           Notification[]
-  notificationSchedules   NotificationSchedule[]
-  otpCodes                OtpCode[]
-  customerSessions        CustomerSession[]
-  auditLogs               AuditLog[]               @relation("CustomerAuditLogs")
+  id                    String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  storeId               String                 @map("store_id") @db.Uuid
+  name                  String
+  phoneNumber           String                 @map("phone_number")
+  email                 String?
+  creditLimit           Decimal?               @map("credit_limit") @db.Decimal(12, 2)
+  isActive              Boolean                @default(true) @map("is_active")
+  createdAt             DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  modifiedAt            DateTime               @default(now()) @updatedAt @map("modified_at") @db.Timestamptz(6)
+  credits               Credit[]
+  customerBalances      CustomerBalance[]
+  customerSessions      CustomerSession[]
+  store                 Store                  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  notificationSchedules NotificationSchedule[]
+  notifications         Notification[]
+  otpCodes              OtpCode[]
+  paymentSubmissions    PaymentSubmission[]
 
   @@unique([storeId, phoneNumber])
   @@index([storeId])
@@ -100,25 +83,19 @@ model Customer {
   @@map("customers")
 }
 
-// ==========================================
-// AUTHENTICATION & SECURITY
-// ==========================================
-
 model OtpCode {
-  id                      String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  phoneNumber             String                   @map("phone_number")
-  otpCode                 String                   @map("otp_code")
-  customerId              String?                  @map("customer_id") @db.Uuid
-  storeId                 String?                  @map("store_id") @db.Uuid
-  expiresAt               DateTime                 @map("expires_at") @db.Timestamptz
-  isUsed                  Boolean                  @default(false) @map("is_used")
-  verifiedAt              DateTime?                @map("verified_at") @db.Timestamptz
-  ipAddress               String?                  @map("ip_address")
-  createdAt               DateTime                 @default(now()) @map("created_at") @db.Timestamptz
-
-  // Relations
-  customer                Customer?                @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  store                   Store?                   @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  phoneNumber String    @map("phone_number")
+  otpCode     String    @map("otp_code")
+  customerId  String?   @map("customer_id") @db.Uuid
+  storeId     String?   @map("store_id") @db.Uuid
+  expiresAt   DateTime  @map("expires_at") @db.Timestamptz(6)
+  isUsed      Boolean   @default(false) @map("is_used")
+  verifiedAt  DateTime? @map("verified_at") @db.Timestamptz(6)
+  ipAddress   String?   @map("ip_address")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  customer    Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  store       Store?    @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
   @@index([phoneNumber])
   @@index([expiresAt], map: "idx_otp_codes_expires")
@@ -126,49 +103,41 @@ model OtpCode {
 }
 
 model CustomerSession {
-  id                      String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  customerId              String                   @map("customer_id") @db.Uuid
-  sessionToken            String                   @unique @map("session_token")
-  expiresAt               DateTime                 @map("expires_at") @db.Timestamptz
-  ipAddress               String?                  @map("ip_address")
-  userAgent               String?                  @map("user_agent")
-  isActive                Boolean                  @default(true) @map("is_active")
-  createdAt               DateTime                 @default(now()) @map("created_at") @db.Timestamptz
-  lastActivityAt          DateTime                 @default(now()) @map("last_activity_at") @db.Timestamptz
-
-  // Relations
-  customer                Customer                 @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId     String   @map("customer_id") @db.Uuid
+  sessionToken   String   @unique @map("session_token")
+  expiresAt      DateTime @map("expires_at") @db.Timestamptz(6)
+  ipAddress      String?  @map("ip_address")
+  userAgent      String?  @map("user_agent")
+  isActive       Boolean  @default(true) @map("is_active")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  lastActivityAt DateTime @default(now()) @map("last_activity_at") @db.Timestamptz(6)
+  customer       Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
   @@index([sessionToken])
   @@index([customerId])
   @@map("customer_sessions")
 }
 
-// ==========================================
-// TRANSACTION MANAGEMENT
-// ==========================================
-
 model Credit {
-  id                      String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  customerId              String                   @map("customer_id") @db.Uuid
-  storeId                 String                   @map("store_id") @db.Uuid
-  amount                  Decimal                  @db.Decimal(12, 2)
-  transactionType         TransactionType          @map("transaction_type")
-  transactionDate         DateTime                 @default(now()) @map("transaction_date") @db.Timestamptz
+  id                      String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId              String              @map("customer_id") @db.Uuid
+  storeId                 String              @map("store_id") @db.Uuid
+  amount                  Decimal             @db.Decimal(12, 2)
+  transactionType         TransactionType     @map("transaction_type")
+  transactionDate         DateTime            @default(now()) @map("transaction_date") @db.Timestamptz(6)
   description             String?
-  itemsDescription        String?                  @map("items_description")
-  journalNumber           String?                  @map("journal_number")
-  referenceNumber         String?                  @map("reference_number")
-  createdByOwnerId        String?                  @map("created_by_owner_id") @db.Uuid
-  createdAt               DateTime                 @default(now()) @map("created_at") @db.Timestamptz
-  modifiedAt              DateTime                 @default(now()) @updatedAt @map("modified_at") @db.Timestamptz
-
-  // Relations
-  customer                Customer                 @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  store                   Store                    @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  createdByOwner          StoreOwner?              @relation("CreatedByOwner", fields: [createdByOwnerId], references: [id])
-  linkedPaymentSubmission PaymentSubmission[]
+  itemsDescription        String?             @map("items_description")
+  journalNumber           String?             @map("journal_number")
+  referenceNumber         String?             @map("reference_number")
+  createdByOwnerId        String?             @map("created_by_owner_id") @db.Uuid
+  createdAt               DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  modifiedAt              DateTime            @default(now()) @updatedAt @map("modified_at") @db.Timestamptz(6)
+  createdByOwner          StoreOwner?         @relation("CreatedByOwner", fields: [createdByOwnerId], references: [id])
+  customer                Customer            @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  store                   Store               @relation(fields: [storeId], references: [id], onDelete: Cascade)
   notifications           Notification[]
+  linkedPaymentSubmission PaymentSubmission[]
 
   @@index([customerId])
   @@index([storeId])
@@ -178,30 +147,28 @@ model Credit {
 }
 
 model PaymentSubmission {
-  id                      String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  customerId              String                   @map("customer_id") @db.Uuid
-  storeId                 String                   @map("store_id") @db.Uuid
-  amount                  Decimal                  @db.Decimal(12, 2)
-  screenshotUrl           String                   @map("screenshot_url")
-  screenshotFilename      String                   @map("screenshot_filename")
-  paymentMethod           String?                  @map("payment_method")
-  paymentReference        String?                  @map("payment_reference")
-  notes                   String?
-  status                  PaymentSubmissionStatus  @default(pending)
-  submittedAt             DateTime                 @default(now()) @map("submitted_at") @db.Timestamptz
-  validatedAt             DateTime?                @map("validated_at") @db.Timestamptz
-  validatedByOwnerId      String?                  @map("validated_by_owner_id") @db.Uuid
-  rejectionReason         String?                  @map("rejection_reason")
-  linkedCreditId          String?                  @map("linked_credit_id") @db.Uuid
-  createdAt               DateTime                 @default(now()) @map("created_at") @db.Timestamptz
-  modifiedAt              DateTime                 @default(now()) @updatedAt @map("modified_at") @db.Timestamptz
-
-  // Relations
-  customer                Customer                 @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  store                   Store                    @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  validatedByOwner        StoreOwner?              @relation("ValidatedByOwner", fields: [validatedByOwnerId], references: [id])
-  linkedCredit            Credit?                  @relation(fields: [linkedCreditId], references: [id])
-  notifications           Notification[]
+  id                 String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId         String                  @map("customer_id") @db.Uuid
+  storeId            String                  @map("store_id") @db.Uuid
+  amount             Decimal                 @db.Decimal(12, 2)
+  screenshotUrl      String                  @map("screenshot_url")
+  screenshotFilename String                  @map("screenshot_filename")
+  paymentMethod      String?                 @map("payment_method")
+  paymentReference   String?                 @map("payment_reference")
+  notes              String?
+  status             PaymentSubmissionStatus @default(pending)
+  submittedAt        DateTime                @default(now()) @map("submitted_at") @db.Timestamptz(6)
+  validatedAt        DateTime?               @map("validated_at") @db.Timestamptz(6)
+  validatedByOwnerId String?                 @map("validated_by_owner_id") @db.Uuid
+  rejectionReason    String?                 @map("rejection_reason")
+  linkedCreditId     String?                 @map("linked_credit_id") @db.Uuid
+  createdAt          DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
+  modifiedAt         DateTime                @default(now()) @updatedAt @map("modified_at") @db.Timestamptz(6)
+  notifications      Notification[]
+  customer           Customer                @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  linkedCredit       Credit?                 @relation(fields: [linkedCreditId], references: [id])
+  store              Store                   @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  validatedByOwner   StoreOwner?             @relation("ValidatedByOwner", fields: [validatedByOwnerId], references: [id])
 
   @@index([customerId])
   @@index([storeId])
@@ -211,21 +178,19 @@ model PaymentSubmission {
 }
 
 model CustomerBalance {
-  id                      String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  customerId              String                   @map("customer_id") @db.Uuid
-  storeId                 String                   @map("store_id") @db.Uuid
-  totalCreditGiven        Decimal                  @default(0) @map("total_credit_given") @db.Decimal(12, 2)
-  totalPaymentsReceived   Decimal                  @default(0) @map("total_payments_received") @db.Decimal(12, 2)
-  outstandingBalance      Decimal                  @default(0) @map("outstanding_balance") @db.Decimal(12, 2)
-  lastCreditDate          DateTime?                @map("last_credit_date") @db.Timestamptz
-  lastPaymentDate         DateTime?                @map("last_payment_date") @db.Timestamptz
-  lastTransactionDate     DateTime?                @map("last_transaction_date") @db.Timestamptz
-  createdAt               DateTime                 @default(now()) @map("created_at") @db.Timestamptz
-  modifiedAt              DateTime                 @default(now()) @updatedAt @map("modified_at") @db.Timestamptz
-
-  // Relations
-  customer                Customer                 @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  store                   Store                    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  id                    String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId            String    @map("customer_id") @db.Uuid
+  storeId               String    @map("store_id") @db.Uuid
+  totalCreditGiven      Decimal   @default(0) @map("total_credit_given") @db.Decimal(12, 2)
+  totalPaymentsReceived Decimal   @default(0) @map("total_payments_received") @db.Decimal(12, 2)
+  outstandingBalance    Decimal   @default(0) @map("outstanding_balance") @db.Decimal(12, 2)
+  lastCreditDate        DateTime? @map("last_credit_date") @db.Timestamptz(6)
+  lastPaymentDate       DateTime? @map("last_payment_date") @db.Timestamptz(6)
+  lastTransactionDate   DateTime? @map("last_transaction_date") @db.Timestamptz(6)
+  createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  modifiedAt            DateTime  @default(now()) @updatedAt @map("modified_at") @db.Timestamptz(6)
+  customer              Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  store                 Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
   @@unique([customerId, storeId])
   @@index([customerId])
@@ -234,36 +199,30 @@ model CustomerBalance {
   @@map("customer_balances")
 }
 
-// ==========================================
-// NOTIFICATIONS
-// ==========================================
-
 model Notification {
-  id                        String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  customerId                String                   @map("customer_id") @db.Uuid
-  storeId                   String                   @map("store_id") @db.Uuid
-  notificationChannel       NotificationChannel      @map("notification_channel")
-  recipientPhone            String?                  @map("recipient_phone")
-  recipientEmail            String?                  @map("recipient_email")
-  subject                   String?
-  message                   String
-  notificationType          NotificationType         @map("notification_type")
-  relatedPaymentSubmissionId String?                 @map("related_payment_submission_id") @db.Uuid
-  relatedCreditId           String?                  @map("related_credit_id") @db.Uuid
-  status                    NotificationStatus       @default(pending)
-  scheduledAt               DateTime?                @map("scheduled_at") @db.Timestamptz
-  sentAt                    DateTime?                @map("sent_at") @db.Timestamptz
-  deliveredAt               DateTime?                @map("delivered_at") @db.Timestamptz
-  errorMessage              String?                  @map("error_message")
-  retryCount                Int                      @default(0) @map("retry_count")
-  createdAt                 DateTime                 @default(now()) @map("created_at") @db.Timestamptz
-  modifiedAt                DateTime                 @default(now()) @updatedAt @map("modified_at") @db.Timestamptz
-
-  // Relations
-  customer                  Customer                 @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  store                     Store                    @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  relatedPaymentSubmission  PaymentSubmission?       @relation(fields: [relatedPaymentSubmissionId], references: [id])
-  relatedCredit             Credit?                  @relation(fields: [relatedCreditId], references: [id])
+  id                         String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId                 String              @map("customer_id") @db.Uuid
+  storeId                    String              @map("store_id") @db.Uuid
+  notificationChannel        NotificationChannel @map("notification_channel")
+  recipientPhone             String?             @map("recipient_phone")
+  recipientEmail             String?             @map("recipient_email")
+  subject                    String?
+  message                    String
+  notificationType           NotificationType    @map("notification_type")
+  relatedPaymentSubmissionId String?             @map("related_payment_submission_id") @db.Uuid
+  relatedCreditId            String?             @map("related_credit_id") @db.Uuid
+  status                     NotificationStatus  @default(pending)
+  scheduledAt                DateTime?           @map("scheduled_at") @db.Timestamptz(6)
+  sentAt                     DateTime?           @map("sent_at") @db.Timestamptz(6)
+  deliveredAt                DateTime?           @map("delivered_at") @db.Timestamptz(6)
+  errorMessage               String?             @map("error_message")
+  retryCount                 Int                 @default(0) @map("retry_count")
+  createdAt                  DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  modifiedAt                 DateTime            @default(now()) @updatedAt @map("modified_at") @db.Timestamptz(6)
+  customer                   Customer            @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  relatedCredit              Credit?             @relation(fields: [relatedCreditId], references: [id])
+  relatedPaymentSubmission   PaymentSubmission?  @relation(fields: [relatedPaymentSubmissionId], references: [id])
+  store                      Store               @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
   @@index([customerId])
   @@index([status])
@@ -272,57 +231,42 @@ model Notification {
 }
 
 model NotificationSchedule {
-  id                      String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  storeId                 String                   @map("store_id") @db.Uuid
-  customerId              String?                  @map("customer_id") @db.Uuid
-  notificationType        String                   @default("monthly_reminder") @map("notification_type")
-  notificationChannel     NotificationChannel      @default(sms) @map("notification_channel")
-  dayOfMonth              Int?                     @map("day_of_month")
-  isActive                Boolean                  @default(true) @map("is_active")
-  lastSentAt              DateTime?                @map("last_sent_at") @db.Timestamptz
-  nextScheduledAt         DateTime?                @map("next_scheduled_at") @db.Timestamptz
-  createdAt               DateTime                 @default(now()) @map("created_at") @db.Timestamptz
-  modifiedAt              DateTime                 @default(now()) @updatedAt @map("modified_at") @db.Timestamptz
-
-  // Relations
-  store                   Store                    @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  customer                Customer?                @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  id                  String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  storeId             String              @map("store_id") @db.Uuid
+  customerId          String?             @map("customer_id") @db.Uuid
+  notificationType    String              @default("monthly_reminder") @map("notification_type")
+  notificationChannel NotificationChannel @default(sms) @map("notification_channel")
+  dayOfMonth          Int?                @map("day_of_month")
+  isActive            Boolean             @default(true) @map("is_active")
+  lastSentAt          DateTime?           @map("last_sent_at") @db.Timestamptz(6)
+  nextScheduledAt     DateTime?           @map("next_scheduled_at") @db.Timestamptz(6)
+  createdAt           DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  modifiedAt          DateTime            @default(now()) @updatedAt @map("modified_at") @db.Timestamptz(6)
+  customer            Customer?           @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  store               Store               @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
   @@index([nextScheduledAt], map: "idx_notification_schedules_next")
   @@map("notification_schedules")
 }
 
-// ==========================================
-// AUDITING & LOGGING
-// ==========================================
-
 model AuditLog {
-  id                      String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId                  String                   @map("user_id") @db.Uuid
-  userType                UserType                 @map("user_type")
-  action                  String
-  entityType              String                   @map("entity_type")
-  entityId                String?                  @map("entity_id") @db.Uuid
-  oldValues               Json?                    @map("old_values")
-  newValues               Json?                    @map("new_values")
-  ipAddress               String?                  @map("ip_address")
-  userAgent               String?                  @map("user_agent")
-  createdAt               DateTime                 @default(now()) @map("created_at") @db.Timestamptz
-
-  // Relations (polymorphic)
-  storeOwner              StoreOwner?              @relation("StoreOwnerAuditLogs", fields: [userId], references: [id], map: "fk_audit_logs_store_owner")
-  admin                   Admin?                   @relation("AdminAuditLogs", fields: [userId], references: [id], map: "fk_audit_logs_admin")
-  customer                Customer?                @relation("CustomerAuditLogs", fields: [userId], references: [id], map: "fk_audit_logs_customer")
+  id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId     String     @map("user_id") @db.Uuid
+  userType   UserType   @map("user_type")
+  action     String
+  entityType String     @map("entity_type")
+  entityId   String?    @map("entity_id") @db.Uuid
+  oldValues  Json?      @map("old_values")
+  newValues  Json?      @map("new_values")
+  ipAddress  String?    @map("ip_address")
+  userAgent  String?    @map("user_agent")
+  createdAt  DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
 
   @@index([userId])
   @@index([entityType, entityId])
   @@index([createdAt])
   @@map("audit_logs")
 }
-
-// ==========================================
-// ENUMS
-// ==========================================
 
 enum TransactionType {
   credit_given
