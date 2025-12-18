@@ -1,21 +1,11 @@
-import { serve } from '@hono/node-server'
-import { Hono } from 'hono'
-import { cors } from 'hono/cors';
-import { logger } from 'hono/logger';
-import router from './routes/index.js';
+import { serve } from "@hono/node-server";
+import { Hono } from "hono";
 
-const app = new Hono()
+const app = new Hono();
 
-// Middleware
-app.use('*', cors());
-app.use('*', logger());
-
-app.get('/', (c) => {
-  return c.text('Hello Hono!')
-})
-
-// API routes
-app.route('/api', router);
+app.get("/", (c) => {
+  return c.text("Hello Hono!");
+});
 
 serve(
   {
