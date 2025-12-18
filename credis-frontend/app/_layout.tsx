@@ -5,12 +5,10 @@ import {
 } from "@react-navigation/native";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Platform } from "react-native";
 import { PaperProvider, MD3LightTheme, MD3DarkTheme } from "react-native-paper";
 import "react-native-reanimated";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
-import { AuthProvider } from "@/contexts/AuthContext";
 
 export const unstable_settings = {
   anchor: "(tabs)",
@@ -46,42 +44,38 @@ export default function RootLayout() {
 
   return (
     <PaperProvider theme={paperTheme}>
-      <AuthProvider>
-        <ThemeProvider
-          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-        >
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="welcome" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="customer-login"
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="modal"
-              options={{ presentation: "modal", title: "Modal" }}
-            />
-            <Stack.Screen name="auth/login" options={{ headerShown: false }} />
-            <Stack.Screen name="auth/signup" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="dashboard/index"
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="customer-dashboard"
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="customer-table"
-              options={{
-                title: "Customer Table",
-                headerShown: true,
-              }}
-            />
-          </Stack>
-          <StatusBar style="auto" />
-        </ThemeProvider>
-      </AuthProvider>
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="welcome" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="customer-login"
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="modal"
+            options={{ presentation: "modal", title: "Modal" }}
+          />
+          <Stack.Screen name="auth/login" options={{ headerShown: false }} />
+          <Stack.Screen name="auth/signup" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="dashboard/index"
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="customer-dashboard"
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="customer-table"
+            options={{
+              title: "Customer Table",
+              headerShown: true,
+            }}
+          />
+        </Stack>
+        <StatusBar style="auto" />
+      </ThemeProvider>
     </PaperProvider>
   );
 }

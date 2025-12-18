@@ -1,18 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { View, ScrollView, TouchableOpacity } from "react-native";
+import { View, ScrollView } from "react-native";
 import {
   Card,
   Text,
   Button,
-  Avatar,
   Divider,
   Searchbar,
   Appbar,
-  DataTable,
 } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { MaterialIcons } from "@expo/vector-icons";
-import { useAuth } from "../../contexts/AuthContext";
 import { router } from "expo-router";
 import { MockCustomerService } from "../../lib/mock-customer-service";
 import FixedCustomerTables from "../../components/FixedCustomerTables";
@@ -31,16 +27,9 @@ interface Customer {
 }
 
 export default function HomeScreen() {
-  const { user, logout, login } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const handleLogout = async () => {
-    await logout();
-    // For now, we'll handle logout by showing an alert
-    // In a complete app, you'd redirect to a login screen
-  };
 
   const addNewCustomer = () => {
     // Navigate to modal for now
@@ -84,127 +73,74 @@ export default function HomeScreen() {
     fetchCustomers();
   }, []);
 
-  // If not authenticated, show login prompt
-  if (!user) {
-    return (
-      <SafeAreaView
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          padding: 16,
-          backgroundColor: "#f5f5f5",
-        }}
-      >
-        <Card style={{ width: "100%", maxWidth: 400, elevation: 4 }}>
-          <Card.Content style={{ padding: 24, alignItems: "center" }}>
-            <MaterialIcons name="account-circle" size={64} color="#6200ee" />
-            <Text
-              style={{
-                fontSize: 18,
-                fontWeight: "bold",
-                marginTop: 16,
-                marginBottom: 8,
-              }}
-            >
-              Authentication Required
-            </Text>
-            <Text
-              style={{ textAlign: "center", color: "#666", marginBottom: 24 }}
-            >
-              Please sign in to access your customer management dashboard
-            </Text>
-            <Button
-              mode="contained"
-              onPress={async () => {
-                // Mock login for demo
-                await login("demo@example.com", "password123");
-              }}
-              style={{ width: "100%" }}
-            >
-              Demo Login
-            </Button>
-          </Card.Content>
-        </Card>
-      </SafeAreaView>
-    );
-  }
-
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
       {/* App Header */}
-      <Appbar.Header style={{ 
-        backgroundColor: "#1565C0", 
-        elevation: 6,
-        shadowColor: "#1565C0",
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.3,
-        shadowRadius: 6,
-      }}>
+      <Appbar.Header
+        style={{
+          backgroundColor: "#1565C0",
+          elevation: 6,
+          shadowColor: "#1565C0",
+          shadowOffset: { width: 0, height: 3 },
+          shadowOpacity: 0.3,
+          shadowRadius: 6,
+        }}
+      >
         <Appbar.Content
           title="CREDIS Dashboard"
-          titleStyle={{ 
-            fontSize: 22, 
-            fontWeight: "800", 
+          titleStyle={{
+            fontSize: 22,
+            fontWeight: "800",
             color: "#fff",
             letterSpacing: 1,
           }}
         />
-        <Button
-          mode="outlined"
-          onPress={handleLogout}
-          compact
-          textColor="#fff"
-          style={{ 
-            marginRight: 12,
-            borderColor: "#fff",
-            borderWidth: 2,
-            borderRadius: 8,
-          }}
-          labelStyle={{
-            fontWeight: "600",
-          }}
-        >
-          Logout
-        </Button>
       </Appbar.Header>
 
       <ScrollView style={{ flex: 1 }}>
         {/* Welcome Section */}
-        <View style={{ 
-          paddingTop: 24,
-          paddingBottom: 32, 
-          paddingHorizontal: 24,
-          backgroundColor: "#FFFFFF",
-          marginBottom: 16,
-        }}>
-          <Text style={{
-            fontSize: 32,
-            fontWeight: "800",
-            color: "#1565C0",
-            textAlign: "center",
-            letterSpacing: 1,
-            marginBottom: 8,
-          }}>
+        <View
+          style={{
+            paddingTop: 24,
+            paddingBottom: 32,
+            paddingHorizontal: 24,
+            backgroundColor: "#FFFFFF",
+            marginBottom: 16,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 32,
+              fontWeight: "800",
+              color: "#1565C0",
+              textAlign: "center",
+              letterSpacing: 1,
+              marginBottom: 8,
+            }}
+          >
             Welcome!
           </Text>
-          <Text style={{
-            fontSize: 16,
-            color: "#42A5F5",
-            textAlign: "center",
-            fontWeight: "500",
-            opacity: 0.8,
-          }}>
+          <Text
+            style={{
+              fontSize: 16,
+              color: "#42A5F5",
+              textAlign: "center",
+              fontWeight: "500",
+              opacity: 0.8,
+            }}
+          >
             Manage your customer credits efficiently
           </Text>
         </View>
 
         {/* Add Customer Button */}
-        <View style={{ 
-          paddingHorizontal: 24,
-          paddingVertical: 8,
-          alignItems: "center"
-        }}>
+        <View
+          style={{
+            paddingHorizontal: 24,
+            paddingVertical: 8,
+            alignItems: "center",
+          }}
+        >
           <Button
             mode="contained"
             onPress={addNewCustomer}
@@ -236,13 +172,15 @@ export default function HomeScreen() {
         </View>
 
         {/* Stats Overview */}
-        <Card style={{ 
-          margin: 20, 
-          marginTop: 24,
-          elevation: 4,
-          borderRadius: 16,
-          backgroundColor: "#FFFFFF"
-        }}>
+        <Card
+          style={{
+            margin: 20,
+            marginTop: 24,
+            elevation: 4,
+            borderRadius: 16,
+            backgroundColor: "#FFFFFF",
+          }}
+        >
           <Card.Content style={{ padding: 20 }}>
             <Text
               style={{

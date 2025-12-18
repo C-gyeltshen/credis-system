@@ -3,32 +3,19 @@ import { View, StyleSheet } from "react-native";
 import { Text, ActivityIndicator } from "react-native-paper";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useAuth } from "../contexts/AuthContext";
 
 export default function SplashScreen() {
-  const { user, isLoading } = useAuth();
   const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
     // Show splash screen for 2 seconds
     const timer = setTimeout(() => {
       setShowSplash(false);
+      router.replace("/(tabs)");
     }, 2000);
 
     return () => clearTimeout(timer);
   }, []);
-
-  useEffect(() => {
-    if (!showSplash && !isLoading) {
-      if (user) {
-        // User is authenticated, go to main app
-        router.replace("/(tabs)");
-      } else {
-        // User not authenticated, show welcome screen
-        router.replace("../welcome");
-      }
-    }
-  }, [showSplash, user, isLoading]);
 
   return (
     <View style={styles.container}>
