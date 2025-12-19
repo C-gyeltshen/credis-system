@@ -1,7 +1,7 @@
 // API Configuration - Using mock data for demo
 export const API_CONFIG = {
   USE_MOCK_DATA: true, // Set to false when backend is ready
-  BASE_URL: "http://localhost:3000/api", // Backend API URL (when ready)
+  BASE_URL: "http://localhost:8080/api", // Backend API URL (when ready)
   ENDPOINTS: {
     CUSTOMERS: "/customers",
   },

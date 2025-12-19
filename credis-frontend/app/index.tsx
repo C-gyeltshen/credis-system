@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Image } from "react-native";
 import { Text, ActivityIndicator } from "react-native-paper";
-import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 
 export default function SplashScreen() {
@@ -11,7 +10,7 @@ export default function SplashScreen() {
     // Show splash screen for 2 seconds
     const timer = setTimeout(() => {
       setShowSplash(false);
-      router.replace("/(tabs)");
+      router.replace("/customer-dashboard");
     }, 2000);
 
     return () => clearTimeout(timer);
@@ -20,7 +19,11 @@ export default function SplashScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.logoContainer}>
-        <MaterialIcons name="store" size={80} color="#FF8C00" />
+        <Image
+          source={require("../assets/images/logo.png")}
+          style={styles.logo}
+          resizeMode="contain"
+        />
         <Text style={styles.title}>CREDIS</Text>
         <Text style={styles.subtitle}>Credit for Shopkeepers</Text>
       </View>
@@ -43,6 +46,11 @@ const styles = StyleSheet.create({
   logoContainer: {
     alignItems: "center",
     marginBottom: 80,
+  },
+  logo: {
+    width: 400,
+    height: 400,
+    borderRadius: 20,
   },
   title: {
     fontSize: 36,

@@ -10,10 +10,6 @@ import "react-native-reanimated";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
 
-export const unstable_settings = {
-  anchor: "(tabs)",
-};
-
 const lightTheme = {
   ...MD3LightTheme,
   colors: {
@@ -45,36 +41,30 @@ export default function RootLayout() {
   return (
     <PaperProvider theme={paperTheme}>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <StatusBar style="auto" />
         <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="welcome" options={{ headerShown: false }} />
+          <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen
-            name="customer-login"
+            name="customer-dashboard/index"
             options={{ headerShown: false }}
           />
           <Stack.Screen
             name="modal"
-            options={{ presentation: "modal", title: "Modal" }}
-          />
-          <Stack.Screen name="auth/login" options={{ headerShown: false }} />
-          <Stack.Screen name="auth/signup" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="dashboard/index"
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="customer-dashboard"
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="customer-table"
             options={{
-              title: "Customer Table",
-              headerShown: true,
+              presentation: "modal",
+              headerShown: false,
+              animation: "slide_from_bottom",
+            }}
+          />
+          <Stack.Screen
+            name="credit-modal"
+            options={{
+              presentation: "modal",
+              headerShown: false,
+              animation: "slide_from_bottom",
             }}
           />
         </Stack>
-        <StatusBar style="auto" />
       </ThemeProvider>
     </PaperProvider>
   );
