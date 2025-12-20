@@ -190,7 +190,9 @@ export default function ResponsiveCustomerTable({
 
   // Action handlers
   const handleEdit = (customer: Customer) => {
-    router.push(`/modal?customerId=${customer.id}` as any);
+    router.push(
+      `/customer-dashboard/components/modal?customerId=${customer.id}` as any
+    );
   };
 
   const handleView = (customer: Customer) => {
@@ -211,7 +213,7 @@ export default function ResponsiveCustomerTable({
 
     // Navigate to credit-modal with customer info
     router.push(
-      `/credit-modal?customerId=${customerId}&customerName=${encodeURIComponent(
+      `/customer-dashboard/components/credit-modal?customerId=${customerId}&customerName=${encodeURIComponent(
         customerName
       )}&type=${type}` as any
     );

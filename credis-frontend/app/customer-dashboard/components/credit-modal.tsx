@@ -14,12 +14,10 @@ import {
   Button,
   IconButton,
   HelperText,
-  Divider,
 } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
-import { MockCustomerService } from "@/lib/mock-customer-service";
 
 type TransactionType = "credit_given" | "payment_received";
 
@@ -69,18 +67,29 @@ export default function CreditTransactionModal() {
     try {
       setLoading(true);
 
-      const transactionData = {
-        customerId,
+      // Prepare payload as per backend API
+      const payload = {
+        customer_id: customerId,
+        store_id: "fc8516c1-5068-4be9-8025-ed99d2890692",
         amount: Number(amount),
-        transactionType,
-        description: description.trim() || undefined,
-        itemsDescription: itemsDescription.trim() || undefined,
-        journalNumber: journalNumber.trim() || undefined,
-        transactionDate,
+        transaction_type: transactionType,
+        items_description: itemsDescription.trim() || undefined,
+        journal_number: journalNumber.trim() || undefined,
+        created_by_owner_id: params.ownerId as string | undefined, // optional, if available
       };
 
-      // TODO: Replace with actual API call
-      console.log("Creating credit transaction:", transactionData);
+      const response = await fetch("http://localhost:8080/api/credits", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to create transaction");
+      }
 
       Alert.alert(
         "Success",

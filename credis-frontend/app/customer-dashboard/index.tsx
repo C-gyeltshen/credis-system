@@ -63,7 +63,7 @@ export default function CustomersScreen() {
   }, []);
 
   const addNewCustomer = () => {
-    router.push("/modal" as any);
+    router.push("/customer-dashboard/components/modal" as any);
   };
 
   // Responsive card margin and padding
