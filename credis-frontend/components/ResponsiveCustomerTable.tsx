@@ -7,7 +7,6 @@ import {
   useWindowDimensions,
   Platform,
   KeyboardAvoidingView,
-  TextInput,
 } from "react-native";
 import {
   Text,
@@ -19,10 +18,10 @@ import {
   Modal,
   RadioButton,
   Button,
+  TextInput,
 } from "react-native-paper";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { MockCustomerService } from "@/lib/mock-customer-service";
 
 interface Customer {
   id: string;
@@ -1479,12 +1478,7 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 8,
     marginTop: 4,
-  },
-  infoText: {
-    flex: 1,
-    fontSize: 13,
-    lineHeight: 18,
-  },
+  },  
   modalFooter: {
     flexDirection: "row",
     gap: 12,
