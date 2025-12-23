@@ -3,12 +3,14 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { serve } from "@hono/node-server";
 import router from "./routes/index.js";
+import { errorHandler } from "./middlewares/errorHandler.js";
 
 const app = new Hono();
 
 // Middleware
 app.use("*", cors());
 app.use("*", logger());
+app.use("*", errorHandler);
 
 // Health check
 app.get("/", (c) => {

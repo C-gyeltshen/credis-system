@@ -68,6 +68,8 @@ export default function ResponsiveCustomerTable({
   loading,
 }: ResponsiveCustomerTableProps) {
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  // State to control showing all transactions or just the latest 3
+  const [showAllTransactions, setShowAllTransactions] = useState(false);
   const [creditData, setCreditData] = useState<Map<string, CreditData>>(
     new Map()
   );
@@ -419,12 +421,13 @@ export default function ResponsiveCustomerTable({
             Transactions
           </Text>
 
-          {credit.credits.map((transaction, index) => {
+          {/* Show only the latest 3 transactions by default */}
+          {(showAllTransactions
+            ? credit.credits
+            : credit.credits.slice(0, 3)
+          ).map((transaction, index) => {
             const isCreditGiven =
               transaction.transactionType === "credit_given";
-            const iconBackgroundColor = isCreditGiven ? "#e3f2fd" : "#e8f5e9";
-            const iconName = isCreditGiven ? "add-circle" : "remove-circle";
-            const iconColor = isCreditGiven ? "#1976d2" : "#4caf50";
             const description =
               transaction.itemsDescription ||
               (isCreditGiven ? "Credit Given" : "Payment Received");
@@ -432,18 +435,7 @@ export default function ResponsiveCustomerTable({
             return (
               <View key={transaction.id} style={styles.transactionRow}>
                 <View style={styles.transactionLeft}>
-                  <View
-                    style={[
-                      styles.transactionIcon,
-                      { backgroundColor: iconBackgroundColor },
-                    ]}
-                  >
-                    <MaterialIcons
-                      name={iconName}
-                      size={20}
-                      color={iconColor}
-                    />
-                  </View>
+                  {/* Removed plus/minus icon */}
                   <View style={styles.transactionInfo}>
                     <Text style={styles.transactionDescription}>
                       {description}
@@ -466,7 +458,6 @@ export default function ResponsiveCustomerTable({
                     },
                   ]}
                 >
-                  {isCreditGiven ? "+" : "-"}
                   {formatCurrency(Number(transaction.amount))}
                 </Text>
               </View>
@@ -475,6 +466,29 @@ export default function ResponsiveCustomerTable({
 
           {credit.credits.length === 0 && (
             <Text style={styles.noTransactions}>No transactions yet</Text>
+          )}
+
+          {/* 'View More' button if there are more than 3 transactions and not showing all */}
+          {credit.credits.length > 3 && !showAllTransactions && (
+            <TouchableOpacity
+              style={{ alignItems: "center", marginTop: 8 }}
+              onPress={() => setShowAllTransactions(true)}
+            >
+              <Text style={{ color: "#1976d2", fontWeight: "bold" }}>
+                View More
+              </Text>
+            </TouchableOpacity>
+          )}
+          {/* 'Show Less' button if showing all transactions */}
+          {credit.credits.length > 3 && showAllTransactions && (
+            <TouchableOpacity
+              style={{ alignItems: "center", marginTop: 8 }}
+              onPress={() => setShowAllTransactions(false)}
+            >
+              <Text style={{ color: "#1976d2", fontWeight: "bold" }}>
+                Show Less
+              </Text>
+            </TouchableOpacity>
           )}
         </View>
       </View>
@@ -843,10 +857,14 @@ export default function ResponsiveCustomerTable({
 
   // Tablet/Desktop Table View (Medium and Large Screens)
   return (
-    <View style={styles.container}>
-      <ScrollView horizontal showsHorizontalScrollIndicator>
-        <View style={styles.tableWrapper}>
-          <DataTable style={styles.table}>
+    <View style={[styles.container, { width: "100%" }]}>
+      <ScrollView
+        horizontal={false}
+        contentContainerStyle={{ flexGrow: 1, width: "100%" }}
+        showsHorizontalScrollIndicator={false}
+      >
+        <View style={[styles.tableWrapper, { width: "100%" }]}>
+          <DataTable style={[styles.table, { width: "100%" }]}>
             <DataTable.Header>
               <DataTable.Title style={styles.expandCell}> </DataTable.Title>
               <DataTable.Title style={styles.nameCell}>Name</DataTable.Title>
@@ -952,6 +970,7 @@ export default function ResponsiveCustomerTable({
         onItemsPerPageChange={setItemsPerPage}
         showFastPaginationControls
         selectPageDropdownLabel="Rows per page"
+        style={{ width: "100%" }}
       />
 
       {renderCreditModal()}
@@ -1094,10 +1113,14 @@ const styles = StyleSheet.create({
   },
   // Table Styles
   tableWrapper: {
-    minWidth: "100%",
+    width: "100%",
+    minWidth: 600,
+    flex: 1,
   },
   table: {
     backgroundColor: "#fff",
+    width: "100%",
+    flex: 1,
   },
   expandCell: {
     minWidth: 50,
@@ -1478,7 +1501,7 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 8,
     marginTop: 4,
-  },  
+  },
   modalFooter: {
     flexDirection: "row",
     gap: 12,

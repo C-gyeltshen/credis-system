@@ -348,9 +348,12 @@ export class CreditController {
   getCustomersWithOutstandingBalance = async (c: Context) => {
     try {
       const storeId = c.req.param("storeId");
+      const limitParam = c.req.query("limit");
+      const limit = limitParam ? parseInt(limitParam, 10) : undefined;
 
       const customers = await this.service.getCustomersWithOutstandingBalance(
-        storeId
+        storeId,
+        limit
       );
 
       return c.json(

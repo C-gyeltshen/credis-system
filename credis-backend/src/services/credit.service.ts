@@ -347,7 +347,7 @@ export class CreditService {
     );
   }
 
-  async getCustomersWithOutstandingBalance(storeId: string) {
+  async getCustomersWithOutstandingBalance(storeId: string, limit?: number) {
     // Validate store exists
     const store = await this.storeRepository.findById(storeId);
     if (!store) {
@@ -399,9 +399,13 @@ export class CreditService {
       }
     }
 
-    // Filter only customers with outstanding balance > 0
-    return Array.from(customerBalances.values())
+    // Filter only customers with outstanding balance > 0, sort, and apply limit if provided
+    let result = Array.from(customerBalances.values())
       .filter((balance) => balance.outstandingBalance > 0)
       .sort((a, b) => b.outstandingBalance - a.outstandingBalance);
+    if (limit !== undefined) {
+      result = result.slice(0, limit);
+    }
+    return result;
   }
 }

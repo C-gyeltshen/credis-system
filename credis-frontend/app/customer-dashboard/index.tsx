@@ -32,6 +32,9 @@ export default function CustomersScreen() {
   const [shopName, setShopName] = useState("My Shop");
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [outstandingBalance, setOutstandingBalance] = useState<number | null>(
+    null
+  );
   const { width } = useWindowDimensions();
 
   const STORE_ID = "fc8516c1-5068-4be9-8025-ed99d2890692";
@@ -44,6 +47,7 @@ export default function CustomersScreen() {
     const fetchStoreData = async () => {
       try {
         setLoading(true);
+        // Fetch customers (existing logic)
         const response = await fetch(
           `http://localhost:8080/api/stores/${STORE_ID}/customers`
         );
@@ -59,7 +63,38 @@ export default function CustomersScreen() {
         setLoading(false);
       }
     };
+
+    const fetchOutstandingBalance = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:8080/api/credits/store/${STORE_ID}/outstanding`
+        );
+        const data = await response.json();
+        if (data.success && Array.isArray(data.data)) {
+          // Sum outstandingBalance from all customers
+          const total = data.data.reduce(
+            (sum: number, customer: { outstandingBalance?: number }) => {
+              return (
+                sum +
+                (typeof customer.outstandingBalance === "number"
+                  ? customer.outstandingBalance
+                  : 0)
+              );
+            },
+            0
+          );
+          setOutstandingBalance(total);
+        } else {
+          setOutstandingBalance(null);
+        }
+      } catch (error) {
+        console.error("Failed to fetch outstanding balance:", error);
+        setOutstandingBalance(null);
+      }
+    };
+
     fetchStoreData();
+    fetchOutstandingBalance();
   }, []);
 
   const addNewCustomer = () => {
@@ -72,45 +107,40 @@ export default function CustomersScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{ paddingBottom: 24 }}
+      {/* Header Section */}
+      <LinearGradient
+        colors={["#667eea", "#764ba2"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.header, { padding: cardMargin }]}
       >
-        {/* Header Section */}
-        <LinearGradient
-          colors={["#667eea", "#764ba2"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={[styles.header, { padding: cardMargin }]}
-        >
-          <View style={styles.headerContent}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.headerTitle}>{shopName}</Text>
-              <Text style={styles.headerSubtitle}>
-                Manage and track your customer database
+        <View style={styles.headerContent}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.headerTitle}>{shopName}</Text>
+            <Text style={styles.headerSubtitle}>
+              Manage and track your customer database
+            </Text>
+            <View style={{ marginTop: 8 }}>
+              <Text
+                style={{ color: "#fff", fontWeight: "600", fontSize: 16 }}
+              >
+                Total Outstanding Balance:
+                <Text style={{ color: "#ffd700", fontWeight: "bold" }}>
+                  {outstandingBalance !== null
+                    ? ` Nu. ${outstandingBalance.toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                      })}`
+                    : " Loading..."}
+                </Text>
               </Text>
             </View>
-            <TouchableOpacity
-              style={styles.addButton}
-              onPress={addNewCustomer}
-              activeOpacity={0.8}
-            >
-              <MaterialIcons name="add" size={24} color="#fff" />
-              {!isSmallScreen && (
-                <Text style={styles.addButtonText}>Add Customer</Text>
-              )}
-            </TouchableOpacity>
           </View>
-        </LinearGradient>
+        </View>
+      </LinearGradient>
 
-        {/* Search Bar */}
-        <View
-          style={{
-            paddingHorizontal: cardMargin,
-            marginBottom: 16,
-            marginTop: 24,
-          }}
-        >
+      {/* Sticky Search Bar and Add Button Section */}
+      <View style={[styles.stickyNavBar, { paddingHorizontal: cardMargin }]}>
+        <View style={{ flex: 1, marginRight: 12 }}>
           <Searchbar
             placeholder="Search by name, phone, email, or CID..."
             onChangeText={setSearchQuery}
@@ -123,9 +153,24 @@ export default function CustomersScreen() {
             placeholderTextColor="#999"
           />
         </View>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={addNewCustomer}
+          activeOpacity={0.8}
+        >
+          <MaterialIcons name="add" size={24} color="#fff" />
+          {!isSmallScreen && (
+            <Text style={styles.addButtonText}>Add Customer</Text>
+          )}
+        </TouchableOpacity>
+      </View>
 
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingBottom: 24 }}
+      >
         {/* Customer Management Table */}
-        <View style={{ marginHorizontal: cardMargin, marginBottom: 24 }}>
+        <View style={{ marginHorizontal: cardMargin, marginTop: 24, marginBottom: 24 }}>
           <Card style={styles.tableCard}>
             <Card.Content style={{ padding: isSmallScreen ? 12 : 20 }}>
               <View style={styles.tableHeader}>
@@ -188,39 +233,51 @@ const styles = StyleSheet.create({
     color: "rgba(255, 255, 255, 0.9)",
     fontWeight: "500",
   },
-  addButton: {
-    backgroundColor: "rgba(255, 255, 255, 0.25)",
+  stickyNavBar: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.3)",
-  },
-  addButtonText: {
-    color: "#fff",
-    fontSize: 15,
-    fontWeight: "600",
-    marginLeft: 8,
-  },
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
+    paddingVertical: 12,
+    backgroundColor: "#f5f7fa",
+    zIndex: 10,
     ...Platform.select({
       ios: {
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 12,
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
       },
       android: {
         elevation: 4,
       },
     }),
   },
+  addButton: {
+    backgroundColor: "#667eea",
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#667eea",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
+  },
+  addButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
+    marginLeft: 8,
+  },
   searchBar: {
-    borderRadius: 16,
+    borderRadius: 12,
     backgroundColor: "#fff",
     ...Platform.select({
       ios: {

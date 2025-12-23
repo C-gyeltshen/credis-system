@@ -52,7 +52,7 @@ creditRoutes.get("/recent", controller.getRecentTransactions);
 // GET /api/credits/date-range - Get transactions by date range
 creditRoutes.get("/date-range", controller.getTransactionsByDateRange);
 
-// GET /api/credits/store/:storeId/outstanding - Get customers with outstanding balance
+// GET /api/credits/store/:storeId/outstanding?limit=N - Get top N customers with highest outstanding balance
 creditRoutes.get(
   "/store/:storeId/outstanding",
   controller.getCustomersWithOutstandingBalance

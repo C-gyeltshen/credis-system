@@ -7,7 +7,6 @@ import {
   Checkbox,
   Button,
   IconButton,
-  Divider,
   Chip,
   Surface,
 } from "react-native-paper";

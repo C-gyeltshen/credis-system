@@ -91,6 +91,7 @@ export default function CreditTransactionModal() {
         throw new Error(errorData.message || "Failed to create transaction");
       }
 
+      // Show success message and redirect
       Alert.alert(
         "Success",
         transactionType === "credit_given"
@@ -99,7 +100,7 @@ export default function CreditTransactionModal() {
         [
           {
             text: "OK",
-            onPress: () => router.back(),
+            onPress: () => router.replace("/customer-dashboard"),
           },
         ]
       );
@@ -141,7 +142,17 @@ export default function CreditTransactionModal() {
           <IconButton
             icon="close"
             size={24}
-            onPress={() => router.back()}
+            onPress={() => {
+              if (
+                typeof router.canGoBack === "function"
+                  ? router.canGoBack()
+                  : false
+              ) {
+                router.back();
+              } else {
+                router.replace("/customer-dashboard");
+              }
+            }}
             iconColor="#fff"
           />
           <Text style={styles.headerTitle}>Add Transaction</Text>
@@ -390,7 +401,17 @@ export default function CreditTransactionModal() {
         <View style={styles.footer}>
           <Button
             mode="outlined"
-            onPress={() => router.back()}
+            onPress={() => {
+              if (
+                typeof router.canGoBack === "function"
+                  ? router.canGoBack()
+                  : false
+              ) {
+                router.back();
+              } else {
+                router.replace("/customer-dashboard");
+              }
+            }}
             style={styles.button}
             disabled={loading}
             textColor={currentConfig.color}
