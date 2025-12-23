@@ -75,8 +75,9 @@ export default function OverdueAccountsReport() {
 
     try {
       setLoading(true);
+      // Updated endpoint and query as per user request
       const response = await fetch(
-        `http://localhost:8080/api/stores/${STORE_ID}/overdue-accounts?days=${daysNum}`
+        `http://localhost:8080/api/customers/overdue?storeId=${STORE_ID}&days=${daysNum}`
       );
 
       if (!response.ok) {
