@@ -7,7 +7,7 @@ import type {
 } from "../types/credit.types.js";
 
 export class CreditController {
-  private service: CreditService;
+  private readonly service: CreditService;
 
   constructor() {
     this.service = new CreditService();
@@ -144,8 +144,12 @@ export class CreditController {
         }),
         ...(query.start_date && { start_date: new Date(query.start_date) }),
         ...(query.end_date && { end_date: new Date(query.end_date) }),
-        ...(query.min_amount && { min_amount: parseFloat(query.min_amount) }),
-        ...(query.max_amount && { max_amount: parseFloat(query.max_amount) }),
+        ...(query.min_amount && {
+          min_amount: Number.parseFloat(query.min_amount),
+        }),
+        ...(query.max_amount && {
+          max_amount: Number.parseFloat(query.max_amount),
+        }),
       };
 
       const credits = await this.service.getCreditsByFilters(filters);
@@ -273,7 +277,7 @@ export class CreditController {
     try {
       const limitQuery = c.req.query("limit");
       const storeId = c.req.query("store_id");
-      const limit = limitQuery ? parseInt(limitQuery, 10) : 10;
+      const limit = limitQuery ? Number.parseInt(limitQuery, 10) : 10;
 
       const transactions = await this.service.getRecentTransactions(
         limit,
@@ -344,9 +348,12 @@ export class CreditController {
   getCustomersWithOutstandingBalance = async (c: Context) => {
     try {
       const storeId = c.req.param("storeId");
+      const limitParam = c.req.query("limit");
+      const limit = limitParam ? parseInt(limitParam, 10) : undefined;
 
       const customers = await this.service.getCustomersWithOutstandingBalance(
-        storeId
+        storeId,
+        limit
       );
 
       return c.json(

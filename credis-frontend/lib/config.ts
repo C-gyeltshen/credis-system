@@ -10,5 +10,5 @@ export const API_CONFIG = {
 // Store Configuration - Replace with actual store ID
 export const STORE_CONFIG = {
   // This should come from user authentication/session in a real app
-  STORE_ID: "demo-store-123",
+  STORE_ID: "008ee969-0c0d-4d24-b83d-9e85f2daf86e",
 };

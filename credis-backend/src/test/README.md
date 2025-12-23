@@ -1,27 +1,6 @@
-# Test Folder Structure
+# Test Folder 
 
 ```bash
-credis/
-├── credis-frontend/
-│   ├── src/
-│   ├── tests/
-│   │   ├── unit/
-│   │   │   ├── components/
-│   │   │   ├── services/
-│   │   │   ├── utils/
-│   │   │   └── hooks/
-│   │   ├── integration/
-│   │   │   ├── api-integration/
-│   │   │   └── workflows/
-│   │   ├── e2e/
-│   │   │   ├── auth/
-│   │   │   ├── credit-management/
-│   │   │   └── reporting/
-│   │   └── fixtures/
-│   │       ├── mock-data.ts
-│   │       └── test-utils.ts
-│   └── package.json
-│
 ├── credis-backend/
 │   ├── src/
 │   │   ├── controllers/
@@ -48,3 +27,4 @@ credis/
 │   │   │   └── test-factories.ts
 │   │   └── setup.ts
 │   └── package.json
+```

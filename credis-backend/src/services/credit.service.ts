@@ -1,6 +1,7 @@
 import { CreditRepository } from "../repositories/credit.repository.js";
 import { CustomerRepository } from "../repositories/customer.repository.js";
 import { StoreRepository } from "../repositories/store.repository.js";
+import { CustomerBalanceRepository } from "../repositories/customerBalance.repository.js";
 import type {
   CreateCreditInput,
   UpdateCreditInput,
@@ -11,11 +12,13 @@ export class CreditService {
   private repository: CreditRepository;
   private customerRepository: CustomerRepository;
   private storeRepository: StoreRepository;
+  private customerBalanceRepository: CustomerBalanceRepository;
 
   constructor() {
     this.repository = new CreditRepository();
     this.customerRepository = new CustomerRepository();
     this.storeRepository = new StoreRepository();
+    this.customerBalanceRepository = new CustomerBalanceRepository();
   }
 
   async createCredit(data: CreateCreditInput) {
@@ -63,6 +66,42 @@ export class CreditService {
 
     // Create credit transaction
     const credit = await this.repository.create(data);
+
+    // After creating credit, recalculate and upsert CustomerBalance
+    const credits = await this.repository.findByCustomerId(data.customer_id);
+    let totalCreditGiven = 0;
+    let totalPaymentsReceived = 0;
+    let lastCreditDate: Date | undefined = undefined;
+    let lastPaymentDate: Date | undefined = undefined;
+    let lastTransactionDate: Date | undefined = undefined;
+
+    for (const tx of credits) {
+      if (tx.transactionType === "credit_given") {
+        totalCreditGiven += Number(tx.amount);
+        if (!lastCreditDate || tx.transactionDate > lastCreditDate) {
+          lastCreditDate = tx.transactionDate;
+        }
+      } else if (tx.transactionType === "payment_received") {
+        totalPaymentsReceived += Number(tx.amount);
+        if (!lastPaymentDate || tx.transactionDate > lastPaymentDate) {
+          lastPaymentDate = tx.transactionDate;
+        }
+      }
+      if (!lastTransactionDate || tx.transactionDate > lastTransactionDate) {
+        lastTransactionDate = tx.transactionDate;
+      }
+    }
+    const outstandingBalance = totalCreditGiven - totalPaymentsReceived;
+    await this.customerBalanceRepository.upsertBalance({
+      customerId: data.customer_id,
+      storeId: data.store_id,
+      totalCreditGiven,
+      totalPaymentsReceived,
+      outstandingBalance,
+      lastCreditDate,
+      lastPaymentDate,
+      lastTransactionDate,
+    });
 
     return credit;
   }
@@ -308,7 +347,7 @@ export class CreditService {
     );
   }
 
-  async getCustomersWithOutstandingBalance(storeId: string) {
+  async getCustomersWithOutstandingBalance(storeId: string, limit?: number) {
     // Validate store exists
     const store = await this.storeRepository.findById(storeId);
     if (!store) {
@@ -360,9 +399,13 @@ export class CreditService {
       }
     }
 
-    // Filter only customers with outstanding balance > 0
-    return Array.from(customerBalances.values())
+    // Filter only customers with outstanding balance > 0, sort, and apply limit if provided
+    let result = Array.from(customerBalances.values())
       .filter((balance) => balance.outstandingBalance > 0)
       .sort((a, b) => b.outstandingBalance - a.outstandingBalance);
+    if (limit !== undefined) {
+      result = result.slice(0, limit);
+    }
+    return result;
   }
 }
