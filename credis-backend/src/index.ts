@@ -20,17 +20,12 @@ app.get("/", (c) => {
 // API routes
 app.route("/api", router);
 
-// Start server only if not in test environment
-if (process.env.NODE_ENV !== 'test') {
-  const port = process.env.PORT || 8080;
-  
-  serve({
-    fetch: app.fetch,
-    port: Number(port),
-  });
+// Start server
+const port = process.env.PORT || 8080;
 
-  console.log(`Server running on http://localhost:${port}`);
-}
+serve({
+  fetch: app.fetch,
+  port: Number(port),
+});
 
-// Export app for testing
-export { app };
+console.log(`Server running on http://localhost:${port}`);
