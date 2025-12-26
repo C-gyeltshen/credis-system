@@ -131,7 +131,7 @@ export class StoreController {
   getStoreWithCustomers = async (c: Context) => {
     try {
       const id = c.req.param("id");
-      const store = await this.service.getStoreWithCustomers(id);
+      const store = await this.service.getStoreWithCustomersAndOwners(id);
 
       return c.json(
         {

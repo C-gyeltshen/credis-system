@@ -78,4 +78,16 @@ export class StoreRepository {
       },
     });
   }
+
+  async findWithCustomersAndOwners(id: string) {
+    return await prisma.store.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        customers: true,
+        storeOwners: true,
+      },
+    });
+  }
 }

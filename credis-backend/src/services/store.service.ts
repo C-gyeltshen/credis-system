@@ -98,4 +98,14 @@ export class StoreService {
 
     return store;
   }
+
+  async getStoreWithCustomersAndOwners(id: string) {
+    const store = await this.repository.findWithCustomersAndOwners(id);
+
+    if (!store) {
+      throw new Error("Store not found");
+    }
+
+    return store;
+  }
 }

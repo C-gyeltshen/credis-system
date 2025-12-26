@@ -30,6 +30,7 @@ interface Customer {
 export default function CustomersScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [shopName, setShopName] = useState("My Shop");
+  const [storeOwnerName, setStoreOwnerName] = useState("Store Owner");
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [outstandingBalance, setOutstandingBalance] = useState<number | null>(
@@ -37,7 +38,7 @@ export default function CustomersScreen() {
   );
   const { width } = useWindowDimensions();
 
-  const STORE_ID = "fc8516c1-5068-4be9-8025-ed99d2890692";
+  const STORE_ID = "29740cc6-2406-414e-a168-ad0fb61f473e";
 
   // Responsive breakpoints
   const isSmallScreen = width < 768;
@@ -56,6 +57,11 @@ export default function CustomersScreen() {
         if (data.success && data.data) {
           setShopName(data.data.name || "My Shop");
           setCustomers(data.data.customers || []);
+          
+          // Set store owner name
+          if (data.data.storeOwners && data.data.storeOwners.length > 0) {
+            setStoreOwnerName(data.data.storeOwners[0].name);
+          }
         }
       } catch (error) {
         console.error("Failed to fetch store data:", error);
@@ -116,7 +122,7 @@ export default function CustomersScreen() {
       >
         <View style={styles.headerContent}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.headerTitle}>{shopName}</Text>
+            <Text style={styles.headerTitle}>Welcome {storeOwnerName}</Text>
             <Text style={styles.headerSubtitle}>
               Manage and track your customer database
             </Text>

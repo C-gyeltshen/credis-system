@@ -70,7 +70,7 @@ export default function CreditTransactionModal() {
       // Prepare payload as per backend API
       const payload = {
         customer_id: customerId,
-        store_id: "fc8516c1-5068-4be9-8025-ed99d2890692",
+        store_id: "29740cc6-2406-414e-a168-ad0fb61f473e",
         amount: Number(amount),
         transaction_type: transactionType,
         items_description: itemsDescription.trim() || undefined,

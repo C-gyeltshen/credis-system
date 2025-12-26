@@ -1,22 +1,24 @@
-import { serve } from '@hono/node-server';
-import { Hono } from 'hono';
-import { cors } from 'hono/cors';
-import { customersRouter } from './routes/customers.js';
+import { Hono } from "hono";
+import { cors } from "hono/cors";
+import { logger } from "hono/logger";
+import { serve } from "@hono/node-server";
+import router from "./routes/index.js";
+import { errorHandler } from "./middlewares/errorHandler.js";
 const app = new Hono();
-// Enable CORS for frontend
-app.use('/api/*', cors({
-    origin: '*', // In production, replace with your frontend URL
-    allowMethods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowHeaders: ['Content-Type'],
-}));
-app.get('/', (c) => {
-    return c.text('Credis System API v1.0');
+// Middleware
+app.use("*", cors());
+app.use("*", logger());
+app.use("*", errorHandler);
+// Health check
+app.get("/", (c) => {
+    return c.json({ message: "Credit Management API" });
 });
-// API Routes
-app.route('/api/customers', customersRouter);
+// API routes
+app.route("/api", router);
+// Start server
+const port = process.env.PORT || 8080;
 serve({
     fetch: app.fetch,
-    port: 8080
-}, (info) => {
-    console.log(`Server is running on http://localhost:${info.port}`);
+    port: Number(port),
 });
+console.log(`Server running on http://localhost:${port}`);
