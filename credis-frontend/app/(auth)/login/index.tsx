@@ -537,7 +537,9 @@ const LoginScreen: React.FC = () => {
                 border: "none",
                 padding: 0,
               }}
-              onClick={() => alert("Navigate to register")}
+              onClick={() => {
+                window.location.href = "http://localhost:8081/register";
+              }}
             >
               Create one
             </button>

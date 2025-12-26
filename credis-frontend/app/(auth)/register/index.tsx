@@ -795,6 +795,9 @@ const RegisterScreen = () => {
                 border: "none",
                 padding: 0,
               }}
+              onClick={() => {
+                window.location.href = "http://localhost:8081/login";
+              }}
             >
               Sign in
             </button>
