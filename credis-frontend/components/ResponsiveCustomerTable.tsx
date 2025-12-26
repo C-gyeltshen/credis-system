@@ -371,7 +371,7 @@ export default function ResponsiveCustomerTable({
                   size={20}
                   color={outstandingBalance > 0 ? "#ff9800" : "#4caf50"}
                 />
-                <Text style={styles.summaryCardLabel}>Outstanding Balance</Text>
+                <Text style={styles.summaryCardLabel}>Remaining Credit</Text>
               </View>
               <Text
                 style={[
@@ -500,6 +500,33 @@ export default function ResponsiveCustomerTable({
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#1976d2" />
         <Text style={styles.loadingText}>Loading customers...</Text>
+      </View>
+    );
+  }
+
+  // Show empty state when no customers exist
+  if (customers.length === 0) {
+    return (
+      <View style={styles.emptyStateContainer}>
+        <MaterialIcons name="people-outline" size={64} color="#9ca3af" />
+        <Text style={styles.emptyStateTitle}>No customers yet</Text>
+        <Text style={styles.emptyStateText}>
+          Get started by adding your first customer to begin managing their
+          credit transactions.
+        </Text>
+      </View>
+    );
+  }
+
+  // Show no search results state when filtering returns empty but customers exist
+  if (filteredCustomers.length === 0 && searchQuery) {
+    return (
+      <View style={styles.emptyStateContainer}>
+        <MaterialIcons name="search-off" size={64} color="#9ca3af" />
+        <Text style={styles.emptyStateTitle}>No customers found</Text>
+        <Text style={styles.emptyStateText}>
+          No customers match "{searchQuery}". Try adjusting your search terms.
+        </Text>
       </View>
     );
   }
@@ -664,8 +691,8 @@ export default function ResponsiveCustomerTable({
                       ]}
                     >
                       {isCreditGiven
-                        ? "This will increase the customer's outstanding balance"
-                        : "This will reduce the customer's outstanding balance"}
+                        ? "This will increase the customer's remaining credit"
+                        : "This will reduce the customer's remaining credit"}
                     </Text>
                   </View>
                 </View>
@@ -992,6 +1019,28 @@ const styles = StyleSheet.create({
     marginTop: 12,
     color: "#666",
     fontSize: 16,
+  },
+  emptyStateContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 40,
+    minHeight: 200,
+  },
+  emptyStateTitle: {
+    marginTop: 16,
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#374151",
+    textAlign: "center",
+  },
+  emptyStateText: {
+    marginTop: 8,
+    fontSize: 14,
+    color: "#6b7280",
+    textAlign: "center",
+    lineHeight: 20,
+    paddingHorizontal: 20,
   },
   bulkActionBar: {
     flexDirection: "row",

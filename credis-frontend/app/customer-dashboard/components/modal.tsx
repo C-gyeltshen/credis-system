@@ -133,31 +133,8 @@ export default function AddCustomerModal() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Welcome Message */}
-          <View style={styles.welcomeCard}>
-            <View style={styles.welcomeIconContainer}>
-              <MaterialIcons name="person-add" size={32} color="#1976d2" />
-            </View>
-            <Text style={styles.welcomeTitle}>Create New Customer</Text>
-            <Text style={styles.welcomeSubtitle}>
-              Add customer details to start managing their credit transactions
-            </Text>
-          </View>
-
           {/* Basic Information Section */}
           <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <View style={styles.sectionIconContainer}>
-                <MaterialIcons name="person" size={20} color="#1976d2" />
-              </View>
-              <View style={styles.sectionTitleContainer}>
-                <Text style={styles.sectionTitle}>Customer Information</Text>
-                <Text style={styles.sectionSubtitle}>
-                  Required fields are marked with *
-                </Text>
-              </View>
-            </View>
-
             <View style={styles.inputWrapper}>
               <TextInput
                 label="Full Name *"
@@ -289,7 +266,7 @@ export default function AddCustomerModal() {
             buttonColor="#1976d2"
             icon="check"
           >
-            Create Customer
+            Create
           </Button>
         </View>
       </KeyboardAvoidingView>

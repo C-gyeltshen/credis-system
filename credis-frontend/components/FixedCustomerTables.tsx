@@ -312,63 +312,126 @@ export default function AdvancedCustomerTables({
 
                   {/* Actions Column */}
                   <DataTable.Title style={styles.actionColumn}>
-                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                    <View
+                      style={{
+                        flex: 1,
+                        justifyContent: "center",
+                        alignItems: "center",
+                        height: "100%",
+                      }}
+                    >
                       <Text style={styles.headerText}>Actions</Text>
                     </View>
                   </DataTable.Title>
 
                   {/* Name Column */}
                   <DataTable.Title style={styles.nameColumn}>
-                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-start', height: '100%' }}>
+                    <View
+                      style={{
+                        flex: 1,
+                        justifyContent: "center",
+                        alignItems: "flex-start",
+                        height: "100%",
+                      }}
+                    >
                       <Text style={styles.headerText}>Name</Text>
                     </View>
                   </DataTable.Title>
 
                   {/* Phone Column */}
                   <DataTable.Title style={styles.phoneColumn}>
-                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-start', height: '100%' }}>
+                    <View
+                      style={{
+                        flex: 1,
+                        justifyContent: "center",
+                        alignItems: "flex-start",
+                        height: "100%",
+                      }}
+                    >
                       <Text style={styles.headerText}>Phone</Text>
                     </View>
                   </DataTable.Title>
 
                   {/* CID Number Column */}
                   <DataTable.Title style={styles.cidColumn}>
-                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-start', height: '100%' }}>
+                    <View
+                      style={{
+                        flex: 1,
+                        justifyContent: "center",
+                        alignItems: "flex-start",
+                        height: "100%",
+                      }}
+                    >
                       <Text style={styles.headerText}>CID</Text>
                     </View>
                   </DataTable.Title>
 
                   {/* Email Column */}
                   <DataTable.Title style={styles.emailColumn}>
-                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-start', height: '100%' }}>
+                    <View
+                      style={{
+                        flex: 1,
+                        justifyContent: "center",
+                        alignItems: "flex-start",
+                        height: "100%",
+                      }}
+                    >
                       <Text style={styles.headerText}>Email</Text>
                     </View>
                   </DataTable.Title>
 
                   {/* Address Column */}
                   <DataTable.Title style={styles.addressColumn}>
-                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-start', height: '100%' }}>
+                    <View
+                      style={{
+                        flex: 1,
+                        justifyContent: "center",
+                        alignItems: "flex-start",
+                        height: "100%",
+                      }}
+                    >
                       <Text style={styles.headerText}>Address</Text>
                     </View>
                   </DataTable.Title>
 
                   {/* Credit Limit Column */}
                   <DataTable.Title style={styles.creditColumn}>
-                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-end', height: '100%' }}>
+                    <View
+                      style={{
+                        flex: 1,
+                        justifyContent: "center",
+                        alignItems: "flex-end",
+                        height: "100%",
+                      }}
+                    >
                       <Text style={styles.headerText}>Credit Limit</Text>
                     </View>
                   </DataTable.Title>
 
                   {/* Outstanding Balance Column */}
                   <DataTable.Title style={styles.balanceColumn}>
-                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-end', height: '100%' }}>
-                      <Text style={styles.headerText}>Outstanding</Text>
+                    <View
+                      style={{
+                        flex: 1,
+                        justifyContent: "center",
+                        alignItems: "flex-end",
+                        height: "100%",
+                      }}
+                    >
+                      <Text style={styles.headerText}>Remaining</Text>
                     </View>
                   </DataTable.Title>
 
                   {/* Status Column */}
                   <DataTable.Title style={styles.statusColumn}>
-                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                    <View
+                      style={{
+                        flex: 1,
+                        justifyContent: "center",
+                        alignItems: "center",
+                        height: "100%",
+                      }}
+                    >
                       <Text style={styles.headerText}>Status</Text>
                     </View>
                   </DataTable.Title>
@@ -419,8 +482,18 @@ export default function AdvancedCustomerTables({
 
                         {/* Name Cell */}
                         <DataTable.Cell style={styles.nameColumn}>
-                          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-start', paddingVertical: 8 }}>
-                            <Text style={[styles.cellText, { fontWeight: '500' }]} numberOfLines={1}>
+                          <View
+                            style={{
+                              flex: 1,
+                              justifyContent: "center",
+                              alignItems: "flex-start",
+                              paddingVertical: 8,
+                            }}
+                          >
+                            <Text
+                              style={[styles.cellText, { fontWeight: "500" }]}
+                              numberOfLines={1}
+                            >
                               {customer.name}
                             </Text>
                           </View>
@@ -428,8 +501,20 @@ export default function AdvancedCustomerTables({
 
                         {/* Phone Cell */}
                         <DataTable.Cell style={styles.phoneColumn}>
-                          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-start', paddingVertical: 8 }}>
-                            <Text style={[styles.cellText, { fontFamily: 'monospace' }]}>
+                          <View
+                            style={{
+                              flex: 1,
+                              justifyContent: "center",
+                              alignItems: "flex-start",
+                              paddingVertical: 8,
+                            }}
+                          >
+                            <Text
+                              style={[
+                                styles.cellText,
+                                { fontFamily: "monospace" },
+                              ]}
+                            >
                               {formatPhoneNumber(customer.phoneNumber)}
                             </Text>
                           </View>
@@ -437,8 +522,20 @@ export default function AdvancedCustomerTables({
 
                         {/* CID Cell */}
                         <DataTable.Cell style={styles.cidColumn}>
-                          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-start', paddingVertical: 8 }}>
-                            <Text style={[styles.cellText, { fontFamily: 'monospace' }]}>
+                          <View
+                            style={{
+                              flex: 1,
+                              justifyContent: "center",
+                              alignItems: "flex-start",
+                              paddingVertical: 8,
+                            }}
+                          >
+                            <Text
+                              style={[
+                                styles.cellText,
+                                { fontFamily: "monospace" },
+                              ]}
+                            >
                               {customer.cidNumber || "N/A"}
                             </Text>
                           </View>
@@ -446,8 +543,19 @@ export default function AdvancedCustomerTables({
 
                         {/* Email Cell */}
                         <DataTable.Cell style={styles.emailColumn}>
-                          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-start', paddingVertical: 8 }}>
-                            <Text style={styles.cellText} numberOfLines={1} ellipsizeMode="tail">
+                          <View
+                            style={{
+                              flex: 1,
+                              justifyContent: "center",
+                              alignItems: "flex-start",
+                              paddingVertical: 8,
+                            }}
+                          >
+                            <Text
+                              style={styles.cellText}
+                              numberOfLines={1}
+                              ellipsizeMode="tail"
+                            >
                               {customer.email || "N/A"}
                             </Text>
                           </View>
@@ -455,8 +563,19 @@ export default function AdvancedCustomerTables({
 
                         {/* Address Cell */}
                         <DataTable.Cell style={styles.addressColumn}>
-                          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-start', paddingVertical: 8 }}>
-                            <Text style={styles.cellText} numberOfLines={1} ellipsizeMode="tail">
+                          <View
+                            style={{
+                              flex: 1,
+                              justifyContent: "center",
+                              alignItems: "flex-start",
+                              paddingVertical: 8,
+                            }}
+                          >
+                            <Text
+                              style={styles.cellText}
+                              numberOfLines={1}
+                              ellipsizeMode="tail"
+                            >
                               {customer.address || "N/A"}
                             </Text>
                           </View>
@@ -464,8 +583,17 @@ export default function AdvancedCustomerTables({
 
                         {/* Credit Limit Cell */}
                         <DataTable.Cell style={styles.creditColumn}>
-                          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-end', paddingVertical: 8 }}>
-                            <Text style={[styles.cellText, styles.creditAmount]}>
+                          <View
+                            style={{
+                              flex: 1,
+                              justifyContent: "center",
+                              alignItems: "flex-end",
+                              paddingVertical: 8,
+                            }}
+                          >
+                            <Text
+                              style={[styles.cellText, styles.creditAmount]}
+                            >
                               {formatCurrency(customer.creditLimit || 0)}
                             </Text>
                           </View>
@@ -473,7 +601,14 @@ export default function AdvancedCustomerTables({
 
                         {/* Outstanding Balance Cell */}
                         <DataTable.Cell style={styles.balanceColumn}>
-                          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-end', paddingVertical: 8 }}>
+                          <View
+                            style={{
+                              flex: 1,
+                              justifyContent: "center",
+                              alignItems: "flex-end",
+                              paddingVertical: 8,
+                            }}
+                          >
                             <Text
                               style={[
                                 styles.cellText,
@@ -483,18 +618,27 @@ export default function AdvancedCustomerTables({
                                       ? "#FF8C00"
                                       : "#1E88E5",
                                   fontWeight: "700",
-                                  fontFamily: 'monospace',
+                                  fontFamily: "monospace",
                                 },
                               ]}
                             >
-                              {formatCurrency(getOutstandingBalance(customer.id))}
+                              {formatCurrency(
+                                getOutstandingBalance(customer.id)
+                              )}
                             </Text>
                           </View>
                         </DataTable.Cell>
 
                         {/* Status Cell */}
                         <DataTable.Cell style={styles.statusColumn}>
-                          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 8 }}>
+                          <View
+                            style={{
+                              flex: 1,
+                              justifyContent: "center",
+                              alignItems: "center",
+                              paddingVertical: 8,
+                            }}
+                          >
                             <Chip
                               mode="flat"
                               compact={true}
@@ -510,7 +654,7 @@ export default function AdvancedCustomerTables({
                                     ? "#1E88E5"
                                     : "#FF8C00",
                                 fontSize: 12,
-                                fontWeight: '600',
+                                fontWeight: "600",
                               }}
                             >
                               {customer.isActive !== false
@@ -596,7 +740,12 @@ export default function AdvancedCustomerTables({
                                   <DataTable.Cell
                                     style={styles.historyTypeColumn}
                                   >
-                                    <View style={{ justifyContent: 'center', alignItems: 'flex-start' }}>
+                                    <View
+                                      style={{
+                                        justifyContent: "center",
+                                        alignItems: "flex-start",
+                                      }}
+                                    >
                                       <Text
                                         style={{
                                           color: getTransactionTypeColor(

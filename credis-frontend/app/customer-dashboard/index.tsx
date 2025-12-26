@@ -57,7 +57,7 @@ export default function CustomersScreen() {
         if (data.success && data.data) {
           setShopName(data.data.name || "My Shop");
           setCustomers(data.data.customers || []);
-          
+
           // Set store owner name
           if (data.data.storeOwners && data.data.storeOwners.length > 0) {
             setStoreOwnerName(data.data.storeOwners[0].name);
@@ -123,14 +123,9 @@ export default function CustomersScreen() {
         <View style={styles.headerContent}>
           <View style={{ flex: 1 }}>
             <Text style={styles.headerTitle}>Welcome {storeOwnerName}</Text>
-            <Text style={styles.headerSubtitle}>
-              Manage and track your customer database
-            </Text>
             <View style={{ marginTop: 8 }}>
-              <Text
-                style={{ color: "#fff", fontWeight: "600", fontSize: 16 }}
-              >
-                Total Outstanding Balance:
+              <Text style={{ color: "#fff", fontWeight: "600", fontSize: 16 }}>
+                Total Remaining Credit:
                 <Text style={{ color: "#ffd700", fontWeight: "bold" }}>
                   {outstandingBalance !== null
                     ? ` Nu. ${outstandingBalance.toLocaleString("en-IN", {
@@ -155,7 +150,6 @@ export default function CustomersScreen() {
             inputStyle={styles.searchInput}
             icon="magnify"
             iconColor="#667eea"
-            elevation={4}
             placeholderTextColor="#999"
           />
         </View>
@@ -176,13 +170,19 @@ export default function CustomersScreen() {
         contentContainerStyle={{ paddingBottom: 24 }}
       >
         {/* Customer Management Table */}
-        <View style={{ marginHorizontal: cardMargin, marginTop: 24, marginBottom: 24 }}>
+        <View
+          style={{
+            marginHorizontal: cardMargin,
+            marginTop: 24,
+            marginBottom: 24,
+          }}
+        >
           <Card style={styles.tableCard}>
             <Card.Content style={{ padding: isSmallScreen ? 12 : 20 }}>
               <View style={styles.tableHeader}>
                 <View style={styles.tableHeaderLeft}>
                   <MaterialIcons name="table-chart" size={24} color="#667eea" />
-                  <Text style={styles.sectionTitle}>Customer Directory</Text>
+                  <Text style={styles.sectionTitle}>Customers</Text>
                 </View>
               </View>
 
@@ -264,17 +264,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 12,
-    ...Platform.select({
-      ios: {
-        shadowColor: "#667eea",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 4,
-      },
-    }),
+    // Universal shadow approach
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    elevation: 16,
   },
   addButtonText: {
     color: "#fff",
@@ -285,17 +280,8 @@ const styles = StyleSheet.create({
   searchBar: {
     borderRadius: 12,
     backgroundColor: "#fff",
-    ...Platform.select({
-      ios: {
-        shadowColor: "#667eea",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-      },
-      android: {
-        elevation: 4,
-      },
-    }),
+    borderWidth: 1,
+    borderColor: "#e5e7eb",
   },
   searchInput: {
     fontSize: 16,

@@ -138,7 +138,7 @@ export default function OverdueAccountsReport() {
         if (data.data.length === 0) {
           Alert.alert(
             "No Results",
-            "No customers found with outstanding balances."
+            "No customers found with remaining credit."
           );
         }
       } else {
@@ -237,7 +237,7 @@ export default function OverdueAccountsReport() {
               </Text>
             </View>
             <View style={styles.detailItem}>
-              <Text style={styles.detailLabel}>Outstanding Balance</Text>
+              <Text style={styles.detailLabel}>Remaining Credit</Text>
               <Text
                 style={[
                   styles.detailValue,
@@ -339,7 +339,7 @@ export default function OverdueAccountsReport() {
               },
             ]}
           >
-            <Text style={styles.detailLabel}>Outstanding Balance</Text>
+            <Text style={styles.detailLabel}>Remaining Credit</Text>
             <Text
               style={{
                 fontSize: 24,
@@ -483,7 +483,7 @@ export default function OverdueAccountsReport() {
                 currentTab === "balance" && styles.tabButtonTextActive,
               ]}
             >
-              Highest Balances
+              Highest Credit
             </Text>
           </TouchableOpacity>
         </View>
@@ -538,7 +538,7 @@ export default function OverdueAccountsReport() {
                     left={<TextInput.Icon icon="list" />}
                   />
                   <Text style={styles.inputHint}>
-                    Shows top customers ranked by outstanding balance
+                    Shows top customers ranked by remaining credit
                   </Text>
                 </View>
               </>
@@ -576,7 +576,7 @@ export default function OverdueAccountsReport() {
               </Card>
               <Card style={[styles.summaryCard, { flex: 1, marginLeft: 6 }]}>
                 <Card.Content style={{ alignItems: "center" }}>
-                  <Text style={styles.summaryLabel}>Total Outstanding</Text>
+                  <Text style={styles.summaryLabel}>Total Remaining</Text>
                   <Text style={[styles.summaryValue, { color: "#d32f2f" }]}>
                     Nu. {formatCurrency(totalOutstanding)}
                   </Text>
@@ -619,7 +619,7 @@ export default function OverdueAccountsReport() {
               <Text style={styles.listTitle}>
                 {currentTab === "overdue"
                   ? `Overdue Customers (${customers.length})`
-                  : `Top ${customers.length} Customers by Balance`}
+                  : `Top ${customers.length} Customers by Credit`}
               </Text>
             </View>
 
@@ -654,7 +654,7 @@ export default function OverdueAccountsReport() {
             <Text style={styles.emptyStateText}>
               {currentTab === "overdue"
                 ? `All customers have made payments within the last ${days} days.`
-                : "No customers found with outstanding balances."}
+                : "No customers found with remaining credit."}
             </Text>
           </View>
         )}

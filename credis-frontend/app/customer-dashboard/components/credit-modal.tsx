@@ -391,8 +391,8 @@ export default function CreditTransactionModal() {
             <MaterialIcons name="info" size={20} color={currentConfig.color} />
             <Text style={[styles.infoText, { color: currentConfig.color }]}>
               {transactionType === "credit_given"
-                ? "This will increase the customer's outstanding balance"
-                : "This will reduce the customer's outstanding balance"}
+                ? "This will increase the customer's remaining credit"
+                : "This will reduce the customer's remaining credit"}
             </Text>
           </View>
         </ScrollView>
