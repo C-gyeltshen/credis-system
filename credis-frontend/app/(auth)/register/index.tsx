@@ -366,16 +366,19 @@ const RegisterScreen = () => {
 
     setLoading(true);
     try {
-      const response = await fetch("http://YOUR_API_URL/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          storeName: formData.storeName,
-          ownerName: formData.ownerName,
-          email: formData.email,
-          password: formData.password,
-        }),
-      });
+      const response = await fetch(
+        "http://localhost:8080/api/store-owners/register",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            storeName: formData.storeName,
+            name: formData.ownerName, // Fix: send as 'name' for backend
+            email: formData.email,
+            password: formData.password,
+          }),
+        }
+      );
 
       const data = await response.json();
 
@@ -413,7 +416,7 @@ const RegisterScreen = () => {
               </div>
 
               <div>
-                <h2 style={styles.successTitle}>Welcome to the crew! 🎉</h2>
+                <h2 style={styles.successTitle}>Welcome to you Store! 🎉</h2>
                 <p style={styles.successText}>
                   Your store account is ready to go. Let's get you started with
                   managing credit.
@@ -421,7 +424,9 @@ const RegisterScreen = () => {
               </div>
 
               <button
-                onClick={() => alert("Redirecting to dashboard...")}
+                onClick={() => {
+                  window.location.href = "/customer-dashboard";
+                }}
                 style={{
                   ...styles.buttonSubmit,
                   width: "100%",

@@ -2,7 +2,7 @@
 export interface CreateStoreOwnerInput {
     name: string;
     email: string;
-    passwordHash: string;
+    password: string;
     storeId?: string; 
 }
 

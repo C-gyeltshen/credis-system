@@ -290,22 +290,24 @@ const LoginScreen: React.FC = () => {
 
     setLoading(true);
     try {
-      const response = await fetch("http://YOUR_API_URL/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-        }),
-      });
+      const response = await fetch(
+        "http://localhost:8080/api/store-owners/login",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password,
+          }),
+        }
+      );
 
       const data = await response.json();
 
       if (response.ok) {
         // Store token and redirect
         console.log("Login successful", data);
-        alert("Welcome back! Redirecting to dashboard...");
-        // navigation?.replace("Dashboard")
+        window.location.href = "/customer-dashboard";
       } else {
         setErrors({ submit: data.message || "Login failed" });
       }

@@ -10,7 +10,7 @@ export class StoreOwnerRepository {
       data: {
         name: data.name,
         email: data.email,
-        passwordHash: data.passwordHash,
+        passwordHash: data.password,
         ...(data.storeId && { storeId: data.storeId }),
       },
     });

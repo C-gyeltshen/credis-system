@@ -13,8 +13,8 @@ export class StoreOwnerService {
     const existing = await storeOwnerRepository.findByEmail(data.email);
     if (existing) throw new Error("Email already registered");
 
-    const passwordHash = await bcrypt.hash(data.passwordHash, 10);
-    const owner = await storeOwnerRepository.create({ ...data, passwordHash });
+    const password = await bcrypt.hash(data.password, 10);
+    const owner = await storeOwnerRepository.create({ ...data, password });
     return { ...owner, passwordHash: undefined };
   }
 
