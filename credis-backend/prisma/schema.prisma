@@ -26,6 +26,21 @@ model Store {
   @@map("stores")
 }
 
+model RefreshToken {
+  id                String    @id @default(cuid())
+  storeOwnerId      String    @db.Uuid
+  tokenHash         String    @unique
+  expiresAt         DateTime
+  revoked           Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+
+  storeOwner        StoreOwner @relation(fields: [storeOwnerId], references: [id], onDelete: Cascade)
+
+  @@index([storeOwnerId])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
+
 model StoreOwner {
   id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name              String
@@ -38,6 +53,8 @@ model StoreOwner {
   modifiedAt        DateTime            @default(now()) @updatedAt @map("modified_at") @db.Timestamptz(6)
   paymentsValidated PaymentSubmission[] @relation("ValidatedByOwner")
   store             Store?              @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  refreshTokens     RefreshToken[]
 
   @@index([storeId])
   @@index([email])

@@ -1,121 +1,197 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { createContext, useState, useCallback, useEffect, ReactNode } from "react";
 
-interface User {
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:8080/api";
+
+export interface User {
   id: string;
-  email: string;
   name: string;
+  email: string;
+  storeId?: string | null;
+  isActive: boolean;
+  createdAt: string;
 }
 
-interface AuthContextType {
+export interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  signup: (name: string, email: string, password: string) => Promise<boolean>;
+  isAuthenticated: boolean;
+  error: string | null;
+  register: (name: string, email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  checkAuth: () => Promise<void>;
+  clearError: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  // Check authentication on app launch
   useEffect(() => {
-    checkAuthStatus();
+    checkAuth();
   }, []);
 
-  const checkAuthStatus = async () => {
+  // Check if user is authenticated
+  const checkAuth = useCallback(async () => {
     try {
-      const userStr = await AsyncStorage.getItem("user");
-      if (userStr) {
-        setUser(JSON.parse(userStr));
+      setIsLoading(true);
+      setError(null);
+
+      const response = await fetch(`${API_BASE_URL}/store-owners/me`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // Include HttpOnly cookies
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data.user);
+        console.log("User authenticated:", data.user.email);
+      } else {
+        setUser(null);
+        console.log("User not authenticated");
       }
-    } catch (error) {
-      console.error("Error checking auth status:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const login = async (email: string, password: string): Promise<boolean> => {
-    setIsLoading(true);
-    try {
-      // Mock authentication - in real app, this would be an API call
-      if (email && password.length >= 6) {
-        const mockUser: User = {
-          id: "1",
-          email: email,
-          name: email.split("@")[0],
-        };
-
-        await AsyncStorage.setItem("user", JSON.stringify(mockUser));
-        setUser(mockUser);
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error("Login error:", error);
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const signup = async (
-    name: string,
-    email: string,
-    password: string
-  ): Promise<boolean> => {
-    setIsLoading(true);
-    try {
-      // Mock signup - in real app, this would be an API call
-      if (name && email && password.length >= 6) {
-        const mockUser: User = {
-          id: "1",
-          email: email,
-          name: name,
-        };
-
-        await AsyncStorage.setItem("user", JSON.stringify(mockUser));
-        setUser(mockUser);
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error("Signup error:", error);
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const logout = async () => {
-    try {
-      await AsyncStorage.removeItem("user");
+    } catch (err) {
+      console.error("Auth check failed:", err);
       setUser(null);
-    } catch (error) {
-      console.error("Logout error:", error);
+    } finally {
+      setIsLoading(false);
     }
+  }, []);
+
+  // Register new user
+  const register = useCallback(async (name: string, email: string, password: string) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await fetch(`${API_BASE_URL}/store-owners/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Registration failed");
+      }
+
+      console.log("Registration successful");
+      
+      // Auto-login after registration
+      await login(email, password);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Registration failed";
+      setError(errorMessage);
+      console.error("Registration error:", errorMessage);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Login user
+  const login = useCallback(async (email: string, password: string) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await fetch(`${API_BASE_URL}/store-owners/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // Critical: Include cookies for HttpOnly
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Login failed");
+      }
+
+      setUser(data.user);
+      console.log("Login successful:", data.user.email);
+      
+      // HttpOnly cookies are automatically stored by browser/app
+      // No manual token handling needed!
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Login failed";
+      setError(errorMessage);
+      setUser(null);
+      console.error("Login error:", errorMessage);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Logout user
+  const logout = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await fetch(`${API_BASE_URL}/store-owners/logout`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Logout failed");
+      }
+
+      setUser(null);
+      console.log("Logout successful");
+      
+      // Browser/app automatically deletes HttpOnly cookies
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Logout failed";
+      setError(errorMessage);
+      console.error("Logout error:", errorMessage);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Clear error messages
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
+
+  const value: AuthContextType = {
+    user,
+    isLoading,
+    isAuthenticated: !!user,
+    error,
+    register,
+    login,
+    logout,
+    checkAuth,
+    clearError,
   };
 
-  return (
-    <AuthContext.Provider value={{ user, isLoading, login, signup, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
-}
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};

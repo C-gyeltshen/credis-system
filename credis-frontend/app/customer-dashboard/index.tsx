@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import {
   StyleSheet,
   ScrollView,
@@ -11,7 +12,6 @@ import { Card, Text, Searchbar } from "react-native-paper";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
 import ResponsiveCustomerTable from "@/components/ResponsiveCustomerTable";
 
 interface Customer {
@@ -27,7 +27,16 @@ interface Customer {
   modifiedAt: string;
 }
 
+import { router } from "expo-router";
+
 export default function CustomersScreen() {
+  const { isAuthenticated, isLoading, user } = useAuth();
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.replace("/login");
+    }
+  }, [isAuthenticated, isLoading]);
   const [searchQuery, setSearchQuery] = useState("");
   const [shopName, setShopName] = useState("My Shop");
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -37,22 +46,22 @@ export default function CustomersScreen() {
   );
   const { width } = useWindowDimensions();
 
-  const STORE_ID = "fc8516c1-5068-4be9-8025-ed99d2890692";
+  // Get storeId from user context
+  const storeId = user?.storeId;
 
   // Responsive breakpoints
   const isSmallScreen = width < 768;
 
-  // Fetch store and customers
+  // Fetch store and customers using storeId from user
   useEffect(() => {
+    if (!storeId) return;
     const fetchStoreData = async () => {
       try {
         setLoading(true);
-        // Fetch customers (existing logic)
         const response = await fetch(
-          `http://localhost:8080/api/stores/${STORE_ID}/customers`
+          `http://localhost:8080/api/stores/${storeId}/customers`
         );
         const data = await response.json();
-
         if (data.success && data.data) {
           setShopName(data.data.name || "My Shop");
           setCustomers(data.data.customers || []);
@@ -67,11 +76,10 @@ export default function CustomersScreen() {
     const fetchOutstandingBalance = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8080/api/credits/store/${STORE_ID}/outstanding`
+          `http://localhost:8080/api/credits/store/${storeId}/outstanding`
         );
         const data = await response.json();
         if (data.success && Array.isArray(data.data)) {
-          // Sum outstandingBalance from all customers
           const total = data.data.reduce(
             (sum: number, customer: { outstandingBalance?: number }) => {
               return (
@@ -95,7 +103,7 @@ export default function CustomersScreen() {
 
     fetchStoreData();
     fetchOutstandingBalance();
-  }, []);
+  }, [storeId]);
 
   const addNewCustomer = () => {
     router.push("/customer-dashboard/components/modal" as any);
@@ -104,6 +112,20 @@ export default function CustomersScreen() {
   // Responsive card margin and padding
   const cardMargin = isSmallScreen ? 12 : 16;
   const cardPadding = isSmallScreen ? 16 : 20;
+
+  if (isLoading) {
+    return (
+      <SafeAreaView
+        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+      >
+        <Text>Checking authentication...</Text>
+      </SafeAreaView>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -121,9 +143,7 @@ export default function CustomersScreen() {
               Manage and track your customer database
             </Text>
             <View style={{ marginTop: 8 }}>
-              <Text
-                style={{ color: "#fff", fontWeight: "600", fontSize: 16 }}
-              >
+              <Text style={{ color: "#fff", fontWeight: "600", fontSize: 16 }}>
                 Total Outstanding Balance:
                 <Text style={{ color: "#ffd700", fontWeight: "bold" }}>
                   {outstandingBalance !== null
@@ -170,7 +190,13 @@ export default function CustomersScreen() {
         contentContainerStyle={{ paddingBottom: 24 }}
       >
         {/* Customer Management Table */}
-        <View style={{ marginHorizontal: cardMargin, marginTop: 24, marginBottom: 24 }}>
+        <View
+          style={{
+            marginHorizontal: cardMargin,
+            marginTop: 24,
+            marginBottom: 24,
+          }}
+        >
           <Card style={styles.tableCard}>
             <Card.Content style={{ padding: isSmallScreen ? 12 : 20 }}>
               <View style={styles.tableHeader}>
