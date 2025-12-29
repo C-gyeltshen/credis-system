@@ -143,11 +143,6 @@ const styles = {
     transition: "all 0.2s ease",
     boxSizing: "border-box",
   },
-  inputFocus: {
-    outline: "none",
-    borderColor: "#2563eb",
-    backgroundColor: "#fff",
-  },
   inputError: {
     borderColor: "#fca5a5",
     backgroundColor: "#fef2f2",
@@ -183,9 +178,6 @@ const styles = {
     cursor: "pointer",
     transition: "all 0.2s ease",
   },
-  buttonBackHover: {
-    backgroundColor: "#f3f4f6",
-  },
   buttonNext: {
     flex: 1,
     padding: "12px 16px",
@@ -202,9 +194,6 @@ const styles = {
     justifyContent: "center",
     gap: "8px",
   },
-  buttonNextHover: {
-    boxShadow: "0 10px 15px -3px rgba(37, 99, 235, 0.3)",
-  },
   buttonSubmit: {
     flex: 1,
     padding: "12px 16px",
@@ -216,9 +205,6 @@ const styles = {
     fontSize: "16px",
     cursor: "pointer",
     transition: "all 0.2s ease",
-  },
-  buttonSubmitHover: {
-    boxShadow: "0 10px 15px -3px rgba(22, 163, 74, 0.3)",
   },
   buttonDisabled: {
     opacity: "0.5",
@@ -274,28 +260,39 @@ const styles = {
   },
 };
 
+const API_BASE_URL =
+  process.env.REACT_APP_API_URL || "http://localhost:8080/api";
+
+type ErrorType = {
+  storeName?: string;
+  address?: string;
+  phoneNumber?: string;
+  ownerName?: string;
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+  submit?: string;
+  [key: string]: string | undefined;
+};
+
+type FormDataType = {
+  storeName: string;
+  address: string;
+  phoneNumber: string;
+  ownerName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+};
+
 const RegisterScreen = () => {
   const [step, setStep] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
-  type ErrorType = {
-    storeName?: string;
-    ownerName?: string;
-    email?: string;
-    password?: string;
-    confirmPassword?: string;
-    submit?: string;
-    [key: string]: string | undefined;
-  };
   const [errors, setErrors] = useState<ErrorType>({});
-  type FormDataType = {
-    storeName: string;
-    ownerName: string;
-    email: string;
-    password: string;
-    confirmPassword: string;
-  };
   const [formData, setFormData] = useState<FormDataType>({
     storeName: "",
+    address: "",
+    phoneNumber: "",
     ownerName: "",
     email: "",
     password: "",
@@ -313,6 +310,14 @@ const RegisterScreen = () => {
         newErrors.storeName = "Store name is required";
       } else if (formData.storeName.trim().length < 2) {
         newErrors.storeName = "Store name must be at least 2 characters";
+      }
+      if (!formData.address.trim()) {
+        newErrors.address = "Address is required";
+      }
+      if (!formData.phoneNumber.trim()) {
+        newErrors.phoneNumber = "Phone number is required";
+      } else if (!/^\+?[0-9\-\s]{7,15}$/.test(formData.phoneNumber.trim())) {
+        newErrors.phoneNumber = "Enter a valid phone number";
       }
     }
 
@@ -365,30 +370,107 @@ const RegisterScreen = () => {
     if (!validateStep(step)) return;
 
     setLoading(true);
+    setErrors({});
+
     try {
-      const response = await fetch(
-        "http://localhost:8080/api/store-owners/register",
+      // Step 1: Create the store
+      const storeResponse = await fetch("http://localhost:8080/api/stores", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.storeName,
+          address: formData.address,
+          phone_number: formData.phoneNumber,
+        }),
+      });
+
+      const storeData = await storeResponse.json();
+
+      if (!storeResponse.ok || !storeData.data || !storeData.data.id) {
+        setErrors({
+          submit:
+            storeData.error || "Failed to create store. Please try again.",
+        });
+        setLoading(false);
+        return;
+      }
+
+      const storeId = storeData.data.id;
+
+      // Step 2: Register the store owner with the storeId
+      const registrationBody = {
+        name: formData.ownerName,
+        email: formData.email,
+        password: formData.password,
+        storeId: storeId,
+      };
+      console.log("Registering store owner with body:", registrationBody);
+      const registrationResponse = await fetch(
+        `${API_BASE_URL}/store-owners/register`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            storeName: formData.storeName,
-            name: formData.ownerName, // Fix: send as 'name' for backend
-            email: formData.email,
-            password: formData.password,
-          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include", // Important: Include cookies for HttpOnly
+          body: JSON.stringify(registrationBody),
         }
       );
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setStep(5);
-      } else {
-        setErrors({ submit: data.message || "Registration failed" });
+      let registrationData = null;
+      try {
+        registrationData = await registrationResponse.json();
+      } catch (e) {
+        console.error("Failed to parse registration response as JSON", e);
       }
+
+      if (!registrationResponse.ok) {
+        console.error("Store owner registration failed", registrationData);
+        setErrors({
+          submit:
+            (registrationData && registrationData.error) ||
+            "Registration failed. Please try again.",
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Step 3: Auto-login after successful registration
+      // This step sets HttpOnly cookies automatically
+      const loginResponse = await fetch(`${API_BASE_URL}/store-owners/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // Include cookies
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const loginData = await loginResponse.json();
+
+      if (!loginResponse.ok) {
+        // Registration succeeded but login failed - show success anyway
+        setStep(5);
+        return;
+      }
+
+      // Success - cookies are now set by the browser automatically
+      // Store owner data is available in loginData.user
+      console.log("Registration and login successful:", loginData.user);
+
+      // Move to success screen
+      setStep(5);
     } catch (error) {
-      setErrors({ submit: "Connection failed. Check your backend URL." });
+      console.error("Registration error:", error);
+      setErrors({
+        submit:
+          "Connection failed. Please check your backend URL and try again.",
+      });
     } finally {
       setLoading(false);
     }
@@ -416,16 +498,18 @@ const RegisterScreen = () => {
               </div>
 
               <div>
-                <h2 style={styles.successTitle}>Welcome to you Store! 🎉</h2>
+                <h2 style={styles.successTitle}>Welcome to Your Store! 🎉</h2>
                 <p style={styles.successText}>
-                  Your store account is ready to go. Let's get you started with
-                  managing credit.
+                  Your account is ready to go. Let's get you started with
+                  managing credit. You're now logged in securely.
                 </p>
               </div>
 
               <button
                 onClick={() => {
-                  window.location.href = "/customer-dashboard";
+                  // After successful registration/login, redirect to dashboard
+                  // Cookies are automatically sent with all future requests
+                window.location.href = "/customer-dashboard";
                 }}
                 style={{
                   ...styles.buttonSubmit,
@@ -504,7 +588,7 @@ const RegisterScreen = () => {
 
         {/* Main Content Card */}
         <div style={styles.card as React.CSSProperties}>
-          {/* Step 1: Store Name */}
+          {/* Step 1: Store Name, Address, Phone Number */}
           {step === 1 && (
             <div style={styles.stepContent as React.CSSProperties}>
               <div style={styles.stepHeader}>
@@ -513,9 +597,6 @@ const RegisterScreen = () => {
                 </div>
                 <div style={styles.stepHeaderText as React.CSSProperties}>
                   <h2 style={styles.stepTitle}>What's your store called?</h2>
-                  <p style={styles.stepSubtitle}>
-                    Make it memorable and unique
-                  </p>
                 </div>
               </div>
 
@@ -538,6 +619,46 @@ const RegisterScreen = () => {
                   <div style={styles.errorMessage}>
                     <AlertCircle size={16} />
                     <span>{errors.storeName}</span>
+                  </div>
+                )}
+
+                <input
+                  type="text"
+                  placeholder="Store address"
+                  value={formData.address}
+                  onChange={(e) => handleInputChange("address", e.target.value)}
+                  style={
+                    {
+                      ...styles.input,
+                      ...(errors.address ? styles.inputError : {}),
+                    } as React.CSSProperties
+                  }
+                />
+                {errors.address && (
+                  <div style={styles.errorMessage}>
+                    <AlertCircle size={16} />
+                    <span>{errors.address}</span>
+                  </div>
+                )}
+
+                <input
+                  type="tel"
+                  placeholder="Phone number"
+                  value={formData.phoneNumber}
+                  onChange={(e) =>
+                    handleInputChange("phoneNumber", e.target.value)
+                  }
+                  style={
+                    {
+                      ...styles.input,
+                      ...(errors.phoneNumber ? styles.inputError : {}),
+                    } as React.CSSProperties
+                  }
+                />
+                {errors.phoneNumber && (
+                  <div style={styles.errorMessage}>
+                    <AlertCircle size={16} />
+                    <span>{errors.phoneNumber}</span>
                   </div>
                 )}
               </div>
@@ -698,7 +819,7 @@ const RegisterScreen = () => {
               </div>
 
               <div style={styles.securityInfo}>
-                ✓ Password will be securely encrypted
+                ✓ Password will be securely encrypted with bcrypt
               </div>
             </div>
           )}
@@ -801,7 +922,7 @@ const RegisterScreen = () => {
                 padding: 0,
               }}
               onClick={() => {
-                window.location.href = "http://localhost:8081/login";
+                window.location.href = "/login";
               }}
             >
               Sign in

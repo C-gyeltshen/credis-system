@@ -3,6 +3,7 @@ import type {
   CreateStoreOwnerInput,
   UpdateStoreOwnerInput,
 } from "../types/storeOwner.types.js";
+import bcrypt from "bcrypt";
 
 export class StoreOwnerRepository {
   async create(data: CreateStoreOwnerInput) {
@@ -54,7 +55,6 @@ export class StoreOwnerRepository {
     });
   }
 
-  // For auth: find by email and include passwordHash
   async findByEmailWithPassword(email: string) {
     return await prisma.storeOwner.findUnique({
       where: { email },
@@ -73,6 +73,52 @@ export class StoreOwnerRepository {
     return await prisma.storeOwner.update({
       where: { id },
       data: { lastLoginAt: date },
+    });
+  }
+
+  // Refresh token management
+  async saveRefreshToken(storeOwnerId: string, token: string, expiresAt: Date) {
+    const tokenHash = await bcrypt.hash(token, 10);
+    return await prisma.refreshToken.create({
+      data: {
+        storeOwnerId,
+        tokenHash,
+        expiresAt,
+      },
+    });
+  }
+
+  async findRefreshToken(storeOwnerId: string, token: string) {
+    const refreshTokens = await prisma.refreshToken.findMany({
+      where: {
+        storeOwnerId,
+        revoked: false,
+        expiresAt: {
+          gt: new Date(),
+        },
+      },
+    });
+
+    for (const rt of refreshTokens) {
+      const isValid = await bcrypt.compare(token, rt.tokenHash);
+      if (isValid) {
+        return rt;
+      }
+    }
+    return null;
+  }
+
+  async revokeRefreshToken(tokenHash: string) {
+    return await prisma.refreshToken.update({
+      where: { id: tokenHash },
+      data: { revoked: true },
+    });
+  }
+
+  async revokeAllRefreshTokens(storeOwnerId: string) {
+    return await prisma.refreshToken.updateMany({
+      where: { storeOwnerId },
+      data: { revoked: true },
     });
   }
 }

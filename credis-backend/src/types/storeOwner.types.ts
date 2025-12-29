@@ -1,30 +1,42 @@
-// Input type for creating a StoreOwner
 export interface CreateStoreOwnerInput {
-    name: string;
-    email: string;
-    password: string;
-    storeId?: string; 
+  name: string;
+  email: string;
+  password: string;
+  storeId?: string;
 }
 
-// Input type for updating a StoreOwner
 export interface UpdateStoreOwnerInput {
-    name?: string;
-    email?: string;
-    passwordHash?: string;
-    storeId?: string;
-    isActive?: boolean;
-    lastLoginAt?: Date;
+  name?: string;
+  email?: string;
+  passwordHash?: string;
+  storeId?: string;
+  isActive?: boolean;
+  lastLoginAt?: Date;
 }
 
-// StoreOwner response type (matches Prisma model)
 export interface StoreOwner {
-    id: string;
-    name: string;
-    email: string;
-    passwordHash: string;
-    storeId?: string | null;
-    isActive: boolean;
-    lastLoginAt?: Date | null;
-    createdAt: Date;
-    modifiedAt: Date;
+  id: string;
+  name: string;
+  email: string;
+  passwordHash: string;
+  storeId?: string | null;
+  isActive: boolean;
+  lastLoginAt?: Date | null;
+  createdAt: Date;
+  modifiedAt: Date;
+}
+
+// Response types (without sensitive data)
+export interface StoreOwnerResponse {
+  id: string;
+  name: string;
+  email: string;
+  storeId?: string | null;
+  isActive: boolean;
+  createdAt: Date;
+}
+
+export interface AuthResponse {
+  success: boolean;
+  user: StoreOwnerResponse;
 }

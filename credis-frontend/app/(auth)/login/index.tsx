@@ -7,6 +7,9 @@ type Errors = {
   submit?: string;
 };
 
+const API_BASE_URL =
+  process.env.REACT_APP_API_URL || "http://localhost:8080/api";
+
 const LoginScreen: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
@@ -99,11 +102,6 @@ const LoginScreen: React.FC = () => {
     inputError: {
       borderColor: "#fca5a5",
       backgroundColor: "#fef2f2",
-    },
-    inputFocus: {
-      outline: "none",
-      borderColor: "#2563eb",
-      backgroundColor: "#fff",
     },
     icon: {
       position: "absolute",
@@ -228,10 +226,6 @@ const LoginScreen: React.FC = () => {
       cursor: "pointer",
       transition: "all 0.2s ease",
     },
-    socialBtnHover: {
-      borderColor: "#d1d5db",
-      backgroundColor: "#f3f4f6",
-    },
     footerLink: {
       textAlign: "center",
       fontSize: "14px",
@@ -289,30 +283,44 @@ const LoginScreen: React.FC = () => {
     if (!validateForm()) return;
 
     setLoading(true);
+    setErrors({});
+
     try {
-      const response = await fetch(
-        "http://localhost:8080/api/store-owners/login",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: formData.email,
-            password: formData.password,
-          }),
-        }
-      );
+      // Send login request with credentials: include to handle HttpOnly cookies
+      const response = await fetch(`${API_BASE_URL}/store-owners/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // CRITICAL: Include cookies in request/response
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
 
       const data = await response.json();
 
       if (response.ok) {
-        // Store token and redirect
-        console.log("Login successful", data);
+        // Login successful - HttpOnly cookies are now set by the browser
+        // No need to manually store tokens
+        console.log("Login successful", data.user);
+
+        // Optional: Store user info in context/state if needed
+        // But tokens are already secure in HttpOnly cookies
+
+        // Redirect to dashboard
+        // All future requests will automatically include the HttpOnly cookies
         window.location.href = "/customer-dashboard";
       } else {
-        setErrors({ submit: data.message || "Login failed" });
+        // Handle login errors from backend
+        const errorMessage = data.error || "Login failed. Please try again.";
+        setErrors({ submit: errorMessage });
       }
     } catch (error: unknown) {
-      let message = "Connection failed. Check your internet and try again.";
+      console.error("Login error:", error);
+      let message =
+        "Connection failed. Please check your internet and try again.";
       if (error instanceof Error) {
         message = error.message || message;
       }
@@ -326,9 +334,16 @@ const LoginScreen: React.FC = () => {
 
   const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    // Clear field-specific error when user starts typing
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
     }
+  };
+
+  const handleForgotPassword = () => {
+    // TODO: Implement forgot password flow
+    // This would typically redirect to a password reset page
+    window.location.href = "/forgot-password";
   };
 
   return (
@@ -341,6 +356,16 @@ const LoginScreen: React.FC = () => {
         }
         button:hover:not(:disabled) {
           transform: translateY(-1px);
+        }
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
       `}</style>
 
@@ -380,9 +405,11 @@ const LoginScreen: React.FC = () => {
                   placeholder="you@example.com"
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
+                  disabled={loading}
                   style={{
                     ...styles.input,
                     ...(errors.email ? styles.inputError : {}),
+                    ...(loading ? { opacity: 0.6, cursor: "not-allowed" } : {}),
                   }}
                 />
               </div>
@@ -411,15 +438,19 @@ const LoginScreen: React.FC = () => {
                   onChange={(e) =>
                     handleInputChange("password", e.target.value)
                   }
+                  disabled={loading}
                   style={{
                     ...styles.input,
                     ...(errors.password ? styles.inputError : {}),
+                    ...(loading ? { opacity: 0.6, cursor: "not-allowed" } : {}),
                   }}
                 />
                 <button
                   style={styles.togglePassword}
                   onClick={() => setShowPassword(!showPassword)}
                   type="button"
+                  disabled={loading}
+                  aria-label="Toggle password visibility"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -440,12 +471,14 @@ const LoginScreen: React.FC = () => {
                   checked={rememberMe}
                   onChange={() => setRememberMe(!rememberMe)}
                   style={{ display: "none" }}
+                  disabled={loading}
                   aria-label="Remember me"
                 />
                 <div
                   style={{
                     ...styles.checkbox,
                     ...(rememberMe ? styles.checkboxChecked : {}),
+                    ...(loading ? { opacity: 0.6, cursor: "not-allowed" } : {}),
                   }}
                 >
                   {rememberMe && <Check size={14} color="#ffffff" />}
@@ -459,8 +492,11 @@ const LoginScreen: React.FC = () => {
                   background: "none",
                   border: "none",
                   padding: 0,
+                  opacity: loading ? 0.6 : 1,
+                  cursor: loading ? "not-allowed" : "pointer",
                 }}
-                onClick={() => alert("Forgot password flow")}
+                onClick={handleForgotPassword}
+                disabled={loading}
               >
                 Forgot Password?
               </button>
@@ -488,47 +524,6 @@ const LoginScreen: React.FC = () => {
             </button>
           </div>
 
-          {/* Divider */}
-          <div style={styles.divider}>
-            <div style={styles.dividerLine} />
-            <span style={styles.dividerText}>OR</span>
-            <div style={styles.dividerLine} />
-          </div>
-
-          {/* Social Buttons */}
-          <div style={styles.socialButtons}>
-            <button
-              style={styles.socialBtn}
-              onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
-                (e.target as HTMLButtonElement).style.borderColor = "#d1d5db";
-                (e.target as HTMLButtonElement).style.backgroundColor =
-                  "#f3f4f6";
-              }}
-              onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
-                (e.target as HTMLButtonElement).style.borderColor = "#e5e7eb";
-                (e.target as HTMLButtonElement).style.backgroundColor =
-                  "#f9fafb";
-              }}
-            >
-              🔵 Google
-            </button>
-            <button
-              style={styles.socialBtn}
-              onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
-                const target = e.target as HTMLButtonElement;
-                target.style.borderColor = "#d1d5db";
-                target.style.backgroundColor = "#f3f4f6";
-              }}
-              onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
-                const target = e.target as HTMLButtonElement;
-                target.style.borderColor = "#e5e7eb";
-                target.style.backgroundColor = "#f9fafb";
-              }}
-            >
-              🔵 Apple
-            </button>
-          </div>
-
           {/* Footer */}
           <div style={styles.footerLink}>
             Don't have an account?{" "}
@@ -540,7 +535,7 @@ const LoginScreen: React.FC = () => {
                 padding: 0,
               }}
               onClick={() => {
-                window.location.href = "http://localhost:8081/register";
+                window.location.href = "/register";
               }}
             >
               Create one
