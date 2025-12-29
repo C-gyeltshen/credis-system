@@ -41,6 +41,7 @@ model RefreshToken {
   @@map("refresh_tokens")
 }
 
+
 model StoreOwner {
   id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name              String

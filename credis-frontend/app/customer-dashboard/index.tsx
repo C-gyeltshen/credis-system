@@ -28,6 +28,7 @@ interface Customer {
 }
 
 import { router } from "expo-router";
+import Navigation from "@/components/Navbar";
 
 export default function CustomersScreen() {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -131,6 +132,7 @@ export default function CustomersScreen() {
   }
 
   return (
+    <Navigation>
     <SafeAreaView style={styles.container}>
       {/* Header Section */}
       <LinearGradient
@@ -141,13 +143,12 @@ export default function CustomersScreen() {
       >
         <View style={styles.headerContent}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.headerTitle}>{shopName}</Text>
-            <Text style={styles.headerSubtitle}>
-              Manage and track your customer database
+            <Text style={styles.headerTitle}>
+              Welcome {user?.name ? user.name : "StoreOwner"}
             </Text>
             <View style={{ marginTop: 8 }}>
               <Text style={{ color: "#fff", fontWeight: "600", fontSize: 16 }}>
-                Total Outstanding Balance:
+                Total Remaining Balance:
                 <Text style={{ color: "#ffd700", fontWeight: "bold" }}>
                   {outstandingBalance !== null
                     ? ` Nu. ${outstandingBalance.toLocaleString("en-IN", {
@@ -172,7 +173,6 @@ export default function CustomersScreen() {
             inputStyle={styles.searchInput}
             icon="magnify"
             iconColor="#667eea"
-            elevation={4}
             placeholderTextColor="#999"
           />
         </View>
@@ -205,7 +205,7 @@ export default function CustomersScreen() {
               <View style={styles.tableHeader}>
                 <View style={styles.tableHeaderLeft}>
                   <MaterialIcons name="table-chart" size={24} color="#667eea" />
-                  <Text style={styles.sectionTitle}>Customer Directory</Text>
+                  <Text style={styles.sectionTitle}>Clients</Text>
                 </View>
               </View>
 
@@ -222,6 +222,7 @@ export default function CustomersScreen() {
         </View>
       </ScrollView>
     </SafeAreaView>
+    </Navigation>
   );
 }
 
@@ -289,13 +290,16 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     ...Platform.select({
       ios: {
-        shadowColor: "#667eea",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.35,
+        shadowRadius: 12,
       },
       android: {
-        elevation: 4,
+        elevation: 10,
+      },
+      web: {
+        boxShadow: "0px 6px 24px rgba(0,0,0,0.25)",
       },
     }),
   },
@@ -308,17 +312,9 @@ const styles = StyleSheet.create({
   searchBar: {
     borderRadius: 12,
     backgroundColor: "#fff",
-    ...Platform.select({
-      ios: {
-        shadowColor: "#667eea",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-      },
-      android: {
-        elevation: 4,
-      },
-    }),
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
+    // Added border for visual separation
   },
   searchInput: {
     fontSize: 16,

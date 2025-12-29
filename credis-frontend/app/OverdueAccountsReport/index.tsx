@@ -11,6 +11,7 @@ import { Text, TextInput, Button, Card, Chip } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import Navigation from "@/components/Navbar";
 
 interface Customer {
   id: string;
@@ -405,6 +406,7 @@ export default function OverdueAccountsReport() {
   };
 
   return (
+    <Navigation>
     <SafeAreaView style={styles.container}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
@@ -698,6 +700,7 @@ export default function OverdueAccountsReport() {
         )}
       </ScrollView>
     </SafeAreaView>
+    </Navigation>
   );
 }
 
