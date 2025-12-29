@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useLocalSearchParams } from "expo-router";
+import { useAuth } from "@/hooks/useAuth";
 import {
   View,
   ScrollView,
@@ -19,11 +21,16 @@ import { router } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 
 export default function AddCustomerModal() {
+  const { user } = useAuth();
+  const params = useLocalSearchParams();
   // Customer basic info
   const [name, setName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
   const [creditLimit, setCreditLimit] = useState("");
+
+  // Prefer storeId from params, fallback to user context
+  const storeId = params.storeId || user?.storeId;
 
   // Validation & loading
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -73,7 +80,7 @@ export default function AddCustomerModal() {
       setLoading(true);
 
       const customerData = {
-        storeId: "fc8516c1-5068-4be9-8025-ed99d2890692",
+        storeId,
         name: name.trim(),
         phone_number: phoneNumber.trim().replace(/\s/g, ""),
         email: email.trim(),

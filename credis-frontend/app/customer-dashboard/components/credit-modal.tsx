@@ -17,15 +17,19 @@ import {
 } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
+import { useAuth } from "@/hooks/useAuth";
 import { MaterialIcons } from "@expo/vector-icons";
 
 type TransactionType = "credit_given" | "payment_received";
 
 export default function CreditTransactionModal() {
   const params = useLocalSearchParams();
+  const { user } = useAuth();
   const customerId = params.customerId as string;
   const customerName = params.customerName as string;
   const initialType = (params.type as TransactionType) || "credit_given";
+  // Prefer storeId from params, fallback to user context
+  const storeId = (params.storeId as string) || user?.storeId;
 
   // Transaction details
   const [transactionType, setTransactionType] =
@@ -70,7 +74,7 @@ export default function CreditTransactionModal() {
       // Prepare payload as per backend API
       const payload = {
         customer_id: customerId,
-        store_id: "fc8516c1-5068-4be9-8025-ed99d2890692",
+        store_id: storeId,
         amount: Number(amount),
         transaction_type: transactionType,
         items_description: itemsDescription.trim() || undefined,
