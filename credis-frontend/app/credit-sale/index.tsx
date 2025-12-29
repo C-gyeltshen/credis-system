@@ -22,7 +22,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 
 type TransactionType = "credit_given" | "payment_received";
 
-export default function CreditTransactionModal() {
+export default function CreditSalesPage() {
   const params = useLocalSearchParams();
   const { user } = useAuth();
   const customerId = params.customerId as string;

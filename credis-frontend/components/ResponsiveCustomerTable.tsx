@@ -13,12 +13,12 @@ import {
   DataTable,
   IconButton,
   ActivityIndicator,
-  Divider,
   Portal,
   Modal,
   RadioButton,
   Button,
   TextInput,
+  Divider,
 } from "react-native-paper";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -68,8 +68,6 @@ export default function ResponsiveCustomerTable({
   loading,
 }: ResponsiveCustomerTableProps) {
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
-  // State to control showing all transactions or just the latest 3
-  const [showAllTransactions, setShowAllTransactions] = useState(false);
   const [creditData, setCreditData] = useState<Map<string, CreditData>>(
     new Map()
   );
@@ -300,12 +298,7 @@ export default function ResponsiveCustomerTable({
       <View style={styles.creditDetailsContainer}>
         {/* Transaction Summary Section */}
         <View style={styles.summarySection}>
-          <View style={styles.summarySectionHeader}>
-            <Text style={styles.summarySectionTitle}>
-              <MaterialIcons name="analytics" size={16} color="#1a1a1a" />{" "}
-              Summary
-            </Text>
-          </View>
+          <View style={styles.summarySectionHeader}></View>
           <TouchableOpacity
             style={[
               styles.transactionActionBtn,
@@ -320,7 +313,7 @@ export default function ResponsiveCustomerTable({
                 { color: "#1976d2", marginLeft: 6 },
               ]}
             >
-              Add Credit
+              Add
             </Text>
           </TouchableOpacity>
           <View style={styles.summaryCardsRow}>
@@ -371,7 +364,7 @@ export default function ResponsiveCustomerTable({
                   size={20}
                   color={outstandingBalance > 0 ? "#ff9800" : "#4caf50"}
                 />
-                <Text style={styles.summaryCardLabel}>Outstanding Balance</Text>
+                <Text style={styles.summaryCardLabel}>Remaning Balance</Text>
               </View>
               <Text
                 style={[
@@ -384,113 +377,23 @@ export default function ResponsiveCustomerTable({
             </View>
           </View>
         </View>
-
-        <Divider style={{ marginVertical: 16 }} />
-
-        {/* Credit Utilization Bar */}
-        <View style={styles.utilizationSection}>
-          <View style={styles.utilizationHeader}>
-            <Text style={styles.utilizationLabel}>Credit Utilization</Text>
-            <Text style={styles.utilizationPercentage}>
-              {creditUtilization.toFixed(1)}%
+        {/* View Transactions Button below Remaining Balance */}
+        <View style={{ alignItems: "flex-start", marginTop: 12 }}>
+          <TouchableOpacity
+            style={{
+              backgroundColor: "#1976d2",
+              paddingHorizontal: 16,
+              paddingVertical: 8,
+              borderRadius: 6,
+            }}
+            onPress={() => router.push(`/transaction?customerId=${customerId}`)}
+          >
+            <Text style={{ color: "#fff", fontWeight: "bold" }}>
+              View Transactions
             </Text>
-          </View>
-          <View style={styles.progressBarContainer}>
-            <View
-              style={[
-                styles.progressBar,
-                {
-                  width: `${creditUtilization}%`,
-                  backgroundColor: (() => {
-                    if (isHighUtilization) return "#d32f2f";
-                    if (creditUtilization > 50) return "#ff9800";
-                    return "#4caf50";
-                  })(),
-                },
-              ]}
-            />
-          </View>
+          </TouchableOpacity>
         </View>
-
         <Divider style={{ marginVertical: 16 }} />
-
-        {/* Credit History */}
-        <View style={styles.creditHistorySection}>
-          <Text style={styles.creditHistoryTitle}>
-            <MaterialIcons name="history" size={18} color="#1a1a1a" /> Recent
-            Transactions
-          </Text>
-
-          {/* Show only the latest 3 transactions by default */}
-          {(showAllTransactions
-            ? credit.credits
-            : credit.credits.slice(0, 3)
-          ).map((transaction, index) => {
-            const isCreditGiven =
-              transaction.transactionType === "credit_given";
-            const description =
-              transaction.itemsDescription ||
-              (isCreditGiven ? "Credit Given" : "Payment Received");
-
-            return (
-              <View key={transaction.id} style={styles.transactionRow}>
-                <View style={styles.transactionLeft}>
-                  {/* Removed plus/minus icon */}
-                  <View style={styles.transactionInfo}>
-                    <Text style={styles.transactionDescription}>
-                      {description}
-                    </Text>
-                    <Text style={styles.transactionDate}>
-                      {formatDate(transaction.transactionDate)}
-                    </Text>
-                    {transaction.journalNumber && (
-                      <Text style={styles.transactionJournal}>
-                        Journal: {transaction.journalNumber}
-                      </Text>
-                    )}
-                  </View>
-                </View>
-                <Text
-                  style={[
-                    styles.transactionAmount,
-                    {
-                      color: isCreditGiven ? "#1976d2" : "#4caf50",
-                    },
-                  ]}
-                >
-                  {formatCurrency(Number(transaction.amount))}
-                </Text>
-              </View>
-            );
-          })}
-
-          {credit.credits.length === 0 && (
-            <Text style={styles.noTransactions}>No transactions yet</Text>
-          )}
-
-          {/* 'View More' button if there are more than 3 transactions and not showing all */}
-          {credit.credits.length > 3 && !showAllTransactions && (
-            <TouchableOpacity
-              style={{ alignItems: "center", marginTop: 8 }}
-              onPress={() => setShowAllTransactions(true)}
-            >
-              <Text style={{ color: "#1976d2", fontWeight: "bold" }}>
-                View More
-              </Text>
-            </TouchableOpacity>
-          )}
-          {/* 'Show Less' button if showing all transactions */}
-          {credit.credits.length > 3 && showAllTransactions && (
-            <TouchableOpacity
-              style={{ alignItems: "center", marginTop: 8 }}
-              onPress={() => setShowAllTransactions(false)}
-            >
-              <Text style={{ color: "#1976d2", fontWeight: "bold" }}>
-                Show Less
-              </Text>
-            </TouchableOpacity>
-          )}
-        </View>
       </View>
     );
   };
@@ -591,8 +494,6 @@ export default function ResponsiveCustomerTable({
                     </View>
                   </RadioButton.Group>
                 </View>
-
-                <Divider style={styles.modalDivider} />
 
                 {/* Transaction Details Section */}
                 <View style={styles.modalSection}>
@@ -703,140 +604,48 @@ export default function ResponsiveCustomerTable({
       <>
         <View style={styles.container}>
           <ScrollView style={styles.cardContainer}>
-            {paginatedCustomers.map((customer) => {
-              const isExpanded = expandedRows.has(customer.id);
-              return (
-                <View key={customer.id} style={styles.customerCard}>
-                  <TouchableOpacity
-                    onPress={() => toggleRowExpansion(customer.id)}
-                    activeOpacity={0.7}
-                  >
-                    <View style={styles.cardHeader}>
-                      <View style={styles.cardHeaderInfo}>
-                        <Text style={styles.customerName}>{customer.name}</Text>
-                      </View>
-                      <MaterialIcons
-                        name={isExpanded ? "expand-less" : "expand-more"}
-                        size={24}
-                        color="#666"
-                      />
-                    </View>
-
-                    <View style={styles.cardBody}>
-                      <View style={styles.infoRow}>
-                        <MaterialIcons name="phone" size={16} color="#666" />
-                        <Text style={styles.infoText}>
-                          {customer.phoneNumber}
-                        </Text>
-                      </View>
-                      {customer.email && (
-                        <View style={styles.infoRow}>
-                          <MaterialIcons name="email" size={16} color="#666" />
-                          <Text style={styles.infoText}>{customer.email}</Text>
+            {paginatedCustomers.length === 0 ? (
+              <Text style={styles.noTransactions}>No customers found</Text>
+            ) : (
+              paginatedCustomers.map((customer) => {
+                const isExpanded = expandedRows.has(customer.id);
+                return (
+                  <View key={customer.id} style={styles.customerCard}>
+                    <TouchableOpacity
+                      onPress={() => toggleRowExpansion(customer.id)}
+                      activeOpacity={0.7}
+                    >
+                      <View style={styles.cardHeader}>
+                        <View style={styles.cardHeaderInfo}>
+                          <Text style={styles.customerName}>
+                            {customer.name}
+                          </Text>
                         </View>
-                      )}
-                    </View>
-                  </TouchableOpacity>
-
-                  {isExpanded && (
-                    <View style={styles.expandedSection}>
-                      <Divider style={{ marginVertical: 12 }} />
-                      {renderCreditDetails(customer.id)}
-
-                      {/* Action Buttons */}
-                      <View style={styles.cardActions}>
-                        <TouchableOpacity
-                          style={[
-                            styles.cardActionButton,
-                            { backgroundColor: "#e8f5e9" },
-                          ]}
-                          onPress={() =>
-                            openCreditModal(customer.id, "credit_given")
-                          }
-                        >
-                          <MaterialIcons
-                            name="add-circle"
-                            size={18}
-                            color="#4caf50"
-                          />
-                          <Text
-                            style={[
-                              styles.cardActionText,
-                              { color: "#4caf50" },
-                            ]}
-                          >
-                            Add Credit
-                          </Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          style={[
-                            styles.cardActionButton,
-                            { backgroundColor: "#e3f2fd" },
-                          ]}
-                          onPress={() => handleView(customer)}
-                        >
-                          <MaterialIcons
-                            name="visibility"
-                            size={18}
-                            color="#1976d2"
-                          />
-                          <Text
-                            style={[
-                              styles.cardActionText,
-                              { color: "#1976d2" },
-                            ]}
-                          >
-                            View
-                          </Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          style={[
-                            styles.cardActionButton,
-                            { backgroundColor: "#f3e5f5" },
-                          ]}
-                          onPress={() => handleEdit(customer)}
-                        >
-                          <MaterialIcons
-                            name="edit"
-                            size={18}
-                            color="#9c27b0"
-                          />
-                          <Text
-                            style={[
-                              styles.cardActionText,
-                              { color: "#9c27b0" },
-                            ]}
-                          >
-                            Edit
-                          </Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          style={[
-                            styles.cardActionButton,
-                            { backgroundColor: "#ffebee" },
-                          ]}
-                          onPress={() => handleDelete(customer.id)}
-                        >
-                          <MaterialIcons
-                            name="delete"
-                            size={18}
-                            color="#d32f2f"
-                          />
-                          <Text
-                            style={[
-                              styles.cardActionText,
-                              { color: "#d32f2f" },
-                            ]}
-                          >
-                            Delete
-                          </Text>
-                        </TouchableOpacity>
+                        <MaterialIcons
+                          name={isExpanded ? "expand-less" : "expand-more"}
+                          size={24}
+                          color="#666"
+                        />
                       </View>
-                    </View>
-                  )}
-                </View>
-              );
-            })}
+
+                      <View style={styles.cardBody}>
+                        <View style={styles.infoRow}>
+                          <MaterialIcons name="phone" size={16} color="#666" />
+                          <Text style={styles.infoText}>
+                            {customer.phoneNumber}
+                          </Text>
+                        </View>
+                      </View>
+                    </TouchableOpacity>
+                    {isExpanded && (
+                      <View style={styles.expandedSection}>
+                        {renderCreditDetails(customer.id)}
+                      </View>
+                    )}
+                  </View>
+                );
+              })
+            )}
           </ScrollView>
 
           <DataTable.Pagination
@@ -887,76 +696,84 @@ export default function ResponsiveCustomerTable({
               </DataTable.Title>
             </DataTable.Header>
 
-            {paginatedCustomers.map((customer) => {
-              const isExpanded = expandedRows.has(customer.id);
-              return (
-                <React.Fragment key={customer.id}>
-                  <DataTable.Row>
-                    <DataTable.Cell style={styles.expandCell}>
-                      <IconButton
-                        icon={isExpanded ? "chevron-up" : "chevron-down"}
-                        size={20}
-                        onPress={() => toggleRowExpansion(customer.id)}
-                      />
-                    </DataTable.Cell>
-                    <DataTable.Cell style={styles.nameCell}>
-                      <TouchableOpacity
-                        onPress={() => toggleRowExpansion(customer.id)}
-                      >
-                        <Text style={styles.clickableText}>
-                          {customer.name}
+            {paginatedCustomers.length === 0 ? (
+              <DataTable.Row>
+                <DataTable.Cell style={{ justifyContent: "center" }}>
+                  <Text style={styles.noTransactions}>No customers found</Text>
+                </DataTable.Cell>
+              </DataTable.Row>
+            ) : (
+              paginatedCustomers.map((customer) => {
+                const isExpanded = expandedRows.has(customer.id);
+                return (
+                  <React.Fragment key={customer.id}>
+                    <DataTable.Row>
+                      <DataTable.Cell style={styles.expandCell}>
+                        <IconButton
+                          icon={isExpanded ? "chevron-up" : "chevron-down"}
+                          size={20}
+                          onPress={() => toggleRowExpansion(customer.id)}
+                        />
+                      </DataTable.Cell>
+                      <DataTable.Cell style={styles.nameCell}>
+                        <TouchableOpacity
+                          onPress={() => toggleRowExpansion(customer.id)}
+                        >
+                          <Text style={styles.clickableText}>
+                            {customer.name}
+                          </Text>
+                        </TouchableOpacity>
+                      </DataTable.Cell>
+                      <DataTable.Cell style={styles.phoneCell}>
+                        {customer.phoneNumber}
+                      </DataTable.Cell>
+                      {!isMediumScreen && (
+                        <DataTable.Cell style={styles.emailCell}>
+                          {customer.email || "-"}
+                        </DataTable.Cell>
+                      )}
+                      <DataTable.Cell style={styles.statusCell}>
+                        <Text style={styles.creditLimitText}>
+                          {customer.creditLimit
+                            ? formatCurrency(customer.creditLimit)
+                            : "-"}
                         </Text>
-                      </TouchableOpacity>
-                    </DataTable.Cell>
-                    <DataTable.Cell style={styles.phoneCell}>
-                      {customer.phoneNumber}
-                    </DataTable.Cell>
-                    {!isMediumScreen && (
-                      <DataTable.Cell style={styles.emailCell}>
-                        {customer.email || "-"}
                       </DataTable.Cell>
-                    )}
-                    <DataTable.Cell style={styles.statusCell}>
-                      <Text style={styles.creditLimitText}>
-                        {customer.creditLimit
-                          ? formatCurrency(customer.creditLimit)
-                          : "-"}
-                      </Text>
-                    </DataTable.Cell>
-                    {isLargeScreen && (
-                      <DataTable.Cell style={styles.dateCell}>
-                        {formatDate(customer.createdAt)}
+                      {isLargeScreen && (
+                        <DataTable.Cell style={styles.dateCell}>
+                          {formatDate(customer.createdAt)}
+                        </DataTable.Cell>
+                      )}
+                      <DataTable.Cell style={styles.actionsCell}>
+                        <View style={styles.actionButtons}>
+                          <IconButton
+                            icon="eye"
+                            size={20}
+                            onPress={() => handleView(customer)}
+                          />
+                          <IconButton
+                            icon="pencil"
+                            size={20}
+                            onPress={() => handleEdit(customer)}
+                          />
+                          <IconButton
+                            icon="delete"
+                            size={20}
+                            onPress={() => handleDelete(customer.id)}
+                          />
+                        </View>
                       </DataTable.Cell>
-                    )}
-                    <DataTable.Cell style={styles.actionsCell}>
-                      <View style={styles.actionButtons}>
-                        <IconButton
-                          icon="eye"
-                          size={20}
-                          onPress={() => handleView(customer)}
-                        />
-                        <IconButton
-                          icon="pencil"
-                          size={20}
-                          onPress={() => handleEdit(customer)}
-                        />
-                        <IconButton
-                          icon="delete"
-                          size={20}
-                          onPress={() => handleDelete(customer.id)}
-                        />
-                      </View>
-                    </DataTable.Cell>
-                  </DataTable.Row>
+                    </DataTable.Row>
 
-                  {isExpanded && (
-                    <View style={styles.tableExpandedRow}>
-                      {renderCreditDetails(customer.id)}
-                    </View>
-                  )}
-                </React.Fragment>
-              );
-            })}
+                    {isExpanded && (
+                      <View style={styles.tableExpandedRow}>
+                        {renderCreditDetails(customer.id)}
+                      </View>
+                    )}
+                  </React.Fragment>
+                );
+              })
+            )}
           </DataTable>
         </View>
       </ScrollView>
