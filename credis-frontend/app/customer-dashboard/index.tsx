@@ -106,7 +106,10 @@ export default function CustomersScreen() {
   }, [storeId]);
 
   const addNewCustomer = () => {
-    router.push("/customer-dashboard/components/modal" as any);
+    router.push({
+      pathname: "/customer-dashboard/components/modal",
+      params: { storeId },
+    } as any);
   };
 
   // Responsive card margin and padding
