@@ -11,19 +11,10 @@ export class CustomerRepository {
           }
         },
         name: data.name,
-        email: data.email,
         phoneNumber: data.phone_number,
-        creditLimit: data.creditLimit || 0,
       },
     });
   }
-
-  async findByEmail(email: string) {
-    return await prisma.customer.findFirst({
-      where: { email },
-    });
-  }
-
   async findById(id: string) {
     return await prisma.customer.findUnique({
       where: { id },
@@ -35,4 +26,15 @@ export class CustomerRepository {
       orderBy: { createdAt: "desc" },
     });
   }
+  async findByPhoneNumber(storeId: string, phoneNumber: string) {
+  return await prisma.customer.findUnique({
+    where: {
+      storeId_phoneNumber: {
+        storeId,
+        phoneNumber,
+      },
+    },
+  });
+}
+
 }

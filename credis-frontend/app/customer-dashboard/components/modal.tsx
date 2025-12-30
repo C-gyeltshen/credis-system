@@ -26,8 +26,6 @@ export default function AddCustomerModal() {
   // Customer basic info
   const [name, setName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [email, setEmail] = useState("");
-  const [creditLimit, setCreditLimit] = useState("");
 
   // Prefer storeId from params, fallback to user context
   const storeId = params.storeId || user?.storeId;
@@ -54,18 +52,6 @@ export default function AddCustomerModal() {
       newErrors.phoneNumber = "Phone number must contain only digits";
     }
 
-    if (!email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = "Invalid email format";
-    }
-
-    if (
-      creditLimit &&
-      (isNaN(Number(creditLimit)) || Number(creditLimit) < 0)
-    ) {
-      newErrors.creditLimit = "Credit limit must be a positive number";
-    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -83,8 +69,6 @@ export default function AddCustomerModal() {
         storeId,
         name: name.trim(),
         phone_number: phoneNumber.trim().replace(/\s/g, ""),
-        email: email.trim(),
-        creditLimit: creditLimit ? Number(creditLimit) : 0,
       };
 
       const response = await fetch("http://localhost:8080/api/customers", {
@@ -212,63 +196,6 @@ export default function AddCustomerModal() {
               {errors.phoneNumber && (
                 <HelperText type="error" visible={!!errors.phoneNumber}>
                   {errors.phoneNumber}
-                </HelperText>
-              )}
-            </View>
-
-            <View style={styles.inputWrapper}>
-              <TextInput
-                label="Email *"
-                placeholder="customer@example.com"
-                value={email}
-                onChangeText={(text) => {
-                  setEmail(text);
-                  if (errors.email) {
-                    setErrors({ ...errors, email: "" });
-                  }
-                }}
-                mode="outlined"
-                style={styles.input}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                error={!!errors.email}
-                left={<TextInput.Icon icon="email" />}
-                outlineColor="#e0e0e0"
-                activeOutlineColor="#1976d2"
-              />
-              {errors.email && (
-                <HelperText type="error" visible={!!errors.email}>
-                  {errors.email}
-                </HelperText>
-              )}
-            </View>
-
-            <View style={styles.inputWrapper}>
-              <TextInput
-                label="Credit Limit (Optional)"
-                placeholder="0.00"
-                value={creditLimit}
-                onChangeText={(text) => {
-                  setCreditLimit(text);
-                  if (errors.creditLimit) {
-                    setErrors({ ...errors, creditLimit: "" });
-                  }
-                }}
-                mode="outlined"
-                style={styles.input}
-                keyboardType="decimal-pad"
-                error={!!errors.creditLimit}
-                left={<TextInput.Affix text="Nu. " />}
-                outlineColor="#e0e0e0"
-                activeOutlineColor="#1976d2"
-              />
-              {errors.creditLimit ? (
-                <HelperText type="error" visible={!!errors.creditLimit}>
-                  {errors.creditLimit}
-                </HelperText>
-              ) : (
-                <HelperText type="info" visible={true}>
-                  Maximum amount the customer can borrow
                 </HelperText>
               )}
             </View>

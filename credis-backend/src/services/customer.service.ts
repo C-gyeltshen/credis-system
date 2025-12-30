@@ -13,15 +13,10 @@ export class CustomerService {
 
   async createCustomer(data: CreateCustomerInput) {
     // Business logic: Check if customer already exists
-    const existingCustomer = await this.repository.findByEmail(data.email);
+    const existingCustomer = await this.repository.findByPhoneNumber(data.storeId, data.phone_number );
 
     if (existingCustomer) {
       throw new Error("Customer with this email already exists");
-    }
-
-    // Business logic: Validate credit limit
-    if (data.creditLimit && data.creditLimit < 0) {
-      throw new Error("Credit limit cannot be negative");
     }
 
     // Create customer

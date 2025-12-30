@@ -87,6 +87,17 @@ export class StoreOwnerRepository {
       },
     });
   }
+  async saveAccessToken(storeOwnerId: string, refreshTokenId: string, token: string, expiresAt: Date) {
+    const tokenHash = await bcrypt.hash(token, 10);
+    await prisma.token.create({
+      data: {
+        storeOwnerId,
+        RefreshTokenId: refreshTokenId,
+        tokenHash,
+        expiresAt,
+      },
+    });
+  }
 
   async findRefreshToken(storeOwnerId: string, token: string) {
     const refreshTokens = await prisma.refreshToken.findMany({

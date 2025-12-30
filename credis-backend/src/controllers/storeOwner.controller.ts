@@ -31,14 +31,14 @@ export class StoreOwnerController {
       c.header(
         "Set-Cookie",
         `accessToken=${accessToken}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${
-          15 * 60
+          30 * 24 * 60 * 60
         }`
       );
 
       c.header(
         "Set-Cookie",
         `refreshToken=${refreshToken}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${
-          7 * 24 * 60 * 60
+          6 * 30 * 24 * 60 * 60
         }`,
         { append: true }
       );
@@ -66,7 +66,7 @@ export class StoreOwnerController {
       c.header(
         "Set-Cookie",
         `accessToken=${accessToken}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${
-          15 * 60
+          30 * 24 * 60 * 60
         }`
       );
 
