@@ -4,10 +4,19 @@ import { StoreOwnerRepository } from "../repositories/storeOwner.repository.js";
 import type { CreateStoreOwnerInput } from "../types/storeOwner.types.js";
 
 const storeOwnerRepository = new StoreOwnerRepository();
+
+// Environment Variables
 const JWT_SECRET = process.env.JWT_SECRET || "changeme";
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || "refresh_secret";
-const ACCESS_TOKEN_EXPIRY = "15m";
-const REFRESH_TOKEN_EXPIRY = "7d";
+
+// 1 Month = 30 days | 6 Months = 180 days
+const ACCESS_TOKEN_EXPIRY = "30d";
+const REFRESH_TOKEN_EXPIRY = "180d";
+
+// Milliseconds for Database Timestamps
+const MS_IN_DAY = 24 * 60 * 60 * 1000;
+const ONE_MONTH_MS = 30 * MS_IN_DAY;
+const SIX_MONTHS_MS = 180 * MS_IN_DAY;
 
 interface TokenPayload {
   id: string;
@@ -43,7 +52,7 @@ export class StoreOwnerService {
 
     await storeOwnerRepository.setLastLogin(owner.id, new Date());
 
-    // Generate tokens
+    // 1. Generate JWTs
     const accessToken = this.generateAccessToken({
       id: owner.id,
       email: owner.email,
@@ -58,9 +67,24 @@ export class StoreOwnerService {
       storeId: owner.storeId,
     });
 
-    // Save refresh token hash to DB
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
-    await storeOwnerRepository.saveRefreshToken(owner.id, refreshToken, expiresAt);
+    // 2. Calculate Expiry Dates for DB
+    const accessExpiresAt = new Date(Date.now() + ONE_MONTH_MS);
+    const refreshExpiresAt = new Date(Date.now() + SIX_MONTHS_MS);
+
+    // 3. Save Refresh Token to DB
+    const refreshTokenRecord = await storeOwnerRepository.saveRefreshToken(
+      owner.id, 
+      refreshToken, 
+      refreshExpiresAt
+    );
+    
+    // 4. Save Access Token linked to the Refresh Token session
+    await storeOwnerRepository.saveAccessToken(
+      owner.id, 
+      refreshTokenRecord.id, 
+      accessToken, 
+      accessExpiresAt
+    );
 
     return {
       accessToken,
@@ -71,7 +95,6 @@ export class StoreOwnerService {
         email: owner.email,
         storeId: owner.storeId,
         isActive: owner.isActive,
-        createdAt: new Date(),
       },
     };
   }
@@ -83,7 +106,7 @@ export class StoreOwnerService {
         JWT_REFRESH_SECRET
       ) as TokenPayload;
 
-      // Verify token exists in DB and hasn't been revoked
+      // Verify token exists in DB and hasn't been revoked/expired
       const isValid = await storeOwnerRepository.findRefreshToken(
         decoded.id,
         refreshToken
@@ -100,6 +123,15 @@ export class StoreOwnerService {
         name: owner.name,
         storeId: owner.storeId,
       });
+
+      // Update the access token record in DB for the new token
+      const accessExpiresAt = new Date(Date.now() + ONE_MONTH_MS);
+      await storeOwnerRepository.saveAccessToken(
+        owner.id, 
+        isValid.id, // Linked to existing refresh token ID
+        newAccessToken, 
+        accessExpiresAt
+      );
 
       return {
         accessToken: newAccessToken,
@@ -148,7 +180,6 @@ export class StoreOwnerService {
     });
   }
 
-  // Verify access token (used by auth middleware)
   verifyAccessToken(token: string): TokenPayload | null {
     try {
       return jwt.verify(token, JWT_SECRET) as TokenPayload;

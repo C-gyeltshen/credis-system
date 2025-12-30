@@ -340,7 +340,7 @@ export default function CreditTransactionModal() {
               style={styles.input}
               multiline
               numberOfLines={2}
-              placeholder="Brief description of the transaction"
+              placeholder="Provide a Brief description"
               left={<TextInput.Icon icon="text" />}
               theme={{ colors: { primary: currentConfig.color } }}
             />
