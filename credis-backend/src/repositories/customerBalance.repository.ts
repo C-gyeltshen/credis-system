@@ -47,4 +47,21 @@ export class CustomerBalanceRepository {
       },
     });
   }
+  async findCustomersWithOverduePayments(days: number, storeId: string) {
+    const overdueDate = new Date();
+    overdueDate.setDate(overdueDate.getDate() - days);
+    return await prisma.customerBalance.findMany({
+      where: {
+        storeId,
+        OR: [
+          { lastPaymentDate: { lt: overdueDate } },
+          { lastPaymentDate: null },
+        ],
+      },
+      include: {
+        customer: true,
+        store: true,
+      },
+    });
+  }
 }

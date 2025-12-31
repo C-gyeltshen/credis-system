@@ -8,7 +8,17 @@ import { errorHandler } from "./middlewares/errorHandler.js";
 const app = new Hono();
 
 // Middleware
-app.use("*", cors());
+app.use(
+  cors({
+    origin: [
+      process.env.FRONTEND_URL || "http://localhost:8081",
+      "http://localhost:*",
+    ],
+    credentials: true, // Allow cookies
+    allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    allowHeaders: ["Content-Type", "Authorization"],
+  })
+);
 app.use("*", logger());
 app.use("*", errorHandler);
 
@@ -20,12 +30,17 @@ app.get("/", (c) => {
 // API routes
 app.route("/api", router);
 
-// Start server
-const port = process.env.PORT || 8080;
+// Start server only if not in test environment
+if (process.env.NODE_ENV !== 'test') {
+  const port = process.env.PORT || 8080;
+  
+  serve({
+    fetch: app.fetch,
+    port: Number(port),
+  });
 
-serve({
-  fetch: app.fetch,
-  port: Number(port),
-});
+  console.log(`Server running on http://localhost:${port}`);
+}
 
-console.log(`Server running on http://localhost:${port}`);
+// Export app for testing
+export { app };

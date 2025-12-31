@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import {
   StyleSheet,
   ScrollView,
@@ -11,7 +12,6 @@ import { Card, Text, Searchbar } from "react-native-paper";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
 import ResponsiveCustomerTable from "@/components/ResponsiveCustomerTable";
 
 interface Customer {
@@ -27,7 +27,17 @@ interface Customer {
   modifiedAt: string;
 }
 
+import { router } from "expo-router";
+import Navigation from "@/components/Navbar";
+
 export default function CustomersScreen() {
+  const { isAuthenticated, isLoading, user } = useAuth();
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.replace("/login");
+    }
+  }, [isAuthenticated, isLoading]);
   const [searchQuery, setSearchQuery] = useState("");
   const [shopName, setShopName] = useState("My Shop");
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -37,22 +47,22 @@ export default function CustomersScreen() {
   );
   const { width } = useWindowDimensions();
 
-  const STORE_ID = "fc8516c1-5068-4be9-8025-ed99d2890692";
+  // Get storeId from user context
+  const storeId = user?.storeId;
 
   // Responsive breakpoints
   const isSmallScreen = width < 768;
 
-  // Fetch store and customers
+  // Fetch store and customers using storeId from user
   useEffect(() => {
+    if (!storeId) return;
     const fetchStoreData = async () => {
       try {
         setLoading(true);
-        // Fetch customers (existing logic)
         const response = await fetch(
-          `http://localhost:8080/api/stores/${STORE_ID}/customers`
+          `http://localhost:8080/api/stores/${storeId}/customers`
         );
         const data = await response.json();
-
         if (data.success && data.data) {
           setShopName(data.data.name || "My Shop");
           setCustomers(data.data.customers || []);
@@ -67,11 +77,10 @@ export default function CustomersScreen() {
     const fetchOutstandingBalance = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8080/api/credits/store/${STORE_ID}/outstanding`
+          `http://localhost:8080/api/credits/store/${storeId}/outstanding`
         );
         const data = await response.json();
         if (data.success && Array.isArray(data.data)) {
-          // Sum outstandingBalance from all customers
           const total = data.data.reduce(
             (sum: number, customer: { outstandingBalance?: number }) => {
               return (
@@ -95,17 +104,35 @@ export default function CustomersScreen() {
 
     fetchStoreData();
     fetchOutstandingBalance();
-  }, []);
+  }, [storeId]);
 
   const addNewCustomer = () => {
-    router.push("/customer-dashboard/components/modal" as any);
+    router.push({
+      pathname: "/customer-dashboard/components/modal",
+      params: { storeId },
+    } as any);
   };
 
   // Responsive card margin and padding
   const cardMargin = isSmallScreen ? 12 : 16;
   const cardPadding = isSmallScreen ? 16 : 20;
 
+  if (isLoading) {
+    return (
+      <SafeAreaView
+        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+      >
+        <Text>Checking authentication...</Text>
+      </SafeAreaView>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
   return (
+    <Navigation>
     <SafeAreaView style={styles.container}>
       {/* Header Section */}
       <LinearGradient
@@ -116,15 +143,12 @@ export default function CustomersScreen() {
       >
         <View style={styles.headerContent}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.headerTitle}>{shopName}</Text>
-            <Text style={styles.headerSubtitle}>
-              Manage and track your customer database
+            <Text style={styles.headerTitle}>
+              Welcome {user?.name ? user.name : "StoreOwner"}
             </Text>
             <View style={{ marginTop: 8 }}>
-              <Text
-                style={{ color: "#fff", fontWeight: "600", fontSize: 16 }}
-              >
-                Total Outstanding Balance:
+              <Text style={{ color: "#fff", fontWeight: "600", fontSize: 16 }}>
+                Total Remaining Credit:
                 <Text style={{ color: "#ffd700", fontWeight: "bold" }}>
                   {outstandingBalance !== null
                     ? ` Nu. ${outstandingBalance.toLocaleString("en-IN", {
@@ -149,7 +173,6 @@ export default function CustomersScreen() {
             inputStyle={styles.searchInput}
             icon="magnify"
             iconColor="#667eea"
-            elevation={4}
             placeholderTextColor="#999"
           />
         </View>
@@ -170,13 +193,19 @@ export default function CustomersScreen() {
         contentContainerStyle={{ paddingBottom: 24 }}
       >
         {/* Customer Management Table */}
-        <View style={{ marginHorizontal: cardMargin, marginTop: 24, marginBottom: 24 }}>
+        <View
+          style={{
+            marginHorizontal: cardMargin,
+            marginTop: 24,
+            marginBottom: 24,
+          }}
+        >
           <Card style={styles.tableCard}>
             <Card.Content style={{ padding: isSmallScreen ? 12 : 20 }}>
               <View style={styles.tableHeader}>
                 <View style={styles.tableHeaderLeft}>
                   <MaterialIcons name="table-chart" size={24} color="#667eea" />
-                  <Text style={styles.sectionTitle}>Customer Directory</Text>
+                  <Text style={styles.sectionTitle}>Clients</Text>
                 </View>
               </View>
 
@@ -193,6 +222,7 @@ export default function CustomersScreen() {
         </View>
       </ScrollView>
     </SafeAreaView>
+    </Navigation>
   );
 }
 
@@ -260,13 +290,16 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     ...Platform.select({
       ios: {
-        shadowColor: "#667eea",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.35,
+        shadowRadius: 12,
       },
       android: {
-        elevation: 4,
+        elevation: 10,
+      },
+      web: {
+        boxShadow: "0px 6px 24px rgba(0,0,0,0.25)",
       },
     }),
   },
@@ -279,17 +312,9 @@ const styles = StyleSheet.create({
   searchBar: {
     borderRadius: 12,
     backgroundColor: "#fff",
-    ...Platform.select({
-      ios: {
-        shadowColor: "#667eea",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-      },
-      android: {
-        elevation: 4,
-      },
-    }),
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
+    // Added border for visual separation
   },
   searchInput: {
     fontSize: 16,

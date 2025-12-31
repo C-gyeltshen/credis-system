@@ -2,19 +2,29 @@ import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Image } from "react-native";
 import { Text, ActivityIndicator } from "react-native-paper";
 import { router } from "expo-router";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function SplashScreen() {
   const [showSplash, setShowSplash] = useState(true);
+  const { isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
+    if (isLoading) return; // Wait for auth check
+
     // Show splash screen for 2 seconds
     const timer = setTimeout(() => {
       setShowSplash(false);
-      router.replace("/customer-dashboard");
+      
+      // Redirect based on auth status
+      if (isAuthenticated) {
+        router.replace("/customer-dashboard");
+      } else {
+        router.replace("/login");
+      }
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [isAuthenticated, isLoading]);
 
   return (
     <View style={styles.container}>

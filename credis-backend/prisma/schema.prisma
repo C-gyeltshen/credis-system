@@ -26,6 +26,39 @@ model Store {
   @@map("stores")
 }
 
+model RefreshToken {
+  id           String   @id @default(cuid())
+  storeOwnerId String   @db.Uuid
+  tokenHash    String   @unique
+  expiresAt    DateTime
+  revoked      Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  storeOwner StoreOwner @relation(fields: [storeOwnerId], references: [id], onDelete: Cascade)
+  tokens     Token[]
+
+  @@index([storeOwnerId])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
+
+model Token {
+  id             String   @id @default(cuid())
+  storeOwnerId   String   @db.Uuid
+  RefreshTokenId String
+  tokenHash      String   @unique
+  expiresAt      DateTime
+  revoked        Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  storeOwner   StoreOwner   @relation(fields: [storeOwnerId], references: [id], onDelete: Cascade)
+  refreshtoken RefreshToken @relation(fields: [RefreshTokenId], references: [id], onDelete: Cascade)
+
+  @@index([storeOwnerId])
+  @@index([expiresAt])
+  @@map("access_tokens")
+}
+
 model StoreOwner {
   id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name              String
@@ -39,20 +72,23 @@ model StoreOwner {
   paymentsValidated PaymentSubmission[] @relation("ValidatedByOwner")
   store             Store?              @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
+  refreshTokens RefreshToken[]
+  tokens        Token[]
+
   @@index([storeId])
   @@index([email])
   @@map("store_owners")
 }
 
 model Admin {
-  id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name         String
-  email        String     @unique
-  passwordHash String     @map("password_hash")
-  isSuperAdmin Boolean    @default(false) @map("is_super_admin")
-  isActive     Boolean    @default(true) @map("is_active")
-  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
-  modifiedAt   DateTime   @default(now()) @updatedAt @map("modified_at") @db.Timestamptz(6)
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  isSuperAdmin Boolean  @default(false) @map("is_super_admin")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  modifiedAt   DateTime @default(now()) @updatedAt @map("modified_at") @db.Timestamptz(6)
 
   @@map("admins")
 }
@@ -62,8 +98,6 @@ model Customer {
   storeId               String                 @map("store_id") @db.Uuid
   name                  String
   phoneNumber           String                 @map("phone_number")
-  email                 String?
-  creditLimit           Decimal?               @map("credit_limit") @db.Decimal(12, 2)
   isActive              Boolean                @default(true) @map("is_active")
   createdAt             DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
   modifiedAt            DateTime               @default(now()) @updatedAt @map("modified_at") @db.Timestamptz(6)
@@ -246,17 +280,17 @@ model NotificationSchedule {
 }
 
 model AuditLog {
-  id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId     String     @map("user_id") @db.Uuid
-  userType   UserType   @map("user_type")
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  userType   UserType @map("user_type")
   action     String
-  entityType String     @map("entity_type")
-  entityId   String?    @map("entity_id") @db.Uuid
-  oldValues  Json?      @map("old_values")
-  newValues  Json?      @map("new_values")
-  ipAddress  String?    @map("ip_address")
-  userAgent  String?    @map("user_agent")
-  createdAt  DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  entityType String   @map("entity_type")
+  entityId   String?  @map("entity_id") @db.Uuid
+  oldValues  Json?    @map("old_values")
+  newValues  Json?    @map("new_values")
+  ipAddress  String?  @map("ip_address")
+  userAgent  String?  @map("user_agent")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
   @@index([userId])
   @@index([entityType, entityId])

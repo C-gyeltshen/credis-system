@@ -9,6 +9,7 @@ import { PaperProvider, MD3LightTheme, MD3DarkTheme } from "react-native-paper";
 import "react-native-reanimated";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 const lightTheme = {
   ...MD3LightTheme,
@@ -39,33 +40,69 @@ export default function RootLayout() {
   const paperTheme = colorScheme === "dark" ? darkTheme : lightTheme;
 
   return (
-    <PaperProvider theme={paperTheme}>
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <StatusBar style="auto" />
-        <Stack>
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="customer-dashboard/index"
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="modal"
-            options={{
-              presentation: "modal",
-              headerShown: false,
-              animation: "slide_from_bottom",
-            }}
-          />
-          <Stack.Screen
-            name="credit-modal"
-            options={{
-              presentation: "modal",
-              headerShown: false,
-              animation: "slide_from_bottom",
-            }}
-          />
-        </Stack>
-      </ThemeProvider>
-    </PaperProvider>
+    <AuthProvider>
+      <PaperProvider theme={paperTheme}>
+        <ThemeProvider
+          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+        >
+          <StatusBar style="auto" />
+          <Stack>
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="customer-dashboard/index"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="(auth)/login/index"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="(auth)/register/index"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="give-credit/index"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="payment-received/index"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="OverdueAccountsReport/index"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="profile/index"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="transaction/index"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="customer-dashboard/components/modal"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="modal"
+              options={{
+                presentation: "modal",
+                headerShown: false,
+                animation: "slide_from_bottom",
+              }}
+            />
+            <Stack.Screen
+              name="credit-modal"
+              options={{
+                presentation: "modal",
+                headerShown: false,
+                animation: "slide_from_bottom",
+              }}
+            />
+          </Stack>
+        </ThemeProvider>
+      </PaperProvider>
+    </AuthProvider>
   );
 }

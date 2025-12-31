@@ -1,11 +1,12 @@
 import React, { useState } from "react";
+import { useLocalSearchParams } from "expo-router";
+import { useAuth } from "@/hooks/useAuth";
 import {
   View,
   ScrollView,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  Alert,
 } from "react-native";
 import {
   Text,
@@ -13,26 +14,31 @@ import {
   Button,
   IconButton,
   HelperText,
+  Snackbar,
 } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
+import Navigation from "@/components/Navbar";
 
 export default function AddCustomerModal() {
-  // Customer basic info
+  const { user } = useAuth();
+  const params = useLocalSearchParams();
+  
   const [name, setName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [email, setEmail] = useState("");
-  const [creditLimit, setCreditLimit] = useState("");
-
-  // Validation & loading
+  const storeId = params.storeId || user?.storeId;
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(false);
+  
+  // Snackbar state
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarType, setSnackbarType] = useState<"success" | "error">("success");
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
 
-    // Basic validation
     if (!name.trim()) {
       newErrors.name = "Name is required";
     } else if (name.trim().length < 2) {
@@ -45,19 +51,6 @@ export default function AddCustomerModal() {
       newErrors.phoneNumber = "Phone number must be exactly 8 digits";
     } else if (!/^\d+$/.test(phoneNumber.replace(/\s/g, ""))) {
       newErrors.phoneNumber = "Phone number must contain only digits";
-    }
-
-    if (!email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = "Invalid email format";
-    }
-
-    if (
-      creditLimit &&
-      (isNaN(Number(creditLimit)) || Number(creditLimit) < 0)
-    ) {
-      newErrors.creditLimit = "Credit limit must be a positive number";
     }
 
     setErrors(newErrors);
@@ -73,11 +66,9 @@ export default function AddCustomerModal() {
       setLoading(true);
 
       const customerData = {
-        storeId: "fc8516c1-5068-4be9-8025-ed99d2890692",
+        storeId,
         name: name.trim(),
         phone_number: phoneNumber.trim().replace(/\s/g, ""),
-        email: email.trim(),
-        creditLimit: creditLimit ? Number(creditLimit) : 0,
       };
 
       const response = await fetch("http://localhost:8080/api/customers", {
@@ -95,205 +86,173 @@ export default function AddCustomerModal() {
 
       const result = await response.json();
 
-      Alert.alert("Success", "Customer created successfully!", [
-        {
-          text: "OK",
-          onPress: () => router.replace("/customer-dashboard"),
-        },
-      ]);
+      // Show success snackbar
+      setSnackbarType("success");
+      setSnackbarMessage(`✅ Customer "${name.trim()}" created successfully!`);
+      setSnackbarVisible(true);
+
+      // Wait a moment for user to see the success message
+      setTimeout(() => {
+        router.replace("/customer-dashboard");
+      }, 1500);
+      
     } catch (error: any) {
-      Alert.alert("Error", error.message || "Failed to create customer");
+      setSnackbarType("error");
+      setSnackbarMessage(error.message || "Failed to create customer");
+      setSnackbarVisible(true);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
-      >
-        {/* Header */}
-        <View style={styles.header}>
-          <IconButton
-            icon="close"
-            size={24}
-            onPress={() => router.back()}
-            iconColor="#fff"
-          />
-          <Text style={styles.headerTitle}>Add Customer</Text>
-          <View style={{ width: 40 }} />
-        </View>
-
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
+    <Navigation>
+      <SafeAreaView style={styles.container}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={{ flex: 1 }}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
         >
-          {/* Welcome Message */}
-          <View style={styles.welcomeCard}>
-            <View style={styles.welcomeIconContainer}>
-              <MaterialIcons name="person-add" size={32} color="#1976d2" />
-            </View>
-            <Text style={styles.welcomeTitle}>Create New Customer</Text>
-            <Text style={styles.welcomeSubtitle}>
-              Add customer details to start managing their credit transactions
-            </Text>
+          {/* Header */}
+          <View style={styles.header}>
+            <IconButton
+              icon="close"
+              size={24}
+              onPress={() => router.back()}
+              iconColor="#fff"
+            />
+            <Text style={styles.headerTitle}>Add Customer</Text>
+            <View style={{ width: 40 }} />
           </View>
 
-          {/* Basic Information Section */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <View style={styles.sectionIconContainer}>
-                <MaterialIcons name="person" size={20} color="#1976d2" />
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Welcome Message */}
+            <View style={styles.welcomeCard}>
+              <View style={styles.welcomeIconContainer}>
+                <MaterialIcons name="person-add" size={32} color="#1976d2" />
               </View>
-              <View style={styles.sectionTitleContainer}>
-                <Text style={styles.sectionTitle}>Customer Information</Text>
-                <Text style={styles.sectionSubtitle}>
-                  Required fields are marked with *
-                </Text>
+              <Text style={styles.welcomeTitle}>Create New Customer</Text>
+              <Text style={styles.welcomeSubtitle}>
+                Add customer details to start managing their credit transactions
+              </Text>
+            </View>
+
+            {/* Basic Information Section */}
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <View style={styles.sectionIconContainer}>
+                  <MaterialIcons name="person" size={20} color="#1976d2" />
+                </View>
+                <View style={styles.sectionTitleContainer}>
+                  <Text style={styles.sectionTitle}>Customer Information</Text>
+                  <Text style={styles.sectionSubtitle}>
+                    Required fields are marked with *
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.inputWrapper}>
+                <TextInput
+                  label="Full Name *"
+                  placeholder="Enter customer's full name"
+                  value={name}
+                  onChangeText={(text) => {
+                    setName(text);
+                    if (errors.name) {
+                      setErrors({ ...errors, name: "" });
+                    }
+                  }}
+                  mode="outlined"
+                  style={styles.input}
+                  error={!!errors.name}
+                  left={<TextInput.Icon icon="account" />}
+                  outlineColor="#e0e0e0"
+                  activeOutlineColor="#1976d2"
+                />
+                {errors.name && (
+                  <HelperText type="error" visible={!!errors.name}>
+                    {errors.name}
+                  </HelperText>
+                )}
+              </View>
+
+              <View style={styles.inputWrapper}>
+                <TextInput
+                  label="Phone Number *"
+                  placeholder="8 digits (e.g., 12345678)"
+                  value={phoneNumber}
+                  onChangeText={(text) => {
+                    setPhoneNumber(text);
+                    if (errors.phoneNumber) {
+                      setErrors({ ...errors, phoneNumber: "" });
+                    }
+                  }}
+                  mode="outlined"
+                  style={styles.input}
+                  keyboardType="phone-pad"
+                  error={!!errors.phoneNumber}
+                  left={<TextInput.Icon icon="phone" />}
+                  outlineColor="#e0e0e0"
+                  activeOutlineColor="#1976d2"
+                />
+                {errors.phoneNumber && (
+                  <HelperText type="error" visible={!!errors.phoneNumber}>
+                    {errors.phoneNumber}
+                  </HelperText>
+                )}
               </View>
             </View>
+          </ScrollView>
 
-            <View style={styles.inputWrapper}>
-              <TextInput
-                label="Full Name *"
-                placeholder="Enter customer's full name"
-                value={name}
-                onChangeText={(text) => {
-                  setName(text);
-                  if (errors.name) {
-                    setErrors({ ...errors, name: "" });
-                  }
-                }}
-                mode="outlined"
-                style={styles.input}
-                error={!!errors.name}
-                left={<TextInput.Icon icon="account" />}
-                outlineColor="#e0e0e0"
-                activeOutlineColor="#1976d2"
-              />
-              {errors.name && (
-                <HelperText type="error" visible={!!errors.name}>
-                  {errors.name}
-                </HelperText>
-              )}
-            </View>
-
-            <View style={styles.inputWrapper}>
-              <TextInput
-                label="Phone Number *"
-                placeholder="8 digits (e.g., 12345678)"
-                value={phoneNumber}
-                onChangeText={(text) => {
-                  setPhoneNumber(text);
-                  if (errors.phoneNumber) {
-                    setErrors({ ...errors, phoneNumber: "" });
-                  }
-                }}
-                mode="outlined"
-                style={styles.input}
-                keyboardType="phone-pad"
-                error={!!errors.phoneNumber}
-                left={<TextInput.Icon icon="phone" />}
-                outlineColor="#e0e0e0"
-                activeOutlineColor="#1976d2"
-              />
-              {errors.phoneNumber && (
-                <HelperText type="error" visible={!!errors.phoneNumber}>
-                  {errors.phoneNumber}
-                </HelperText>
-              )}
-            </View>
-
-            <View style={styles.inputWrapper}>
-              <TextInput
-                label="Email *"
-                placeholder="customer@example.com"
-                value={email}
-                onChangeText={(text) => {
-                  setEmail(text);
-                  if (errors.email) {
-                    setErrors({ ...errors, email: "" });
-                  }
-                }}
-                mode="outlined"
-                style={styles.input}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                error={!!errors.email}
-                left={<TextInput.Icon icon="email" />}
-                outlineColor="#e0e0e0"
-                activeOutlineColor="#1976d2"
-              />
-              {errors.email && (
-                <HelperText type="error" visible={!!errors.email}>
-                  {errors.email}
-                </HelperText>
-              )}
-            </View>
-
-            <View style={styles.inputWrapper}>
-              <TextInput
-                label="Credit Limit (Optional)"
-                placeholder="0.00"
-                value={creditLimit}
-                onChangeText={(text) => {
-                  setCreditLimit(text);
-                  if (errors.creditLimit) {
-                    setErrors({ ...errors, creditLimit: "" });
-                  }
-                }}
-                mode="outlined"
-                style={styles.input}
-                keyboardType="decimal-pad"
-                error={!!errors.creditLimit}
-                left={<TextInput.Affix text="Nu. " />}
-                outlineColor="#e0e0e0"
-                activeOutlineColor="#1976d2"
-              />
-              {errors.creditLimit ? (
-                <HelperText type="error" visible={!!errors.creditLimit}>
-                  {errors.creditLimit}
-                </HelperText>
-              ) : (
-                <HelperText type="info" visible={true}>
-                  Maximum amount the customer can borrow
-                </HelperText>
-              )}
-            </View>
+          {/* Footer Actions */}
+          <View style={styles.footer}>
+            <Button
+              mode="outlined"
+              onPress={() => router.back()}
+              style={styles.cancelButton}
+              disabled={loading}
+              textColor="#666"
+              icon="close"
+            >
+              Cancel
+            </Button>
+            <Button
+              mode="contained"
+              onPress={handleSubmit}
+              style={styles.submitButton}
+              loading={loading}
+              disabled={loading}
+              buttonColor="#1976d2"
+              icon="check"
+            >
+              Create Customer
+            </Button>
           </View>
-        </ScrollView>
 
-        {/* Footer Actions */}
-        <View style={styles.footer}>
-          <Button
-            mode="outlined"
-            onPress={() => router.back()}
-            style={styles.cancelButton}
-            disabled={loading}
-            textColor="#666"
-            icon="close"
+          {/* Success/Error Snackbar */}
+          <Snackbar
+            visible={snackbarVisible}
+            onDismiss={() => setSnackbarVisible(false)}
+            duration={3000}
+            style={[
+              styles.snackbar,
+              snackbarType === "success" ? styles.snackbarSuccess : styles.snackbarError
+            ]}
+            action={{
+              label: 'Close',
+              onPress: () => setSnackbarVisible(false),
+            }}
           >
-            Cancel
-          </Button>
-          <Button
-            mode="contained"
-            onPress={handleSubmit}
-            style={styles.submitButton}
-            loading={loading}
-            disabled={loading}
-            buttonColor="#1976d2"
-            icon="check"
-          >
-            Create Customer
-          </Button>
-        </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+            {snackbarMessage}
+          </Snackbar>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </Navigation>
   );
 }
 
@@ -404,43 +363,6 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: "#fff",
   },
-  divider: {
-    marginVertical: 8,
-  },
-  switchContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 8,
-    marginBottom: 16,
-  },
-  switchLabel: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1a1a1a",
-  },
-  switchDescription: {
-    fontSize: 13,
-    color: "#666",
-    marginTop: 4,
-  },
-  credentialsSection: {
-    marginTop: 8,
-  },
-  infoBox: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    backgroundColor: "#e3f2fd",
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
-  },
-  infoText: {
-    flex: 1,
-    fontSize: 13,
-    color: "#1976d2",
-  },
   footer: {
     flexDirection: "row",
     gap: 12,
@@ -461,5 +383,14 @@ const styles = StyleSheet.create({
   submitButton: {
     flex: 1,
     elevation: 2,
+  },
+  snackbar: {
+    marginBottom: 20,
+  },
+  snackbarSuccess: {
+    backgroundColor: "#4caf50",
+  },
+  snackbarError: {
+    backgroundColor: "#f44336",
   },
 });
