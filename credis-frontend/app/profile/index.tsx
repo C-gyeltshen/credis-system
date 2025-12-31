@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   useWindowDimensions,
   ActivityIndicator,
-  Image,
   Alert,
   TextInput,
 } from "react-native";
@@ -16,52 +15,72 @@ import Navigation from "@/components/Navbar";
 import { useAuth } from "@/hooks/useAuth";
 import { router } from "expo-router";
 
-interface StoreOwner {
+interface StoreOwnerResponse {
   id: string;
   name: string;
   email: string;
-  phone: string;
-  profileImage?: string;
+  accountNumber?: string;
+  storeId?: string | null;
+  isActive: boolean;
+  createdAt: Date;
 }
 
-interface StoreDetails {
+interface FirstResponse {
+  user: StoreOwnerResponse;
+  success: boolean;
+  createdAt: Date;
+}
+
+interface StoreResponse {
   id: string;
-  storeName: string;
-  storeDescription: string;
+  name: string;
   address: string;
-  city: string;
-  country: string;
-  registrationNumber: string;
-  taxId: string;
-  established: string;
-  website?: string;
-  totalCustomers: number;
-  totalTransactions: number;
-  totalRevenue: number;
+  phone_number: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface FirstStoreResponse {
+  createdAt: Date;
+  data: StoreResponse;
+  success: boolean;
+  updatedAt: Date;
 }
 
 export default function ProfilePage() {
   const { width } = useWindowDimensions();
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const [storeOwner, setStoreOwner] = useState<StoreOwner | null>(null);
-  const [storeDetails, setStoreDetails] = useState<StoreDetails | null>(null);
+  const [storeOwner, setStoreOwner] = useState<FirstResponse | null>(null);
+  const [store, setStore] = useState<FirstStoreResponse | null>(null);
+  const [editedOwnerName, setEditedOwnerName] = useState("");
+  const [editedOwnerEmail, setEditedOwnerEmail] = useState("");
+  const [editedAccountNumber, setEditedAccountNumber] = useState("");
+  const [editedStoreName, setEditedStoreName] = useState("");
+  const [editedStorePhone, setEditedStorePhone] = useState("");
+  const [editedStoreAddress, setEditedStoreAddress] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const { isAuthenticated, isLoading} = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
+
+  const ownerId = user?.id;
+  const storeId = user?.storeId;
 
   const isSmallPhone = width < 360;
   const isPhone = width < 768;
   const isTablet = width >= 768 && width < 1024;
   const isDesktop = width >= 1024;
-  useEffect(() => {
-      if (!isLoading && !isAuthenticated) {
-        router.replace("/login");
-      }
-    }, [isAuthenticated, isLoading]);
 
   useEffect(() => {
-    fetchProfileData();
-  }, []);
+    if (!isLoading && !isAuthenticated) {
+      router.replace("/login");
+    }
+  }, [isAuthenticated, isLoading]);
+
+  useEffect(() => {
+    if (ownerId) {
+      fetchProfileData();
+    }
+  }, [ownerId, storeId]);
 
   const fetchProfileData = async () => {
     try {
@@ -70,35 +89,133 @@ export default function ProfilePage() {
 
       // Fetch store owner data
       const ownerResponse = await fetch(
-        "http://localhost:8080/api/store-owner/profile"
+        `http://localhost:8080/api/store-owners/${ownerId}`
       );
       if (!ownerResponse.ok) {
         throw new Error("Failed to fetch store owner data");
       }
-      const ownerData = await ownerResponse.json();
-      setStoreOwner(ownerData);
+      const ownerData: FirstResponse = await ownerResponse.json();
+      ownerData.createdAt = new Date(ownerData.createdAt);
 
-      // Fetch store details
-      const storeResponse = await fetch(
-        "http://localhost:8080/api/store-details"
-      );
-      if (!storeResponse.ok) {
-        throw new Error("Failed to fetch store details");
+      setStoreOwner(ownerData);
+      setEditedOwnerName(ownerData.user.name);
+      setEditedOwnerEmail(ownerData.user.email);
+      setEditedAccountNumber(ownerData.user.accountNumber || "");
+
+      // Fetch store data only if storeId exists
+      if (storeId) {
+        const storeResponse = await fetch(
+          `http://localhost:8080/api/stores/${storeId}`
+        );
+        if (!storeResponse.ok) {
+          throw new Error("Failed to fetch store data");
+        }
+        const storeData: FirstStoreResponse = await storeResponse.json();
+        storeData.createdAt = new Date(storeData.createdAt);
+        storeData.updatedAt = new Date(storeData.updatedAt);
+
+        setStore(storeData);
+        setEditedStoreName(storeData.data.name);
+        setEditedStorePhone(storeData.data.phone_number);
+        setEditedStoreAddress(storeData.data.address);
       }
-      const storeData = await storeResponse.json();
-      setStoreDetails(storeData);
+
+      setLoading(false);
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "An error occurred";
       setError(errorMessage);
       console.error("Error fetching profile:", err);
-    } finally {
       setLoading(false);
     }
   };
 
-  const handleSaveChanges = () => {
-    Alert.alert("Success", "Profile updated successfully!");
+  const handleSaveChanges = async () => {
+    try {
+      // Update store owner
+      if (storeOwner) {
+        const ownerUpdateResponse = await fetch(
+          `http://localhost:8080/api/store-owners/${ownerId}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: editedOwnerName,
+              email: editedOwnerEmail,
+              accountNumber: editedAccountNumber,
+            }),
+          }
+        );
+        if (!ownerUpdateResponse.ok) {
+          throw new Error("Failed to update store owner");
+        }
+
+        // Update local state with new owner data
+        const updatedOwner = {
+          ...storeOwner,
+          user: {
+            ...storeOwner.user,
+            name: editedOwnerName,
+            email: editedOwnerEmail,
+            accountNumber: editedAccountNumber,
+          },
+        };
+        setStoreOwner(updatedOwner);
+      }
+
+      // Update store if it exists
+      if (store && storeId) {
+        const storeUpdateResponse = await fetch(
+          `http://localhost:8080/api/stores/${storeId}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: editedStoreName,
+              address: editedStoreAddress,
+              phone_number: editedStorePhone,
+            }),
+          }
+        );
+        if (!storeUpdateResponse.ok) {
+          throw new Error("Failed to update store");
+        }
+
+        // Update local state with new store data
+        const updatedStore = {
+          ...store,
+          data: {
+            ...store.data,
+            name: editedStoreName,
+            address: editedStoreAddress,
+            phone_number: editedStorePhone,
+          },
+        };
+        setStore(updatedStore);
+      }
+
+      setIsEditing(false);
+      Alert.alert("Success", "Profile updated successfully!");
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "An error occurred";
+      Alert.alert("Error", errorMessage);
+      console.error("Error updating profile:", err);
+    }
+  };
+
+  const handleCancel = () => {
+    // Reset edited values to original
+    if (storeOwner) {
+      setEditedOwnerName(storeOwner.user.name);
+      setEditedOwnerEmail(storeOwner.user.email);
+      setEditedAccountNumber(storeOwner.user.accountNumber || "");
+    }
+    if (store) {
+      setEditedStoreName(store.data.name);
+      setEditedStorePhone(store.data.phone_number);
+      setEditedStoreAddress(store.data.address);
+    }
     setIsEditing(false);
   };
 
@@ -115,7 +232,7 @@ export default function ProfilePage() {
     );
   }
 
-  if (error || !storeOwner || !storeDetails) {
+  if (error || !storeOwner) {
     return (
       <Navigation>
         <View style={styles.container}>
@@ -149,15 +266,9 @@ export default function ProfilePage() {
         <View style={[styles.profileHeader, isPhone && styles.profileHeaderPhone]}>
           <View style={styles.profileHeaderContent}>
             <View style={styles.profileImageContainer}>
-              <Image
-                source={{ uri: storeOwner.profileImage || "https://via.placeholder.com/120" }}
-                style={styles.profileImage}
-              />
-              {isEditing && (
-                <TouchableOpacity style={styles.editImageButton}>
-                  <MaterialIcons name="camera-alt" size={20} color="#fff" />
-                </TouchableOpacity>
-              )}
+              <View style={styles.profileImage}>
+                <MaterialIcons name="account-circle" size={100} color="#1976d2" />
+              </View>
             </View>
 
             <View
@@ -173,7 +284,7 @@ export default function ProfilePage() {
                   isTablet && styles.textLarge,
                 ]}
               >
-                {storeOwner.name}
+                {isEditing ? editedOwnerName : storeOwner.user.name}
               </Text>
               <Text style={[styles.ownerRole, isSmallPhone && styles.textTiny]}>
                 Store Owner
@@ -183,175 +294,171 @@ export default function ProfilePage() {
                 <View style={styles.editForm}>
                   <TextInput
                     style={styles.input}
-                    placeholder="Email"
-                    value={storeOwner.email}
-                    onChangeText={(text) =>
-                      setStoreOwner({ ...storeOwner, email: text })
-                    }
+                    placeholder="Name"
+                    value={editedOwnerName}
+                    onChangeText={setEditedOwnerName}
+                    placeholderTextColor="#999"
                   />
                   <TextInput
                     style={styles.input}
-                    placeholder="Phone"
-                    value={storeOwner.phone}
-                    onChangeText={(text) =>
-                      setStoreOwner({ ...storeOwner, phone: text })
-                    }
+                    placeholder="Email"
+                    value={editedOwnerEmail}
+                    onChangeText={setEditedOwnerEmail}
+                    keyboardType="email-address"
+                    placeholderTextColor="#999"
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Account Number"
+                    value={editedAccountNumber}
+                    onChangeText={setEditedAccountNumber}
+                    placeholderTextColor="#999"
                   />
                 </View>
               ) : (
                 <View style={styles.contactInfo}>
                   <View style={styles.contactItem}>
                     <MaterialIcons name="email" size={16} color="#666" />
-                    <Text style={styles.contactText}>{storeOwner.email}</Text>
+                    <Text style={styles.contactText}>{storeOwner.user.email}</Text>
                   </View>
+                  {storeOwner.user.accountNumber && (
+                    <View style={styles.contactItem}>
+                      <MaterialIcons name="account-balance" size={16} color="#666" />
+                      <Text style={styles.contactText}>{storeOwner.user.accountNumber}</Text>
+                    </View>
+                  )}
                   <View style={styles.contactItem}>
-                    <MaterialIcons name="phone" size={16} color="#666" />
-                    <Text style={styles.contactText}>{storeOwner.phone}</Text>
+                    <MaterialIcons name="check-circle" size={16} color="#4caf50" />
+                    <Text style={styles.contactText}>
+                      {storeOwner.user.isActive ? "Active" : "Inactive"}
+                    </Text>
                   </View>
                 </View>
               )}
             </View>
           </View>
 
-          {/* Edit Button */}
-          <TouchableOpacity
-            style={[
-              styles.editButton,
-              isEditing && styles.editButtonActive,
-            ]}
-            onPress={
-              isEditing ? handleSaveChanges : () => setIsEditing(true)
-            }
-          >
-            <MaterialIcons
-              name={isEditing ? "check" : "edit"}
-              size={20}
-              color="#fff"
-            />
-            <Text style={styles.editButtonText}>
-              {isEditing ? "Save" : "Edit"}
-            </Text>
-          </TouchableOpacity>
+          {/* Edit/Save/Cancel Buttons */}
+          <View style={styles.buttonGroup}>
+            {isEditing ? (
+              <>
+                <TouchableOpacity
+                  style={[styles.editButton, styles.editButtonActive]}
+                  onPress={handleSaveChanges}
+                >
+                  <MaterialIcons name="check" size={20} color="#fff" />
+                  <Text style={styles.editButtonText}>Save</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.editButton, styles.cancelButton]}
+                  onPress={handleCancel}
+                >
+                  <MaterialIcons name="close" size={20} color="#fff" />
+                  <Text style={styles.editButtonText}>Cancel</Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <TouchableOpacity
+                style={styles.editButton}
+                onPress={() => setIsEditing(true)}
+              >
+                <MaterialIcons name="edit" size={20} color="#fff" />
+                <Text style={styles.editButtonText}>Edit</Text>
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
 
         {/* Store Details Section */}
-        <View
-          style={[
-            styles.section,
-            isDesktop && styles.sectionDesktop,
-            isPhone && styles.sectionPhone,
-          ]}
-        >
-          <View style={styles.sectionHeader}>
-            <MaterialIcons name="store" size={24} color="#1976d2" />
-            <Text style={[styles.sectionTitle, isSmallPhone && styles.textSmall]}>
-              Store Details
-            </Text>
-          </View>
-
+        {store && (
           <View
             style={[
-              styles.detailsGrid,
-              isDesktop && styles.detailsGridDesktop,
+              styles.section,
+              isDesktop && styles.sectionDesktop,
+              isPhone && styles.sectionPhone,
             ]}
           >
-            {/* Store Name */}
-            <View style={styles.detailCard}>
-              <Text style={styles.detailLabel}>Store Name</Text>
-              {isEditing ? (
-                <TextInput
-                  style={styles.input}
-                  value={storeDetails.storeName}
-                  onChangeText={(text) =>
-                    setStoreDetails({ ...storeDetails, storeName: text })
-                  }
-                />
-              ) : (
-                <Text style={styles.detailValue}>
-                  {storeDetails.storeName}
-                </Text>
-              )}
-            </View>
-
-            {/* Registration Number */}
-            <View style={styles.detailCard}>
-              <Text style={styles.detailLabel}>Registration #</Text>
-              <Text style={styles.detailValue}>
-                {storeDetails.registrationNumber}
+            <View style={styles.sectionHeader}>
+              <MaterialIcons name="store" size={24} color="#1976d2" />
+              <Text style={[styles.sectionTitle, isSmallPhone && styles.textSmall]}>
+                Store Information
               </Text>
             </View>
 
-            {/* Tax ID */}
-            <View style={styles.detailCard}>
-              <Text style={styles.detailLabel}>Tax ID</Text>
-              <Text style={styles.detailValue}>{storeDetails.taxId}</Text>
-            </View>
-
-            {/* Established */}
-            <View style={styles.detailCard}>
-              <Text style={styles.detailLabel}>Established</Text>
-              <Text style={styles.detailValue}>{storeDetails.established}</Text>
-            </View>
-
-            {/* Address */}
-            <View style={[styles.detailCard, styles.fullWidth]}>
-              <Text style={styles.detailLabel}>Address</Text>
-              {isEditing ? (
-                <TextInput
-                  style={styles.input}
-                  value={storeDetails.address}
-                  onChangeText={(text) =>
-                    setStoreDetails({ ...storeDetails, address: text })
-                  }
-                />
-              ) : (
-                <Text style={styles.detailValue}>{storeDetails.address}</Text>
-              )}
-            </View>
-
-            {/* City */}
-            <View style={styles.detailCard}>
-              <Text style={styles.detailLabel}>City</Text>
-              <Text style={styles.detailValue}>{storeDetails.city}</Text>
-            </View>
-
-            {/* Country */}
-            <View style={styles.detailCard}>
-              <Text style={styles.detailLabel}>Country</Text>
-              <Text style={styles.detailValue}>{storeDetails.country}</Text>
-            </View>
-
-            {/* Website */}
-            {storeDetails.website && (
-              <View style={[styles.detailCard, styles.fullWidth]}>
-                <Text style={styles.detailLabel}>Website</Text>
-                <Text style={styles.detailValue}>{storeDetails.website}</Text>
+            <View
+              style={[
+                styles.detailsGrid,
+                isDesktop && styles.detailsGridDesktop,
+              ]}
+            >
+              {/* Store Name */}
+              <View style={styles.detailCard}>
+                <Text style={styles.detailLabel}>Store Name</Text>
+                {isEditing ? (
+                  <TextInput
+                    style={styles.input}
+                    value={editedStoreName}
+                    onChangeText={setEditedStoreName}
+                    placeholderTextColor="#999"
+                  />
+                ) : (
+                  <Text style={styles.detailValue}>{store.data.name}</Text>
+                )}
               </View>
-            )}
 
-            {/* Description */}
-            <View style={[styles.detailCard, styles.fullWidth]}>
-              <Text style={styles.detailLabel}>Description</Text>
-              {isEditing ? (
-                <TextInput
-                  style={[styles.input, styles.textArea]}
-                  value={storeDetails.storeDescription}
-                  onChangeText={(text) =>
-                    setStoreDetails({ ...storeDetails, storeDescription: text })
-                  }
-                  multiline
-                  numberOfLines={4}
-                />
-              ) : (
+              {/* Phone Number */}
+              <View style={styles.detailCard}>
+                <Text style={styles.detailLabel}>Phone Number</Text>
+                {isEditing ? (
+                  <TextInput
+                    style={styles.input}
+                    value={editedStorePhone}
+                    onChangeText={setEditedStorePhone}
+                    keyboardType="phone-pad"
+                    placeholderTextColor="#999"
+                  />
+                ) : (
+                  <Text style={styles.detailValue}>{store.data.phone_number}</Text>
+                )}
+              </View>
+
+              {/* Address */}
+              <View style={[styles.detailCard, styles.fullWidth]}>
+                <Text style={styles.detailLabel}>Address</Text>
+                {isEditing ? (
+                  <TextInput
+                    style={[styles.input, styles.textArea]}
+                    value={editedStoreAddress}
+                    onChangeText={setEditedStoreAddress}
+                    multiline
+                    numberOfLines={3}
+                    placeholderTextColor="#999"
+                  />
+                ) : (
+                  <Text style={styles.detailValue}>{store.data.address}</Text>
+                )}
+              </View>
+
+              {/* Created Date */}
+              <View style={styles.detailCard}>
+                <Text style={styles.detailLabel}>Created</Text>
                 <Text style={styles.detailValue}>
-                  {storeDetails.storeDescription}
+                  {new Date(store.createdAt).toLocaleDateString()}
                 </Text>
-              )}
+              </View>
+
+              {/* Last Updated */}
+              <View style={styles.detailCard}>
+                <Text style={styles.detailLabel}>Last Updated</Text>
+                <Text style={styles.detailValue}>
+                  {new Date(store.updatedAt).toLocaleDateString()}
+                </Text>
+              </View>
             </View>
           </View>
-        </View>
+        )}
 
-        {/* Statistics Section */}
+        {/* Account Info Section */}
         <View
           style={[
             styles.section,
@@ -360,56 +467,30 @@ export default function ProfilePage() {
           ]}
         >
           <View style={styles.sectionHeader}>
-            <MaterialIcons name="assessment" size={24} color="#1976d2" />
+            <MaterialIcons name="info" size={24} color="#1976d2" />
             <Text style={[styles.sectionTitle, isSmallPhone && styles.textSmall]}>
-              Statistics
+              Account Information
             </Text>
           </View>
 
-          <View style={[styles.statsGrid, isDesktop && styles.statsGridDesktop]}>
-            {/* Total Customers */}
-            <View style={[styles.statCard, isDesktop && styles.statCardDesktop]}>
-              <View style={styles.statIconContainer}>
-                <MaterialIcons
-                  name="people"
-                  size={28}
-                  color="#1976d2"
-                />
-              </View>
-              <Text style={styles.statValue}>
-                {storeDetails.totalCustomers.toLocaleString()}
+          <View style={styles.detailsGrid}>
+            <View style={styles.detailCard}>
+              <Text style={styles.detailLabel}>Account Status</Text>
+              <Text
+                style={[
+                  styles.detailValue,
+                  { color: storeOwner.user.isActive ? "#4caf50" : "#d32f2f" },
+                ]}
+              >
+                {storeOwner.user.isActive ? "Active" : "Inactive"}
               </Text>
-              <Text style={styles.statLabel}>Total Customers</Text>
             </View>
 
-            {/* Total Transactions */}
-            <View style={[styles.statCard, isDesktop && styles.statCardDesktop]}>
-              <View style={styles.statIconContainer}>
-                <MaterialIcons
-                  name="receipt"
-                  size={28}
-                  color="#4caf50"
-                />
-              </View>
-              <Text style={styles.statValue}>
-                {storeDetails.totalTransactions.toLocaleString()}
+            <View style={styles.detailCard}>
+              <Text style={styles.detailLabel}>Member Since</Text>
+              <Text style={styles.detailValue}>
+                {new Date(storeOwner.createdAt).toLocaleDateString()}
               </Text>
-              <Text style={styles.statLabel}>Transactions</Text>
-            </View>
-
-            {/* Total Revenue */}
-            <View style={[styles.statCard, isDesktop && styles.statCardDesktop]}>
-              <View style={styles.statIconContainer}>
-                <MaterialIcons
-                  name="trending-up"
-                  size={28}
-                  color="#ff9800"
-                />
-              </View>
-              <Text style={styles.statValue}>
-                Nu. {(storeDetails.totalRevenue / 1000).toFixed(1)}K
-              </Text>
-              <Text style={styles.statLabel}>Total Revenue</Text>
             </View>
           </View>
         </View>
@@ -505,15 +586,9 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: "#e0e0e0",
-  },
-  editImageButton: {
-    position: "absolute",
-    bottom: 0,
-    right: 0,
-    backgroundColor: "#1976d2",
-    borderRadius: 20,
-    padding: 8,
+    backgroundColor: "#e3f2fd",
+    justifyContent: "center",
+    alignItems: "center",
   },
   profileInfo: {
     flex: 1,
@@ -556,10 +631,15 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     fontSize: 13,
     color: "#1a1a1a",
+    backgroundColor: "#fafafa",
   },
   textArea: {
     textAlignVertical: "top",
-    minHeight: 100,
+    minHeight: 80,
+  },
+  buttonGroup: {
+    flexDirection: "row",
+    gap: 8,
   },
   editButton: {
     flexDirection: "row",
@@ -568,11 +648,13 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 6,
     alignItems: "center",
-    alignSelf: "flex-start",
     gap: 8,
   },
   editButtonActive: {
     backgroundColor: "#4caf50",
+  },
+  cancelButton: {
+    backgroundColor: "#d32f2f",
   },
   editButtonText: {
     color: "#fff",
@@ -637,39 +719,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#1a1a1a",
     fontWeight: "500",
-  },
-  // ====== STATISTICS ======
-  statsGrid: {
-    gap: 12,
-  },
-  statsGridDesktop: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 16,
-  },
-  statCard: {
-    backgroundColor: "#f9f9f9",
-    borderRadius: 8,
-    padding: 16,
-    alignItems: "center",
-    flex: 1,
-  },
-  statCardDesktop: {
-    minWidth: "30%",
-  },
-  statIconContainer: {
-    marginBottom: 12,
-  },
-  statValue: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#1a1a1a",
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: "#999",
-    textAlign: "center",
   },
   // ====== ACTION BUTTONS ======
   actionButtons: {

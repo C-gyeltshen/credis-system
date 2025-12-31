@@ -148,7 +148,7 @@ export default function CustomersScreen() {
             </Text>
             <View style={{ marginTop: 8 }}>
               <Text style={{ color: "#fff", fontWeight: "600", fontSize: 16 }}>
-                Total Remaining Balance:
+                Total Remaining Credit:
                 <Text style={{ color: "#ffd700", fontWeight: "bold" }}>
                   {outstandingBalance !== null
                     ? ` Nu. ${outstandingBalance.toLocaleString("en-IN", {

@@ -1,8 +1,17 @@
 import * as React from "react";
-import { View, Text, StyleSheet, ActivityIndicator, useWindowDimensions, ScrollView } from "react-native";
-import { Divider } from "react-native-paper";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  useWindowDimensions,
+  TouchableOpacity,
+  Platform,
+} from "react-native";
+import { Divider, Chip } from "react-native-paper";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useLocalSearchParams } from "expo-router";
+import Navigation from "@/components/Navbar";
 
 // Type definitions
 type Transaction = {
@@ -34,11 +43,11 @@ const Transaction: React.FC<TransactionSectionProps> = ({
   const { width } = useWindowDimensions();
   const params = useLocalSearchParams();
   const routeCustomerId = params.customerId || customerId;
-  
+
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [data, setData] = React.useState<CreditData | null>(creditData || null);
-  
+
   // Determine screen size
   const isSmallPhone = width < 360;
   const isPhone = width < 480;
@@ -69,7 +78,7 @@ const Transaction: React.FC<TransactionSectionProps> = ({
 
       const result = await response.json();
       console.log("API Response:", result);
-      
+
       // Handle different response formats
       if (Array.isArray(result)) {
         setData({ credits: result });
@@ -96,9 +105,9 @@ const Transaction: React.FC<TransactionSectionProps> = ({
   if (loading) {
     return (
       <View style={styles.creditDetailsContainer}>
-        <ActivityIndicator size={isPhone ? "large" : "large"} color="#1976d2" />
+        <ActivityIndicator size="large" color="#1976d2" />
         <Text style={[styles.loadingText, isSmallPhone && styles.textSmall]}>
-          Loading credit data...
+          Loading transactions...
         </Text>
       </View>
     );
@@ -106,163 +115,305 @@ const Transaction: React.FC<TransactionSectionProps> = ({
 
   if (error) {
     return (
-      <View style={styles.creditDetailsContainer}>
-        <MaterialIcons name="error-outline" size={isSmallPhone ? 24 : 32} color="#d32f2f" />
-        <Text style={[styles.errorText, isSmallPhone && styles.textSmall]}>Error: {error}</Text>
-        <Text style={[styles.errorSubtext, isSmallPhone && styles.textTiny]}>
-          {routeCustomerId ? `Customer ID: ${routeCustomerId}` : "No customer ID provided"}
+      <View style={styles.errorContainer}>
+        <View style={styles.errorContent}>
+          <MaterialIcons
+            name="error-outline"
+            size={isSmallPhone ? 40 : 48}
+            color="#d32f2f"
+          />
+          <Text style={[styles.errorText, isSmallPhone && styles.textSmall]}>
+            {error}
+          </Text>
+          <Text style={[styles.errorSubtext, isSmallPhone && styles.textTiny]}>
+            {routeCustomerId
+              ? `Customer ID: ${routeCustomerId}`
+              : "No customer ID"}
+          </Text>
+        </View>
+      </View>
+    );
+  }
+
+  if (
+    !displayData ||
+    !displayData.credits ||
+    displayData.credits.length === 0
+  ) {
+    return (
+      <View style={styles.emptyContainer}>
+        <MaterialIcons name="receipt-long" size={48} color="#ccc" />
+        <Text style={[styles.emptyText, isSmallPhone && styles.textSmall]}>
+          No Transactions
+        </Text>
+        <Text style={[styles.emptySubtext, isSmallPhone && styles.textTiny]}>
+          Start by adding credit or payment transactions
         </Text>
       </View>
     );
   }
 
-  if (!displayData || !displayData.credits || displayData.credits.length === 0) {
-    return (
-      <View style={styles.creditDetailsContainer}>
-        <Text style={[styles.loadingText, isSmallPhone && styles.textSmall]}>
-          No credit data available
-        </Text>
-      </View>
-    );
-  }
+  const displayedTransactions = showAllTransactions
+    ? displayData.credits
+    : displayData.credits.slice(0, 5);
+
+  const totalCredit = displayData.credits
+    .filter((t) => t.transactionType === "credit_given")
+    .reduce((sum, t) => sum + Number(t.amount), 0);
+
+  const totalPayment = displayData.credits
+    .filter((t) => t.transactionType === "payment_received")
+    .reduce((sum, t) => sum + Number(t.amount), 0);
 
   return (
-    <View style={[styles.creditHistorySection, isDesktop && styles.desktopContainer]}>
-      <Text style={[styles.creditHistoryTitle, isSmallPhone && styles.titleSmall, isTablet && styles.titleTablet]}>
-        <MaterialIcons name="history" size={isSmallPhone ? 16 : isTablet ? 20 : 18} color="#1a1a1a" /> Recent
-        Transactions
-      </Text>
-
-      <View style={isDesktop && styles.gridContainer}>
-        {(showAllTransactions
-          ? displayData.credits
-          : displayData.credits.slice(0, 3)
-        ).map((transaction, index) => {
-          const isCredit = transaction.transactionType === "credit_given";
-          const isPayment = transaction.transactionType === "payment_received";
-
-          return (
-            <View
-              key={transaction.id || index}
+    <Navigation>
+      <View style={[styles.container, isDesktop && styles.containerDesktop]}>
+        {/* Header Section */}
+        <View style={styles.headerSection}>
+          <View style={styles.headerTitleRow}>
+            <View style={styles.titleIconContainer}>
+              <MaterialIcons name="history" size={24} color="#1976d2" />
+            </View>
+            <Text
               style={[
-                styles.transactionRow,
-                isCredit && styles.transactionRowCredit,
-                isPayment && styles.transactionRowPayment,
-                isSmallPhone && styles.transactionRowSmall,
-                isTablet && styles.transactionRowTablet,
-                isDesktop && styles.transactionRowDesktop,
+                styles.creditHistoryTitle,
+                isSmallPhone && styles.titleSmall,
+                isTablet && styles.titleTablet,
               ]}
             >
-              <View style={styles.transactionLeft}>
-                <View
-                  style={[
-                    styles.transactionIcon,
-                    isSmallPhone && styles.iconSmall,
-                    isTablet && styles.iconTablet,
-                    isCredit && styles.iconCredit,
-                    isPayment && styles.iconPayment,
-                  ]}
-                >
-                  <MaterialIcons
-                    name={isCredit ? "arrow-upward" : "arrow-downward"}
-                    size={isSmallPhone ? 18 : isTablet ? 28 : 24}
-                    color={isCredit ? "#1976d2" : "#4caf50"}
-                  />
-                </View>
-                <View style={[styles.transactionInfo, isSmallPhone && styles.infoSmall]}>
-                  <View style={[styles.transactionTypeRow, isSmallPhone && styles.typeRowSmall]}>
-                    <Text
-                      style={[
-                        styles.transactionDescription,
-                        isSmallPhone && styles.descriptionSmall,
-                        isTablet && styles.descriptionTablet,
-                      ]}
-                      numberOfLines={isSmallPhone ? 1 : 2}
-                    >
-                      {transaction.itemsDescription || "No description"}
-                    </Text>
-                    <View
-                      style={[
-                        styles.transactionTypeBadge,
-                        isSmallPhone && styles.badgeSmall,
-                        isTablet && styles.badgeTablet,
-                        isCredit && styles.badgeCredit,
-                        isPayment && styles.badgePayment,
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.transactionTypeText,
-                          isSmallPhone && styles.badgeTextSmall,
-                          isCredit && styles.badgeTextCredit,
-                          isPayment && styles.badgeTextPayment,
-                        ]}
-                      >
-                        {isCredit ? "Given" : "Received"}
-                      </Text>
-                    </View>
-                  </View>
-                  <Text style={[styles.transactionDate, isSmallPhone && styles.dateSmall]}>
-                    {transaction.transactionDate}
-                  </Text>
-                  {transaction.journalNumber && (
-                    <Text style={[styles.transactionJournal, isSmallPhone && styles.journalSmall]}>
-                      Journal: {transaction.journalNumber}
-                    </Text>
-                  )}
-                </View>
+              Transaction History
+            </Text>
+          </View>
+
+          {/* Summary Cards */}
+          <View
+            style={[styles.summaryRow, isDesktop && styles.summaryRowDesktop]}
+          >
+            <View style={[styles.summaryCard, styles.creditCard]}>
+              <View style={styles.summaryIconContainer}>
+                <MaterialIcons name="arrow-upward" size={20} color="#1976d2" />
               </View>
-              <Text
+              <View style={styles.summaryContent}>
+                <Text style={styles.summaryLabel}>Credit Given</Text>
+                <Text style={styles.summaryAmount}>
+                  Nu. {totalCredit.toLocaleString()}
+                </Text>
+              </View>
+            </View>
+
+            <View style={[styles.summaryCard, styles.paymentCard]}>
+              <View style={styles.summaryIconContainer}>
+                <MaterialIcons
+                  name="arrow-downward"
+                  size={20}
+                  color="#4caf50"
+                />
+              </View>
+              <View style={styles.summaryContent}>
+                <Text style={styles.summaryLabel}>Payment Received</Text>
+                <Text style={styles.summaryAmount}>
+                  Nu. {totalPayment.toLocaleString()}
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        {/* Transactions List */}
+        <View
+          style={[
+            styles.transactionsContainer,
+            isDesktop && styles.gridContainer,
+          ]}
+        >
+          {displayedTransactions.map((transaction, index) => {
+            const isCredit = transaction.transactionType === "credit_given";
+
+            return (
+              <View
+                key={transaction.id || index}
                 style={[
-                  styles.transactionAmount,
-                  isSmallPhone && styles.amountSmall,
-                  isTablet && styles.amountTablet,
-                  isCredit && styles.amountCredit,
-                  isPayment && styles.amountPayment,
+                  styles.transactionRow,
+                  isCredit && styles.transactionRowCredit,
+                  !isCredit && styles.transactionRowPayment,
+                  isSmallPhone && styles.transactionRowSmall,
+                  isTablet && styles.transactionRowTablet,
+                  isDesktop && styles.transactionRowDesktop,
                 ]}
               >
-                {isCredit ? "-" : "+"}Nu. {Number(transaction.amount).toLocaleString()}
+                {/* Left Section - Icon and Info */}
+                <View style={styles.transactionLeft}>
+                  <View
+                    style={[
+                      styles.transactionIcon,
+                      isCredit && styles.iconCredit,
+                      !isCredit && styles.iconPayment,
+                    ]}
+                  >
+                    <MaterialIcons
+                      name={isCredit ? "arrow-upward" : "arrow-downward"}
+                      size={isSmallPhone ? 18 : isTablet ? 24 : 20}
+                      color="#fff"
+                    />
+                  </View>
+
+                  <View style={styles.transactionInfo}>
+                    {/* Description and Badge Row */}
+                    <View style={styles.descriptionRow}>
+                      <Text
+                        style={[
+                          styles.transactionDescription,
+                          isSmallPhone && styles.descriptionSmall,
+                        ]}
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                      >
+                        {transaction.itemsDescription || "Transaction"}
+                      </Text>
+                      <View
+                        style={[
+                          styles.typeBadge,
+                          isCredit && styles.badgeCredit,
+                          !isCredit && styles.badgePayment,
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.badgeText,
+                            isSmallPhone && styles.badgeTextSmall,
+                          ]}
+                        >
+                          {isCredit ? "Given" : "Received"}
+                        </Text>
+                      </View>
+                    </View>
+
+                    {/* Date and Journal Info */}
+                    <View style={styles.metaInfo}>
+                      <View style={styles.metaItem}>
+                        <MaterialIcons
+                          name="calendar-today"
+                          size={12}
+                          color="#999"
+                        />
+                        <Text style={styles.metaText}>
+                          {transaction.transactionDate}
+                        </Text>
+                      </View>
+                      {transaction.journalNumber && (
+                        <View style={styles.metaItem}>
+                          <MaterialIcons
+                            name="receipt"
+                            size={12}
+                            color="#999"
+                          />
+                          <Text style={styles.metaText}>
+                            {transaction.journalNumber}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                  </View>
+                </View>
+
+                {/* Right Section - Amount */}
+                <View style={styles.amountSection}>
+                  <Text
+                    style={[
+                      styles.transactionAmount,
+                      isCredit && styles.amountCredit,
+                      !isCredit && styles.amountPayment,
+                    ]}
+                  >
+                    {isCredit ? "-" : "+"}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.amountValue,
+                      isSmallPhone && styles.amountSmall,
+                    ]}
+                  >
+                    Nu. {Number(transaction.amount).toLocaleString()}
+                  </Text>
+                </View>
+              </View>
+            );
+          })}
+        </View>
+
+        {/* Show More/Less Button */}
+        {displayData.credits.length > 5 && (
+          <View style={styles.actionContainer}>
+            <TouchableOpacity
+              style={styles.showMoreButton}
+              onPress={() => setShowAllTransactions(!showAllTransactions)}
+            >
+              <Text style={styles.showMoreText}>
+                {showAllTransactions
+                  ? "Show Less"
+                  : `Show All (${displayData.credits.length})`}
               </Text>
-            </View>
-          );
-        })}
+              <MaterialIcons
+                name={showAllTransactions ? "expand-less" : "expand-more"}
+                size={20}
+                color="#1976d2"
+              />
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
-
-      {displayData.credits.length === 0 && (
-        <Text style={[styles.noTransactions, isSmallPhone && styles.textSmall]}>
-          No transactions found
-        </Text>
-      )}
-
-      {displayData.credits.length > 3 && !showAllTransactions && (
-        <Text
-          style={[styles.clickableText, isSmallPhone && styles.buttonSmall]}
-          onPress={() => setShowAllTransactions(true)}
-        >
-          Show all transactions
-        </Text>
-      )}
-      {displayData.credits.length > 3 && showAllTransactions && (
-        <Text
-          style={[styles.clickableText, isSmallPhone && styles.buttonSmall]}
-          onPress={() => setShowAllTransactions(false)}
-        >
-          Show less
-        </Text>
-      )}
-      <Divider style={{ marginVertical: isSmallPhone ? 12 : isTablet ? 20 : 16 }} />
-    </View>
+    </Navigation>
   );
 };
 
 export default Transaction;
 
 const styles = StyleSheet.create({
+  container: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    overflow: "hidden",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
+  },
+  containerDesktop: {
+    borderRadius: 16,
+  },
   creditDetailsContainer: {
-    padding: 16,
+    padding: 24,
     justifyContent: "center",
     alignItems: "center",
     minHeight: 200,
+    backgroundColor: "#f5f5f5",
+    borderRadius: 12,
+  },
+  errorContainer: {
+    padding: 24,
+    justifyContent: "center",
+    alignItems: "center",
+    minHeight: 200,
+    backgroundColor: "#ffebee",
+    borderRadius: 12,
+  },
+  errorContent: {
+    alignItems: "center",
+  },
+  emptyContainer: {
+    padding: 32,
+    justifyContent: "center",
+    alignItems: "center",
+    minHeight: 240,
+    backgroundColor: "#f9f9f9",
+    borderRadius: 12,
   },
   loadingText: {
     marginTop: 12,
@@ -281,76 +432,142 @@ const styles = StyleSheet.create({
     color: "#d32f2f",
     fontSize: 14,
     textAlign: "center",
-    fontWeight: "600",
+    fontWeight: "700",
   },
   errorSubtext: {
-    marginTop: 8,
+    marginTop: 6,
     color: "#999",
     fontSize: 12,
   },
-  creditHistorySection: {
-    gap: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+  emptyText: {
+    marginTop: 12,
+    color: "#666",
+    fontSize: 16,
+    fontWeight: "700",
   },
-  desktopContainer: {
-    paddingHorizontal: 24,
-    paddingVertical: 16,
+  emptySubtext: {
+    marginTop: 6,
+    color: "#999",
+    fontSize: 13,
+  },
+  headerSection: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
+  },
+  headerTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+    gap: 10,
+  },
+  titleIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#e3f2fd",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  creditHistoryTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#1a1a1a",
+  },
+  titleSmall: {
+    fontSize: 16,
+  },
+  titleTablet: {
+    fontSize: 20,
+  },
+  summaryRow: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  summaryRowDesktop: {
+    gap: 16,
+  },
+  summaryCard: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 12,
+    borderRadius: 10,
+    gap: 12,
+  },
+  creditCard: {
+    backgroundColor: "#e3f2fd",
+  },
+  paymentCard: {
+    backgroundColor: "#e8f5e9",
+  },
+  summaryIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.5)",
+  },
+  summaryContent: {
+    flex: 1,
+  },
+  summaryLabel: {
+    fontSize: 11,
+    color: "#666",
+    fontWeight: "600",
+    textTransform: "uppercase",
+    letterSpacing: 0.3,
+  },
+  summaryAmount: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#1a1a1a",
+    marginTop: 2,
+  },
+  transactionsContainer: {
+    padding: 16,
+    gap: 8,
   },
   gridContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
+    padding: 16,
     gap: 12,
-  },
-  creditHistoryTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#1a1a1a",
-    marginBottom: 8,
-  },
-  titleSmall: {
-    fontSize: 14,
-    marginBottom: 6,
-  },
-  titleTablet: {
-    fontSize: 18,
-    marginBottom: 12,
   },
   transactionRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 10,
-    backgroundColor: "#fff",
-    borderRadius: 6,
-    marginBottom: 8,
+    padding: 12,
+    backgroundColor: "#f9f9f9",
+    borderRadius: 10,
+    borderLeftWidth: 4,
   },
   transactionRowSmall: {
-    padding: 8,
-    marginBottom: 6,
+    padding: 10,
   },
   transactionRowTablet: {
-    padding: 12,
-    marginBottom: 10,
+    padding: 14,
   },
   transactionRowDesktop: {
     flex: 1,
     minWidth: "48%",
     padding: 14,
-    marginBottom: 12,
   },
   transactionRowCredit: {
-    borderLeftWidth: 4,
     borderLeftColor: "#1976d2",
+    backgroundColor: "#f0f7ff",
   },
   transactionRowPayment: {
-    borderLeftWidth: 4,
     borderLeftColor: "#4caf50",
+    backgroundColor: "#f5fdf5",
   },
   transactionLeft: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     flex: 1,
+    gap: 12,
   },
   transactionIcon: {
     width: 40,
@@ -358,40 +575,23 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 12,
-  },
-  iconSmall: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    marginRight: 10,
-  },
-  iconTablet: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    marginRight: 14,
+    marginTop: 2,
   },
   iconCredit: {
-    backgroundColor: "#e3f2fd",
+    backgroundColor: "#1976d2",
   },
   iconPayment: {
-    backgroundColor: "#e8f5e9",
+    backgroundColor: "#4caf50",
   },
   transactionInfo: {
     flex: 1,
+    gap: 6,
   },
-  infoSmall: {
-    gap: 2,
-  },
-  transactionTypeRow: {
+  descriptionRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 2,
-  },
-  typeRowSmall: {
-    marginBottom: 1,
+    justifyContent: "space-between",
+    gap: 8,
   },
   transactionDescription: {
     fontSize: 14,
@@ -400,76 +600,61 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   descriptionSmall: {
-    fontSize: 12,
-    fontWeight: "500",
+    fontSize: 13,
   },
-  descriptionTablet: {
-    fontSize: 15,
-  },
-  transactionTypeBadge: {
+  typeBadge: {
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 4,
-    marginLeft: 8,
-  },
-  badgeSmall: {
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    marginLeft: 6,
-  },
-  badgeTablet: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    marginLeft: 10,
+    borderRadius: 6,
+    minWidth: 50,
+    justifyContent: "center",
+    alignItems: "center",
   },
   badgeCredit: {
-    backgroundColor: "#e3f2fd",
+    backgroundColor: "#bbdefb",
   },
   badgePayment: {
-    backgroundColor: "#e8f5e9",
+    backgroundColor: "#c8e6c9",
   },
-  transactionTypeText: {
+  badgeText: {
     fontSize: 11,
     fontWeight: "700",
+    color: "#1a1a1a",
   },
   badgeTextSmall: {
-    fontSize: 9,
-    fontWeight: "600",
+    fontSize: 10,
   },
-  badgeTextCredit: {
-    color: "#1976d2",
+  metaInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    flexWrap: "wrap",
   },
-  badgeTextPayment: {
-    color: "#4caf50",
+  metaItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
   },
-  transactionDate: {
-    fontSize: 12,
-    color: "#666",
-  },
-  dateSmall: {
-    fontSize: 11,
-  },
-  transactionJournal: {
+  metaText: {
     fontSize: 11,
     color: "#999",
-    fontStyle: "italic",
-    marginTop: 2,
   },
-  journalSmall: {
-    fontSize: 10,
-    marginTop: 1,
-  },
-  transactionAmount: {
-    fontSize: 16,
-    fontWeight: "700",
+  amountSection: {
+    alignItems: "flex-end",
     marginLeft: 8,
   },
-  amountSmall: {
-    fontSize: 13,
-    marginLeft: 6,
+  transactionAmount: {
+    fontSize: 18,
+    fontWeight: "700",
   },
-  amountTablet: {
-    fontSize: 17,
+  amountValue: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#1a1a1a",
+    marginTop: 2,
+  },
+  amountSmall: {
+    fontSize: 12,
   },
   amountCredit: {
     color: "#d32f2f",
@@ -477,22 +662,26 @@ const styles = StyleSheet.create({
   amountPayment: {
     color: "#4caf50",
   },
-  noTransactions: {
-    fontSize: 14,
-    color: "#999",
-    textAlign: "center",
-    paddingVertical: 20,
-    fontStyle: "italic",
+  actionContainer: {
+    padding: 16,
+    borderTopWidth: 1,
+    borderTopColor: "#f0f0f0",
+    alignItems: "center",
   },
-  clickableText: {
+  showMoreButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#1976d2",
+    gap: 6,
+  },
+  showMoreText: {
     color: "#1976d2",
     fontWeight: "600",
-    marginTop: 8,
-    textAlign: "center",
     fontSize: 14,
-  },
-  buttonSmall: {
-    fontSize: 12,
-    marginTop: 6,
   },
 });
