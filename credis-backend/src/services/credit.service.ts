@@ -49,21 +49,6 @@ export class CreditService {
       throw new Error("Cannot create credit transaction for inactive customer");
     }
 
-    // Business logic: For credit_given, check if it exceeds credit limit
-    if (data.transaction_type === "credit_given" && customer.creditLimit) {
-      const currentBalance = await this.repository.getCustomerSummary(
-        data.customer_id,
-        data.store_id
-      );
-      const newBalance = currentBalance.outstanding_balance + data.amount;
-
-      if (newBalance > Number(customer.creditLimit)) {
-        throw new Error(
-          `Credit limit exceeded. Current balance: ${currentBalance.outstanding_balance}, Credit limit: ${customer.creditLimit}`
-        );
-      }
-    }
-
     // Create credit transaction
     const credit = await this.repository.create(data);
 
@@ -207,38 +192,6 @@ export class CreditService {
       const newTransactionType =
         data.transaction_type || existingCredit.transactionType;
       const newAmount = data.amount || Number(existingCredit.amount);
-
-      if (
-        newTransactionType === "credit_given" &&
-        existingCredit.customer.creditLimit
-      ) {
-        // Calculate balance without this transaction
-        const currentSummary = await this.repository.getCustomerSummary(
-          existingCredit.customerId,
-          existingCredit.storeId
-        );
-
-        // Adjust for removing old transaction and adding new one
-        let adjustedBalance = currentSummary.outstanding_balance;
-
-        if (existingCredit.transactionType === "credit_given") {
-          adjustedBalance -= Number(existingCredit.amount);
-        } else {
-          adjustedBalance += Number(existingCredit.amount);
-        }
-
-        if (newTransactionType === "credit_given") {
-          adjustedBalance += newAmount;
-        } else {
-          adjustedBalance -= newAmount;
-        }
-
-        if (adjustedBalance > Number(existingCredit.customer.creditLimit)) {
-          throw new Error(
-            `Updated transaction would exceed credit limit. Credit limit: ${existingCredit.customer.creditLimit}`
-          );
-        }
-      }
     }
 
     // Update credit transaction

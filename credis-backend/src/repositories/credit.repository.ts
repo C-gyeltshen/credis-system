@@ -218,7 +218,6 @@ export class CreditRepository {
             id: true,
             name: true,
             phoneNumber: true,
-            email: true,
           },
         },
         store: {
