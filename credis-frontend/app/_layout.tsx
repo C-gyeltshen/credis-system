@@ -53,6 +53,38 @@ export default function RootLayout() {
               options={{ headerShown: false }}
             />
             <Stack.Screen
+              name="(auth)/login/index"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="(auth)/register/index"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="give-credit/index"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="payment-received/index"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="OverdueAccountsReport/index"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="profile/index"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="transaction/index"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="customer-dashboard/components/modal"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
               name="modal"
               options={{
                 presentation: "modal",

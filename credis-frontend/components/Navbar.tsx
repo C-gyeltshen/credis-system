@@ -38,12 +38,12 @@ const NAV_ITEMS: NavItem[] = [
     icon: "person",
     route: "/profile",
   },
-  {
-    id: "payment",
-    label: "Confirm Payment",
-    icon: "payment",
-    route: "/payment",
-  },
+  // {
+  //   id: "payment",
+  //   label: "Confirm Payment",
+  //   icon: "payment",
+  //   route: "/payment",
+  // },
 ];
 
 interface NavigationProps {
