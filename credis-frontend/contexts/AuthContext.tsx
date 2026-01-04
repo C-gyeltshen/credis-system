@@ -44,7 +44,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          
         },
         credentials: "include", // Include HttpOnly cookies
       });

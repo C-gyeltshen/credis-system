@@ -7,21 +7,23 @@ import { errorHandler } from "./middlewares/errorHandler.js";
 
 const app = new Hono();
 
-// CORS FIRST - before all other middleware
+// Middleware
 app.use(
   "*",
   cors({
     origin: [
-      process.env.FRONTEND_URL || "http://localhost:8081",
-      "http://localhost:*",
-    ],
-    credentials: true,
+      "http://localhost:8081",      // Your frontend dev URL
+      "http://localhost:3000",      // Alternative dev port
+      "http://localhost:19006",     // Expo web
+      "http://localhost:19000",     // Expo tunnel
+      process.env.FRONTEND_URL || "", // Production frontend URL
+    ].filter(Boolean), // Remove empty strings
+    credentials: true, // Allow cookies
     allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-// Then other middleware
 app.use("*", logger());
 app.use("*", errorHandler);
 
@@ -33,6 +35,7 @@ app.get("/", (c) => {
 // API routes
 app.route("/api", router);
 
+// Start server only if not in test environment
 if (process.env.NODE_ENV !== 'test') {
   const port = process.env.PORT || 8080;
   
@@ -44,4 +47,5 @@ if (process.env.NODE_ENV !== 'test') {
   console.log(`Server running on http://localhost:${port}`);
 }
 
+// Export app for testing
 export { app };
