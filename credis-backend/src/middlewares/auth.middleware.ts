@@ -4,7 +4,9 @@ import { StoreOwnerService } from "../services/storeOwner.service.js";
 const storeOwnerService = new StoreOwnerService();
 
 export const authMiddleware = async (c: Context, next: Next) => {
+  
   let token: string | undefined;
+
   const authHeader = c.req.header("Authorization");
   if (authHeader?.startsWith("Bearer ")) {
     token = authHeader.slice(7);

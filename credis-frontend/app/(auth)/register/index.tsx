@@ -261,7 +261,7 @@ const styles = {
 };
 
 const API_BASE_URL =
-  process.env.REACT_APP_API_URL || "http://localhost:8080/api";
+  process.env.EXPO_PUBLIC_API_URL;
 
 type ErrorType = {
   storeName?: string;
@@ -374,7 +374,7 @@ const RegisterScreen = () => {
 
     try {
       // Step 1: Create the store
-      const storeResponse = await fetch("http://localhost:8080/api/stores", {
+      const storeResponse = await fetch(`${API_BASE_URL}/stores`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -407,6 +407,7 @@ const RegisterScreen = () => {
         storeId: storeId,
       };
       console.log("Registering store owner with body:", registrationBody);
+
       const registrationResponse = await fetch(
         `${API_BASE_URL}/store-owners/register`,
         {
@@ -418,6 +419,7 @@ const RegisterScreen = () => {
           body: JSON.stringify(registrationBody),
         }
       );
+      console.log("response", registrationResponse)
 
       let registrationData = null;
       try {
@@ -439,6 +441,8 @@ const RegisterScreen = () => {
 
       // Step 3: Auto-login after successful registration
       // This step sets HttpOnly cookies automatically
+      // console.log("api url", API_BASE_URL)
+
       const loginResponse = await fetch(`${API_BASE_URL}/store-owners/login`, {
         method: "POST",
         headers: {

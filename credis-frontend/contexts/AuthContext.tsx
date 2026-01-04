@@ -1,6 +1,6 @@
 import React, { createContext, useState, useCallback, useEffect, ReactNode } from "react";
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:8080/api";
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export interface User {
   id: string;
@@ -22,7 +22,6 @@ export interface AuthContextType {
   checkAuth: () => Promise<void>;
   clearError: () => void;
 }
-
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -45,6 +44,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          
         },
         credentials: "include", // Include HttpOnly cookies
       });

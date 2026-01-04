@@ -27,17 +27,17 @@ export class StoreOwnerController {
         password
       );
 
-      // Set HttpOnly cookies
+      // Set HttpOnly cookies - use Lax for cross-origin requests
       c.header(
         "Set-Cookie",
-        `accessToken=${accessToken}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${
+        `accessToken=${accessToken}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${
           30 * 24 * 60 * 60
         }`
       );
 
       c.header(
         "Set-Cookie",
-        `refreshToken=${refreshToken}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${
+        `refreshToken=${refreshToken}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${
           6 * 30 * 24 * 60 * 60
         }`,
         { append: true }
@@ -65,7 +65,7 @@ export class StoreOwnerController {
       // Set new access token cookie
       c.header(
         "Set-Cookie",
-        `accessToken=${accessToken}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${
+        `accessToken=${accessToken}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${
           30 * 24 * 60 * 60
         }`
       );
@@ -84,12 +84,12 @@ export class StoreOwnerController {
       // Clear cookies
       c.header(
         "Set-Cookie",
-        `accessToken=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0`
+        `accessToken=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`
       );
 
       c.header(
         "Set-Cookie",
-        `refreshToken=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0`,
+        `refreshToken=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`,
         { append: true }
       );
 
@@ -101,11 +101,16 @@ export class StoreOwnerController {
 
   async getProfile(c: Context) {
     try {
-      const user = c.get("user");
+      const user = c.get("user"); // Get user from auth middleware
+      
+      if (!user || !user.id) {
+        return c.json({ error: "Unauthorized" }, 401);
+      }
+
       const profile = await storeOwnerService.getProfile(user.id);
       return c.json({ success: true, user: profile }, 200);
     } catch (error: any) {
-      return c.json({ error: error.message }, 400);
+      return c.json({ error: error.message }, 404);
     }
   }
 

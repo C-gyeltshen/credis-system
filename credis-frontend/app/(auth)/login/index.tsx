@@ -8,7 +8,7 @@ type Errors = {
 };
 
 const API_BASE_URL =
-  process.env.REACT_APP_API_URL || "http://localhost:8080/api";
+  process.env.EXPO_PUBLIC_API_URL;
 
 const LoginScreen: React.FC = () => {
   const [loading, setLoading] = useState(false);

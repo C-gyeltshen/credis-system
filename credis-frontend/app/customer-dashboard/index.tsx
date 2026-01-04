@@ -30,6 +30,8 @@ interface Customer {
 import { router } from "expo-router";
 import Navigation from "@/components/Navbar";
 
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
+
 export default function CustomersScreen() {
   const { isAuthenticated, isLoading, user } = useAuth();
 
@@ -60,7 +62,7 @@ export default function CustomersScreen() {
       try {
         setLoading(true);
         const response = await fetch(
-          `http://localhost:8080/api/stores/${storeId}/customers`
+          `${API_BASE_URL}/stores/${storeId}/customers`
         );
         const data = await response.json();
         if (data.success && data.data) {
@@ -77,7 +79,7 @@ export default function CustomersScreen() {
     const fetchOutstandingBalance = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8080/api/credits/store/${storeId}/outstanding`
+          `${API_BASE_URL}/credits/store/${storeId}/outstanding`
         );
         const data = await response.json();
         if (data.success && Array.isArray(data.data)) {

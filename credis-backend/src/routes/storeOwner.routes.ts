@@ -31,7 +31,7 @@ storeOwnerRoutes.post("/logout", authMiddleware, (c) =>
 
 // GET /api/store-owners/me - Get authenticated user profile
 storeOwnerRoutes.get("/me", authMiddleware, (c) =>
-  controller.getProfile(c)
+  controller.getProfile(c)  // Not getProfileById!
 );
 
 // GET /api/store-ownerxs/:id - Get store owner by ID (public)
