@@ -22,6 +22,9 @@ import { MaterialIcons } from "@expo/vector-icons";
 
 type TransactionType = "credit_given" | "payment_received";
 
+const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_URL;
+
 export default function CreditTransactionModal() {
   const params = useLocalSearchParams();
   const { user } = useAuth();
@@ -79,7 +82,7 @@ export default function CreditTransactionModal() {
         created_by_owner_id: params.ownerId as string | undefined, // optional, if available
       };
 
-      const response = await fetch("http://localhost:8080/api/credits", {
+      const response = await fetch(`${API_BASE_URL}/credits`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

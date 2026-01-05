@@ -21,6 +21,9 @@ import { router } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import Navigation from "@/components/Navbar";
 
+const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_URL;
+
 export default function AddCustomerModal() {
   const { user } = useAuth();
   const params = useLocalSearchParams();
@@ -71,7 +74,7 @@ export default function AddCustomerModal() {
         phone_number: phoneNumber.trim().replace(/\s/g, ""),
       };
 
-      const response = await fetch("http://localhost:8080/api/customers", {
+      const response = await fetch(`${API_BASE_URL}/customers`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
