@@ -260,7 +260,8 @@ const styles = {
   },
 };
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
+const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_URL;
 
 type ErrorType = {
   storeName?: string;
@@ -378,7 +379,11 @@ const RegisterScreen = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include",
+        body: JSON.stringify({
+          name: formData.storeName,
+          address: formData.address,
+          phone_number: formData.phoneNumber,
+        }),
       });
 
       const storeData = await storeResponse.json();
@@ -401,6 +406,7 @@ const RegisterScreen = () => {
         password: formData.password,
         storeId: storeId,
       };
+      console.log("Registering store owner with body:", registrationBody);
 
       const registrationResponse = await fetch(
         `${API_BASE_URL}/store-owners/register`,
@@ -409,10 +415,11 @@ const RegisterScreen = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          credentials: "include",
+          credentials: "include", // Important: Include cookies for HttpOnly
           body: JSON.stringify(registrationBody),
         }
       );
+      console.log("response", registrationResponse)
 
       let registrationData = null;
       try {
@@ -422,6 +429,7 @@ const RegisterScreen = () => {
       }
 
       if (!registrationResponse.ok) {
+        console.error("Store owner registration failed", registrationData);
         setErrors({
           submit:
             (registrationData && registrationData.error) ||
@@ -432,12 +440,15 @@ const RegisterScreen = () => {
       }
 
       // Step 3: Auto-login after successful registration
+      // This step sets HttpOnly cookies automatically
+      // console.log("api url", API_BASE_URL)
+
       const loginResponse = await fetch(`${API_BASE_URL}/store-owners/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include",
+        credentials: "include", // Include cookies
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
@@ -449,22 +460,22 @@ const RegisterScreen = () => {
       if (!loginResponse.ok) {
         // Registration succeeded but login failed - show success anyway
         setStep(5);
-        setLoading(false);
         return;
       }
 
+      // Success - cookies are now set by the browser automatically
+      // Store owner data is available in loginData.user
       console.log("Registration and login successful:", loginData.user);
 
-      // IMPORTANT: Wait a moment for cookies to be fully set before redirecting
-      // This ensures the browser has processed the Set-Cookie headers
+      // Move to success screen
       setStep(5);
-      setLoading(false);
     } catch (error) {
       console.error("Registration error:", error);
       setErrors({
         submit:
           "Connection failed. Please check your backend URL and try again.",
       });
+    } finally {
       setLoading(false);
     }
   };
@@ -500,9 +511,9 @@ const RegisterScreen = () => {
 
               <button
                 onClick={() => {
-                  // Simply navigate - cookies are already set in the browser
-                  // They will be automatically sent with future requests
-                  window.location.href = "/customer-dashboard";
+                  // After successful registration/login, redirect to dashboard
+                  // Cookies are automatically sent with all future requests
+                window.location.href = "/customer-dashboard";
                 }}
                 style={{
                   ...styles.buttonSubmit,
@@ -895,7 +906,7 @@ const RegisterScreen = () => {
                       "0 10px 15px -3px rgba(22, 163, 74, 0.3)";
                 }}
                 onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
-                  (e.currenturrent as HTMLButtonElement).style.boxShadow =
+                  (e.currentTarget as HTMLButtonElement).style.boxShadow =
                     "none";
                 }}
               >
