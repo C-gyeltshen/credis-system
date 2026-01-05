@@ -155,18 +155,18 @@ export class StoreOwnerService {
   }
 
   async getProfile(id: string) {
-    const owner = await storeOwnerRepository.findById(id);
-    if (!owner) throw new Error("Store owner not found");
+      const owner = await storeOwnerRepository.findById(id);
+      if (!owner) throw new Error("Store owner not found");
 
-    return {
-      id: owner.id,
-      name: owner.name,
-      email: owner.email,
-      storeId: owner.storeId,
-      isActive: owner.isActive,
-      createdAt: owner.createdAt,
-    };
-  }
+      return {
+        id: owner.id,
+        name: owner.name,
+        email: owner.email,
+        storeId: owner.storeId,
+        isActive: owner.isActive,
+        createdAt: owner.createdAt,
+      };
+    }
 
   private generateAccessToken(payload: TokenPayload): string {
     return jwt.sign(payload, JWT_SECRET, {

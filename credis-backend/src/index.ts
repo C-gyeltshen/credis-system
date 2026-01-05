@@ -11,29 +11,13 @@ const app = new Hono();
 app.use(
   "*",
   cors({
-    origin: (origin) => {
-      // Allow specific origins
-      const allowedOrigins = [
-        "http://localhost:8081",
-        "http://localhost:3000",
-        "http://localhost:19006",
-        "http://localhost:19000",
-        process.env.FRONTEND_URL,
-      ].filter(Boolean);
-
-      // If origin is in allowed list, allow it
-      if (allowedOrigins.includes(origin)) {
-        return origin;
-      }
-
-      // For development: allow all localhost variants
-      if (origin?.startsWith("http://localhost")) {
-        return origin;
-      }
-
-      // Reject other origins by returning undefined
-      return undefined;
-    },
+    origin: [
+      "http://localhost:8081",      // Your frontend dev URL
+      "http://localhost:3000",      // Alternative dev port
+      "http://localhost:19006",     // Expo web
+      "http://localhost:19000",     // Expo tunnel
+      process.env.FRONTEND_URL || "", // Production frontend URL
+    ].filter(Boolean), // Remove empty strings
     credentials: true, // Allow cookies
     allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
