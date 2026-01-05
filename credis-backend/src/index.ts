@@ -11,9 +11,7 @@ const app = new Hono();
 app.use(
   "*",
   cors({
-    origin: [
-      process.env.FRONTEND_URL || "", // Production frontend URL
-    ].filter(Boolean), // Remove empty strings
+    origin: process.env.FRONTEND_URL || "http://localhost:8081",
     credentials: true, // Allow cookies
     allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
