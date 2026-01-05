@@ -7,15 +7,17 @@ import { errorHandler } from "./middlewares/errorHandler.js";
 
 const app = new Hono();
 
-// Middleware
+// CORS configuration for httpOnly JWT
+const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:8081").split(",").map(url => url.trim());
+
 app.use(
   "*",
   cors({
-    origin: "*",
-    credentials: true, // Allow cookies
+    origin: allowedOrigins,
+    credentials: true, // Required for httpOnly cookies
     allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
-    exposeHeaders: ["Content-Length", "X-JSON-Response-Length"],
+    exposeHeaders: ["Content-Length"],
     maxAge: 600,
   })
 );
