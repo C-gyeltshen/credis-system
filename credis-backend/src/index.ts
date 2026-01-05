@@ -17,6 +17,11 @@ app.use(
     allowHeaders: ["Content-Type", "Authorization"],
   })
 );
+app.use("*", async (c, next) => {
+  console.log(`${c.req.method} ${c.req.path}`);
+  console.log("Origin:", c.req.header("origin"));
+  await next();
+});
 
 app.use("*", logger());
 app.use("*", errorHandler);
