@@ -12,10 +12,6 @@ app.use(
   "*",
   cors({
     origin: [
-      "http://localhost:8081",      // Your frontend dev URL
-      "http://localhost:3000",      // Alternative dev port
-      "http://localhost:19006",     // Expo web
-      "http://localhost:19000",     // Expo tunnel
       process.env.FRONTEND_URL || "", // Production frontend URL
     ].filter(Boolean), // Remove empty strings
     credentials: true, // Allow cookies
