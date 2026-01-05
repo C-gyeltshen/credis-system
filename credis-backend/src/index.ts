@@ -11,19 +11,23 @@ const app = new Hono();
 app.use(
   "*",
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:8081",
+    origin: "*",
     credentials: true, // Allow cookies
     allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
+    exposeHeaders: ["Content-Length", "X-JSON-Response-Length"],
+    maxAge: 600,
   })
 );
+
+app.use("*", logger());
+
 app.use("*", async (c, next) => {
   console.log(`${c.req.method} ${c.req.path}`);
   console.log("Origin:", c.req.header("origin"));
   await next();
 });
 
-app.use("*", logger());
 app.use("*", errorHandler);
 
 // Health check
