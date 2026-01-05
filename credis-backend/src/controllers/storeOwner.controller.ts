@@ -4,6 +4,26 @@ import type { CreateStoreOwnerSchema } from "../validators/storeOwner.validator.
 
 const storeOwnerService = new StoreOwnerService();
 
+function buildCookieAttributes(c: Context, maxAgeSeconds: number) {
+  const reqUrl = new URL(c.req.url);
+  const origin = c.req.header("origin");
+  const isHttps = reqUrl.protocol === "https:" || (origin ? origin.startsWith("https://") : false);
+  // Determine cross-site by comparing origins (scheme+host+port)
+  let isCrossSite = false;
+  try {
+    if (origin) {
+      const backendOrigin = `${reqUrl.protocol}//${reqUrl.host}`;
+      isCrossSite = origin !== backendOrigin;
+    }
+  } catch {
+    isCrossSite = false;
+  }
+  // SameSite strategy: use None only when cross-site over HTTPS; else Lax
+  const sameSite = isCrossSite && isHttps ? "None" : "Lax";
+  const secure = isHttps ? "Secure; " : "";
+  return `HttpOnly; ${secure}SameSite=${sameSite}; Path=/; Max-Age=${maxAgeSeconds}`;
+}
+
 export class StoreOwnerController {
   async register(c: Context) {
     try {
@@ -27,19 +47,18 @@ export class StoreOwnerController {
         password
       );
 
-      // Set HttpOnly cookies - use Lax for cross-origin requests
+      const accessAttrs = buildCookieAttributes(c, 30 * 24 * 60 * 60);
+      const refreshAttrs = buildCookieAttributes(c, 6 * 30 * 24 * 60 * 60);
+
+      // Set HttpOnly cookies
       c.header(
         "Set-Cookie",
-        `accessToken=${accessToken}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${
-          30 * 24 * 60 * 60
-        }`
+        `accessToken=${accessToken}; ${accessAttrs}`
       );
 
       c.header(
         "Set-Cookie",
-        `refreshToken=${refreshToken}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${
-          6 * 30 * 24 * 60 * 60
-        }`,
+        `refreshToken=${refreshToken}; ${refreshAttrs}`,
         { append: true }
       );
 
@@ -63,11 +82,10 @@ export class StoreOwnerController {
       );
 
       // Set new access token cookie
+      const accessAttrs = buildCookieAttributes(c, 30 * 24 * 60 * 60);
       c.header(
         "Set-Cookie",
-        `accessToken=${accessToken}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${
-          30 * 24 * 60 * 60
-        }`
+        `accessToken=${accessToken}; ${accessAttrs}`
       );
 
       return c.json({ success: true, user }, 200);
@@ -82,14 +100,18 @@ export class StoreOwnerController {
       await storeOwnerService.logout(user.id);
 
       // Clear cookies
+      // Use the same attributes (SameSite/Secure) used during set, but with Max-Age=0
+      const accessAttrs = buildCookieAttributes(c, 0);
+      const refreshAttrs = buildCookieAttributes(c, 0);
+
       c.header(
         "Set-Cookie",
-        `accessToken=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`
+        `accessToken=; ${accessAttrs}`
       );
 
       c.header(
         "Set-Cookie",
-        `refreshToken=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`,
+        `refreshToken=; ${refreshAttrs}`,
         { append: true }
       );
 

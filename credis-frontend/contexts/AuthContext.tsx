@@ -40,13 +40,33 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch(`${API_BASE_URL}/store-owners/me`, {
+      let response = await fetch(`${API_BASE_URL}/store-owners/me`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
         credentials: "include", // Include HttpOnly cookies
       });
+
+      if (response.status === 401) {
+        // Try to refresh access token using refresh token
+        const refreshRes = await fetch(`${API_BASE_URL}/store-owners/refresh`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        });
+
+        if (refreshRes.ok) {
+          // Retry /me after refresh
+          response = await fetch(`${API_BASE_URL}/store-owners/me`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+          });
+        }
+      }
 
       if (response.ok) {
         const data = await response.json();
