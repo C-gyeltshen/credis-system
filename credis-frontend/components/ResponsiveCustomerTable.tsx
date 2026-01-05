@@ -57,6 +57,9 @@ interface ResponsiveCustomerTableProps {
   readonly loading: boolean;
 }
 
+const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_URL;
+
 export default function ResponsiveCustomerTable({
   searchQuery,
   onCustomerDelete,
@@ -77,7 +80,7 @@ export default function ResponsiveCustomerTable({
   const fetchCreditData = async (customerId: string): Promise<CreditData> => {
     try {
       const response = await fetch(
-        `http://localhost:8080/api/credits/customer/${customerId}`
+        `${API_BASE_URL}/credits/customer/${customerId}`
       );
 
       if (!response.ok) {
