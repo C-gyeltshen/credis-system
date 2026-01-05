@@ -30,6 +30,9 @@ interface ApiResponse {
   success: boolean;
 }
 
+const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_URL;
+
 export default function HighestBalanceReport() {
   const [loading, setLoading] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -46,7 +49,7 @@ export default function HighestBalanceReport() {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:8080/api/credits/store/${STORE_ID}/outstanding?limit=20`
+        `${API_BASE_URL}/credits/store/${STORE_ID}/outstanding?limit=20`
       );
       const data: ApiResponse = await response.json();
       console.log("customer data:", data);

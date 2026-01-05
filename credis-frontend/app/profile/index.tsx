@@ -47,6 +47,9 @@ interface FirstStoreResponse {
   updatedAt: Date;
 }
 
+const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_URL;
+
 export default function ProfilePage() {
   const { width } = useWindowDimensions();
   const [loading, setLoading] = useState(true);
@@ -89,7 +92,7 @@ export default function ProfilePage() {
 
       // Fetch store owner data
       const ownerResponse = await fetch(
-        `http://localhost:8080/api/store-owners/${ownerId}`
+        `${API_BASE_URL}/store-owners/${ownerId}`
       );
       if (!ownerResponse.ok) {
         throw new Error("Failed to fetch store owner data");
@@ -105,7 +108,7 @@ export default function ProfilePage() {
       // Fetch store data only if storeId exists
       if (storeId) {
         const storeResponse = await fetch(
-          `http://localhost:8080/api/stores/${storeId}`
+          `${API_BASE_URL}/stores/${storeId}`
         );
         if (!storeResponse.ok) {
           throw new Error("Failed to fetch store data");
@@ -135,7 +138,7 @@ export default function ProfilePage() {
       // Update store owner
       if (storeOwner) {
         const ownerUpdateResponse = await fetch(
-          `http://localhost:8080/api/store-owners/${ownerId}`,
+          `${API_BASE_URL}/store-owners/${ownerId}`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -166,7 +169,7 @@ export default function ProfilePage() {
       // Update store if it exists
       if (store && storeId) {
         const storeUpdateResponse = await fetch(
-          `http://localhost:8080/api/stores/${storeId}`,
+          `${API_BASE_URL}/stores/${storeId}`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },

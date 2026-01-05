@@ -28,6 +28,9 @@ interface Customer {
 
 type ReportTab = "overdue" | "balance";
 
+const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_URL;
+
 export default function OverdueAccountsReport() {
   const [currentTab, setCurrentTab] = useState<ReportTab>("overdue");
   const [days, setDays] = useState("30");
@@ -83,7 +86,7 @@ export default function OverdueAccountsReport() {
       setLoading(true);
       // Updated endpoint and query as per user request
       const response = await fetch(
-        `http://localhost:8080/api/customers/overdue?storeId=${STORE_ID}&days=${daysNum}`
+        `${API_BASE_URL}/customers/overdue?storeId=${STORE_ID}&days=${daysNum}`
       );
 
       if (!response.ok) {
@@ -128,7 +131,7 @@ export default function OverdueAccountsReport() {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:8080/api/credits/store/${STORE_ID}/outstanding?limit=${limitNum}`
+        `${API_BASE_URL}/credits/store/${STORE_ID}/outstanding?limit=${limitNum}`
       );
 
       if (!response.ok) {

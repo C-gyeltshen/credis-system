@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   Platform,
 } from "react-native";
-import { Divider, Chip } from "react-native-paper";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useLocalSearchParams } from "expo-router";
 import Navigation from "@/components/Navbar";
@@ -33,6 +32,8 @@ interface TransactionSectionProps {
   showAllTransactions: boolean;
   setShowAllTransactions: (show: boolean) => void;
 }
+const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_URL;
 
 const Transaction: React.FC<TransactionSectionProps> = ({
   customerId,
@@ -66,7 +67,7 @@ const Transaction: React.FC<TransactionSectionProps> = ({
     try {
       setLoading(true);
       setError(null);
-      const url = `http://localhost:8080/api/credits/customer/${id}`;
+      const url = `${API_BASE_URL}/credits/customer/${id}`;
       console.log("Making request to:", url);
 
       const response = await fetch(url);

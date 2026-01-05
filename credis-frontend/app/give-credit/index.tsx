@@ -20,6 +20,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { MaterialIcons } from "@expo/vector-icons";
 import Navigation from "@/components/Navbar";
 
+const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_URL;
+
 export default function CreditGivenModal() {
   const params = useLocalSearchParams();
   const { user } = useAuth();
@@ -73,7 +76,7 @@ export default function CreditGivenModal() {
         created_by_owner_id: params.ownerId as string | undefined,
       };
 
-      const response = await fetch("http://localhost:8080/api/credits", {
+      const response = await fetch(`${API_BASE_URL}/credits`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
