@@ -7,6 +7,8 @@ import {
   Mail,
   Lock,
   AlertCircle,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 
 const styles = {
@@ -147,6 +149,27 @@ const styles = {
     borderColor: "#fca5a5",
     backgroundColor: "#fef2f2",
   },
+  passwordInputWrapper: {
+    position: "relative",
+    display: "flex",
+    alignItems: "center",
+  },
+  passwordInput: {
+    width: "100%",
+  },
+  passwordToggleButton: {
+    position: "absolute",
+    right: "12px",
+    background: "none",
+    border: "none",
+    cursor: "pointer",
+    padding: "8px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "#6b7280",
+    transition: "color 0.2s ease",
+  },
   errorMessage: {
     display: "flex",
     alignItems: "center",
@@ -261,7 +284,7 @@ const styles = {
 };
 
 const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_URL;
+  process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000";
 
 type ErrorType = {
   storeName?: string;
@@ -289,6 +312,8 @@ const RegisterScreen = () => {
   const [step, setStep] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<ErrorType>({});
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
   const [formData, setFormData] = useState<FormDataType>({
     storeName: "",
     address: "",
@@ -415,11 +440,11 @@ const RegisterScreen = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          credentials: "include", // Important: Include cookies for HttpOnly
+          credentials: "include",
           body: JSON.stringify(registrationBody),
         }
       );
-      console.log("response", registrationResponse)
+      console.log("response", registrationResponse);
 
       let registrationData = null;
       try {
@@ -440,15 +465,12 @@ const RegisterScreen = () => {
       }
 
       // Step 3: Auto-login after successful registration
-      // This step sets HttpOnly cookies automatically
-      // console.log("api url", API_BASE_URL)
-
       const loginResponse = await fetch(`${API_BASE_URL}/store-owners/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // Include cookies
+        credentials: "include",
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
@@ -458,16 +480,11 @@ const RegisterScreen = () => {
       const loginData = await loginResponse.json();
 
       if (!loginResponse.ok) {
-        // Registration succeeded but login failed - show success anyway
         setStep(5);
         return;
       }
 
-      // Success - cookies are now set by the browser automatically
-      // Store owner data is available in loginData.user
       console.log("Registration and login successful:", loginData.user);
-
-      // Move to success screen
       setStep(5);
     } catch (error) {
       console.error("Registration error:", error);
@@ -511,9 +528,7 @@ const RegisterScreen = () => {
 
               <button
                 onClick={() => {
-                  // After successful registration/login, redirect to dashboard
-                  // Cookies are automatically sent with all future requests
-                window.location.href = "/customer-dashboard";
+                  window.location.href = "/customer-dashboard";
                 }}
                 style={{
                   ...styles.buttonSubmit,
@@ -768,20 +783,43 @@ const RegisterScreen = () => {
                     } as React.CSSProperties
                   }
                 >
-                  <input
-                    type="password"
-                    placeholder="At least 6 characters"
-                    value={formData.password}
-                    onChange={(e) =>
-                      handleInputChange("password", e.target.value)
-                    }
-                    style={
-                      {
-                        ...styles.input,
-                        ...(errors.password ? styles.inputError : {}),
-                      } as React.CSSProperties
-                    }
-                  />
+                  <div style={styles.passwordInputWrapper}>
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="At least 6 characters"
+                      value={formData.password}
+                      onChange={(e) =>
+                        handleInputChange("password", e.target.value)
+                      }
+                      style={
+                        {
+                          ...styles.input,
+                          ...styles.passwordInput,
+                          paddingRight: "44px",
+                          ...(errors.password ? styles.inputError : {}),
+                        } as React.CSSProperties
+                      }
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      style={styles.passwordToggleButton}
+                      onMouseEnter={(e) => {
+                        (e.currentTarget as HTMLButtonElement).style.color =
+                          "#374151";
+                      }}
+                      onMouseLeave={(e) => {
+                        (e.currentTarget as HTMLButtonElement).style.color =
+                          "#6b7280";
+                      }}
+                    >
+                      {showPassword ? (
+                        <EyeOff size={20} />
+                      ) : (
+                        <Eye size={20} />
+                      )}
+                    </button>
+                  </div>
                   {errors.password && (
                     <div style={styles.errorMessage}>
                       <AlertCircle size={16} />
@@ -799,20 +837,45 @@ const RegisterScreen = () => {
                     } as React.CSSProperties
                   }
                 >
-                  <input
-                    type="password"
-                    placeholder="Confirm password"
-                    value={formData.confirmPassword}
-                    onChange={(e) =>
-                      handleInputChange("confirmPassword", e.target.value)
-                    }
-                    style={
-                      {
-                        ...styles.input,
-                        ...(errors.confirmPassword ? styles.inputError : {}),
-                      } as React.CSSProperties
-                    }
-                  />
+                  <div style={styles.passwordInputWrapper}>
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="Confirm password"
+                      value={formData.confirmPassword}
+                      onChange={(e) =>
+                        handleInputChange("confirmPassword", e.target.value)
+                      }
+                      style={
+                        {
+                          ...styles.input,
+                          ...styles.passwordInput,
+                          paddingRight: "44px",
+                          ...(errors.confirmPassword ? styles.inputError : {}),
+                        } as React.CSSProperties
+                      }
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                      style={styles.passwordToggleButton}
+                      onMouseEnter={(e) => {
+                        (e.currentTarget as HTMLButtonElement).style.color =
+                          "#374151";
+                      }}
+                      onMouseLeave={(e) => {
+                        (e.currentTarget as HTMLButtonElement).style.color =
+                          "#6b7280";
+                      }}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff size={20} />
+                      ) : (
+                        <Eye size={20} />
+                      )}
+                    </button>
+                  </div>
                   {errors.confirmPassword && (
                     <div style={styles.errorMessage}>
                       <AlertCircle size={16} />
