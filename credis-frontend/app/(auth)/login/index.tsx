@@ -373,10 +373,9 @@ const LoginScreen: React.FC = () => {
         <div style={styles.card}>
           {/* Header */}
           <div style={styles.header}>
-            <div style={styles.logo}>👋</div>
             <h1 style={styles.headerTitle}>Welcome Back</h1>
             <p style={styles.headerSubtitle}>
-              Sign in to manage your store and credit
+              Login in to manage your store and credit
             </p>
           </div>
 

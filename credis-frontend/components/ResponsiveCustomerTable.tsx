@@ -587,7 +587,7 @@ const styles = StyleSheet.create({
   mobileCardHeader: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 14,
+    padding: 14, 
   },
   cardHeaderInfo: { flex: 1 },
   customerName: { fontSize: 15, fontWeight: "700", color: "#1a1a1a" },
