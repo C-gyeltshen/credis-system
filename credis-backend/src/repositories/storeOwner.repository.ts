@@ -55,10 +55,11 @@ async findByPhoneNumberWithPassword(phoneNumber: string) {
     throw new Error('Phone number is required');
   }
 
+  const userPhoneNumber = phoneNumber
   console.log("phoneNumber : ", phoneNumber)
   return await prisma.storeOwner.findUnique({
     where: {
-      phoneNumber: phoneNumber, // This will now be recognized!
+      phoneNumber: userPhoneNumber, // This will now be recognized!
     },
     select: {
       id: true,
