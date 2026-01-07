@@ -37,13 +37,13 @@ export class StoreOwnerController {
 
   async login(c: Context) {
     try {
-      const { email, password } = c.get("validatedData") as {
-        email: string;
+      const { phoneNumber, password } = c.get("validatedData") as {
+        phoneNumber: string;
         password: string;
       };
 
       const { accessToken, refreshToken, user } = await storeOwnerService.login(
-        email,
+        phoneNumber,
         password
       );
 
