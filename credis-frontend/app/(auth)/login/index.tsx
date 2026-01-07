@@ -1,22 +1,25 @@
 import React, { useState } from "react";
-import { Mail, Lock, Eye, EyeOff, AlertCircle, Check } from "lucide-react";
+import { Phone, Lock, AlertCircle, Check } from "lucide-react";
 
 type Errors = {
-  email?: string;
+  phoneNumber?: string;
   password?: string;
   submit?: string;
 };
 
-const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_URL;
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
+
+interface FormData {
+  phoneNumber: string;
+  password: string;
+}
 
 const LoginScreen: React.FC = () => {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<Errors>({});
-  const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-  const [formData, setFormData] = useState({
-    email: "",
+  const [rememberMe, setRememberMe] = useState<boolean>(false);
+  const [formData, setFormData] = useState<FormData>({
+    phoneNumber: "",
     password: "",
   });
 
@@ -48,10 +51,6 @@ const LoginScreen: React.FC = () => {
       display: "flex",
       flexDirection: "column",
       gap: "12px",
-    },
-    logo: {
-      fontSize: "40px",
-      marginBottom: "8px",
     },
     headerTitle: {
       fontSize: "28px",
@@ -98,7 +97,7 @@ const LoginScreen: React.FC = () => {
       fontFamily: "inherit",
       transition: "all 0.2s ease",
       boxSizing: "border-box",
-    },
+    } as React.CSSProperties,
     inputError: {
       borderColor: "#fca5a5",
       backgroundColor: "#fef2f2",
@@ -111,19 +110,6 @@ const LoginScreen: React.FC = () => {
       justifyContent: "center",
       color: "#6b7280",
       pointerEvents: "none",
-    },
-    togglePassword: {
-      position: "absolute",
-      right: "12px",
-      background: "none",
-      border: "none",
-      cursor: "pointer",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      color: "#6b7280",
-      padding: "0",
-      transition: "color 0.2s ease",
     },
     errorMessage: {
       display: "flex",
@@ -166,14 +152,6 @@ const LoginScreen: React.FC = () => {
       color: "#6b7280",
       userSelect: "none",
     },
-    forgotLink: {
-      fontSize: "14px",
-      color: "#2563eb",
-      fontWeight: "500",
-      textDecoration: "none",
-      cursor: "pointer",
-      transition: "color 0.2s ease",
-    },
     loginBtn: {
       width: "100%",
       padding: "12px 16px",
@@ -193,38 +171,6 @@ const LoginScreen: React.FC = () => {
     loginBtnDisabled: {
       opacity: "0.5",
       cursor: "not-allowed",
-    },
-    divider: {
-      display: "flex",
-      alignItems: "center",
-      gap: "12px",
-      color: "#d1d5db",
-    },
-    dividerLine: {
-      flex: 1,
-      height: "1px",
-      backgroundColor: "#e5e7eb",
-    },
-    dividerText: {
-      fontSize: "13px",
-      color: "#9ca3af",
-      fontWeight: "500",
-    },
-    socialButtons: {
-      display: "flex",
-      gap: "12px",
-    },
-    socialBtn: {
-      flex: 1,
-      padding: "10px 16px",
-      border: "2px solid #e5e7eb",
-      borderRadius: "8px",
-      background: "#f9fafb",
-      color: "#374151",
-      fontWeight: "500",
-      fontSize: "14px",
-      cursor: "pointer",
-      transition: "all 0.2s ease",
     },
     footerLink: {
       textAlign: "center",
@@ -260,19 +206,19 @@ const LoginScreen: React.FC = () => {
     },
   };
 
-  const validateForm = () => {
+  const validateForm = (): boolean => {
     const newErrors: Errors = {};
 
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email";
+    if (!formData.phoneNumber.trim()) {
+      newErrors.phoneNumber = "Phone number is required";
+    } else if (!/^\+?[0-9\-\s()]{7,15}$/.test(formData.phoneNumber.trim())) {
+      newErrors.phoneNumber = "Please enter a valid phone number";
     }
 
     if (!formData.password) {
-      newErrors.password = "Password is required";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
+      newErrors.password = "PIN is required";
+    } else if (!/^\d{4}$/.test(formData.password)) {
+      newErrors.password = "PIN must be exactly 4 digits";
     }
 
     setErrors(newErrors);
@@ -286,15 +232,14 @@ const LoginScreen: React.FC = () => {
     setErrors({});
 
     try {
-      // Send login request with credentials: include to handle HttpOnly cookies
       const response = await fetch(`${API_BASE_URL}/store-owners/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // CRITICAL: Include cookies in request/response
+        credentials: "include",
         body: JSON.stringify({
-          email: formData.email,
+          phoneNumber: formData.phoneNumber,
           password: formData.password,
         }),
       });
@@ -302,18 +247,9 @@ const LoginScreen: React.FC = () => {
       const data = await response.json();
 
       if (response.ok) {
-        // Login successful - HttpOnly cookies are now set by the browser
-        // No need to manually store tokens
         console.log("Login successful", data.user);
-
-        // Optional: Store user info in context/state if needed
-        // But tokens are already secure in HttpOnly cookies
-
-        // Redirect to dashboard
-        // All future requests will automatically include the HttpOnly cookies
         window.location.href = "/customer-dashboard";
       } else {
-        // Handle login errors from backend
         const errorMessage = data.error || "Login failed. Please try again.";
         setErrors({ submit: errorMessage });
       }
@@ -332,18 +268,22 @@ const LoginScreen: React.FC = () => {
     }
   };
 
-  const handleInputChange = (field: keyof typeof formData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    // Clear field-specific error when user starts typing
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: "" }));
-    }
-  };
+  const handleInputChange = (field: keyof FormData, value: string) => {
+    let finalValue = value;
 
-  const handleForgotPassword = () => {
-    // TODO: Implement forgot password flow
-    // This would typically redirect to a password reset page
-    window.location.href = "/forgot-password";
+    // For password field, only allow digits and limit to 4
+    if (field === "password") {
+      finalValue = value.replace(/[^0-9]/g, "").slice(0, 4);
+    }
+
+    setFormData((prev) => ({ ...prev, [field]: finalValue }));
+    if (errors[field]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
   };
 
   return (
@@ -353,6 +293,7 @@ const LoginScreen: React.FC = () => {
           outline: none;
           border-color: #2563eb;
           background-color: #fff;
+          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
         button:hover:not(:disabled) {
           transform: translateY(-1px);
@@ -375,7 +316,7 @@ const LoginScreen: React.FC = () => {
           <div style={styles.header}>
             <h1 style={styles.headerTitle}>Welcome Back</h1>
             <p style={styles.headerSubtitle}>
-              Login in to manage your store and credit
+              Login to manage your store and credit
             </p>
           </div>
 
@@ -389,70 +330,111 @@ const LoginScreen: React.FC = () => {
 
           {/* Form */}
           <div style={styles.formContainer}>
-            {/* Email Field */}
+            {/* Phone Number Field */}
             <div style={styles.inputGroup}>
               <label style={styles.label}>
-                <Mail size={16} style={{ color: "#2563eb" }} />
-                Email Address
+                <Phone size={16} style={{ color: "#2563eb" }} />
+                Phone Number
               </label>
               <div style={styles.inputWrapper}>
                 <div style={styles.icon}>
-                  <Mail size={18} />
+                  <Phone size={18} />
                 </div>
                 <input
-                  type="email"
-                  placeholder="you@example.com"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange("email", e.target.value)}
-                  disabled={loading}
-                  style={{
-                    ...styles.input,
-                    ...(errors.email ? styles.inputError : {}),
-                    ...(loading ? { opacity: 0.6, cursor: "not-allowed" } : {}),
-                  }}
-                />
-              </div>
-              {errors.email && (
-                <div style={styles.errorMessage}>
-                  <AlertCircle size={16} />
-                  {errors.email}
-                </div>
-              )}
-            </div>
-
-            {/* Password Field */}
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>
-                <Lock size={16} style={{ color: "#16a34a" }} />
-                Password
-              </label>
-              <div style={styles.inputWrapper}>
-                <div style={styles.icon}>
-                  <Lock size={18} />
-                </div>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
-                  value={formData.password}
+                  type="tel"
+                  placeholder="+1 (555) 000-0000"
+                  value={formData.phoneNumber}
                   onChange={(e) =>
-                    handleInputChange("password", e.target.value)
+                    handleInputChange("phoneNumber", e.target.value)
                   }
                   disabled={loading}
                   style={{
                     ...styles.input,
-                    ...(errors.password ? styles.inputError : {}),
+                    ...(errors.phoneNumber ? styles.inputError : {}),
                     ...(loading ? { opacity: 0.6, cursor: "not-allowed" } : {}),
                   }}
                 />
-                <button
-                  style={styles.togglePassword}
-                  onClick={() => setShowPassword(!showPassword)}
-                  type="button"
-                  disabled={loading}
-                  aria-label="Toggle password visibility"
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
+              </div>
+              {errors.phoneNumber && (
+                <div style={styles.errorMessage}>
+                  <AlertCircle size={16} />
+                  {errors.phoneNumber}
+                </div>
+              )}
+            </div>
+
+            {/* PIN Field */}
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>
+                <Lock size={16} style={{ color: "#16a34a" }} />
+                PIN (4 Digits)
+              </label>
+              <div style={{
+                display: "flex",
+                gap: "clamp(8px, 3%, 16px)",
+                justifyContent: "space-between",
+              }}>
+                {[0, 1, 2, 3].map((index) => (
+                  <input
+                    key={index}
+                    type="password"
+                    value={formData.password[index] || ""}
+                    onChange={(e) => {
+                      const newPassword = formData.password.split("");
+                      newPassword[index] = e.target.value.replace(/[^0-9]/g, "");
+                      const updatedPassword = newPassword.slice(0, 4).join("");
+                      handleInputChange("password", updatedPassword);
+
+                      // Auto focus to next input
+                      if (
+                        e.target.value &&
+                        index < 3
+                      ) {
+                        const nextInput = document.querySelector(
+                          `input[data-pin-index="${index + 1}"]`
+                        ) as HTMLInputElement;
+                        nextInput?.focus();
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      // Handle backspace to focus previous input
+                      if (
+                        e.key === "Backspace" &&
+                        !formData.password[index] &&
+                        index > 0
+                      ) {
+                        const prevInput = document.querySelector(
+                          `input[data-pin-index="${index - 1}"]`
+                        ) as HTMLInputElement;
+                        prevInput?.focus();
+                      }
+                    }}
+                    disabled={loading}
+                    maxLength={1}
+                    inputMode="numeric"
+                    data-pin-index={index}
+                    placeholder="•"
+                    style={{
+                      flex: 1,
+                      minWidth: 0,
+                      aspectRatio: "1 / 1",
+                      maxWidth: "80px",
+                      borderRadius: "12px",
+                      border: errors.password
+                        ? "2px solid #fca5a5"
+                        : "2px solid #e5e7eb",
+                      backgroundColor: errors.password ? "#fef2f2" : "#f9fafb",
+                      fontSize: "clamp(16px, 5vw, 28px)",
+                      fontWeight: "600",
+                      textAlign: "center",
+                      color: "#111827",
+                      fontFamily: "inherit",
+                      transition: "all 0.2s ease",
+                      cursor: loading ? "not-allowed" : "text",
+                      opacity: loading ? 0.6 : 1,
+                    }}
+                  />
+                ))}
               </div>
               {errors.password && (
                 <div style={styles.errorMessage}>
@@ -484,21 +466,6 @@ const LoginScreen: React.FC = () => {
                 </div>
                 <span style={styles.checkboxText}>Remember me</span>
               </label>
-
-              <button
-                style={{
-                  ...styles.forgotLink,
-                  background: "none",
-                  border: "none",
-                  padding: 0,
-                  opacity: loading ? 0.6 : 1,
-                  cursor: loading ? "not-allowed" : "pointer",
-                }}
-                onClick={handleForgotPassword}
-                disabled={loading}
-              >
-                Forgot Password?
-              </button>
             </div>
 
             {/* Login Button */}
