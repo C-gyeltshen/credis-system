@@ -10,8 +10,6 @@ datasource db {
 model Store {
   id                    String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name                  String
-  address               String?
-  phoneNumber           String?                @map("phone_number")
   createdAt             DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
   modifiedAt            DateTime               @default(now()) @updatedAt @map("modified_at") @db.Timestamptz(6)
   credits               Credit[]
@@ -62,7 +60,7 @@ model Token {
 model StoreOwner {
   id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name              String
-  email             String              @unique
+  phoneNumber       String              @unique @map("phone_number") @db.Uuid
   passwordHash      String              @map("password_hash")
   storeId           String?             @map("store_id") @db.Uuid
   isActive          Boolean             @default(true) @map("is_active")
@@ -76,7 +74,6 @@ model StoreOwner {
   tokens        Token[]
 
   @@index([storeId])
-  @@index([email])
   @@map("store_owners")
 }
 

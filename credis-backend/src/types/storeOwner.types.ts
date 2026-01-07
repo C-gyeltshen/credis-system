@@ -1,13 +1,13 @@
 export interface CreateStoreOwnerInput {
   name: string;
-  email: string;
+  phoneNumber: string;
   password: string;
   storeId?: string;
 }
 
 export interface UpdateStoreOwnerInput {
   name?: string;
-  email?: string;
+  phoneNumber: string;
   passwordHash?: string;
   storeId?: string;
   isActive?: boolean;
@@ -16,8 +16,8 @@ export interface UpdateStoreOwnerInput {
 
 export interface StoreOwner {
   id: string;
-  name: string;
-  email: string;
+  name: string;  
+  phoneNumber: string;
   passwordHash: string;
   storeId?: string | null;
   isActive: boolean;
@@ -30,7 +30,7 @@ export interface StoreOwner {
 export interface StoreOwnerResponse {
   id: string;
   name: string;
-  email: string;
+  phoneNumber: string;
   storeId?: string | null;
   isActive: boolean;
   createdAt: Date;

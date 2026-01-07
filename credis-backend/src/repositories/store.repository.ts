@@ -5,9 +5,7 @@ export class StoreRepository {
   async create(data: CreateStoreInput) {
     return await prisma.store.create({
       data: {
-        name: data.name,
-        phoneNumber: data.phone_number,
-        address: data.address,
+        name: data.name
       },
     });
   }
@@ -20,13 +18,6 @@ export class StoreRepository {
     });
   }
 
-  async findByPhoneNumber(phoneNumber: string) {
-    return await prisma.store.findFirst({
-      where: {
-        phoneNumber,
-      },
-    });
-  }
 
   async findAll() {
     return await prisma.store.findMany({
@@ -42,9 +33,7 @@ export class StoreRepository {
         id,
       },
       data: {
-        ...(data.name && { name: data.name }),
-        ...(data.phone_number && { phoneNumber: data.phone_number }),
-        ...(data.address && { address: data.address }),
+        ...(data.name && { name: data.name })
       },
     });
   }

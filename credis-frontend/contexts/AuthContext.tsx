@@ -5,7 +5,7 @@ const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 export interface User {
   id: string;
   name: string;
-  email: string;
+  phoneNumber: string;
   storeId?: string | null;
   isActive: boolean;
   createdAt: string;
@@ -16,8 +16,8 @@ export interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean
   error: string | null;
-  register: (name: string, email: string, password: string) => Promise<void>;
-  login: (email: string, password: string) => Promise<void>;
+  register: (name: string, phoneNumber: string, password: string) => Promise<void>;
+  login: (phoneNumber: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
   clearError: () => void;
@@ -85,7 +85,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   // Register new user
-  const register = useCallback(async (name: string, email: string, password: string) => {
+  const register = useCallback(async (name: string, phoneNumber: string, password: string) => {
     try {
       setIsLoading(true);
       setError(null);
@@ -98,7 +98,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         credentials: "include",
         body: JSON.stringify({
           name,
-          email,
+          phoneNumber,
           password,
         }),
       });
@@ -112,7 +112,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       console.log("Registration successful");
       
       // Auto-login after registration
-      await login(email, password);
+      await login(phoneNumber, password);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Registration failed";
       setError(errorMessage);
@@ -124,7 +124,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   // Login user
-  const login = useCallback(async (email: string, password: string) => {
+  const login = useCallback(async (phoneNumber: string, password: string) => {
     try {
       setIsLoading(true);
       setError(null);
@@ -136,7 +136,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         },
         credentials: "include", // Critical: Include cookies for HttpOnly
         body: JSON.stringify({
-          email,
+          phoneNumber,
           password,
         }),
       });

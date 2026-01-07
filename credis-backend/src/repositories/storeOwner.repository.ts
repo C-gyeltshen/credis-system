@@ -10,16 +10,10 @@ export class StoreOwnerRepository {
     return await prisma.storeOwner.create({
       data: {
         name: data.name,
-        email: data.email,
+        phoneNumber: data.phoneNumber,
         passwordHash: data.password,
         ...(data.storeId && { storeId: data.storeId }),
       },
-    });
-  }
-
-  async findByEmail(email: string) {
-    return await prisma.storeOwner.findUnique({
-      where: { email },
     });
   }
 
@@ -40,7 +34,7 @@ export class StoreOwnerRepository {
       where: { id },
       data: {
         ...(data.name && { name: data.name }),
-        ...(data.email && { email: data.email }),
+        ...(data.phoneNumber && { phoneNumber: data.phoneNumber }),
         ...(data.passwordHash && { passwordHash: data.passwordHash }),
         ...(data.storeId && { storeId: data.storeId }),
         ...(typeof data.isActive === "boolean" && { isActive: data.isActive }),
@@ -55,19 +49,21 @@ export class StoreOwnerRepository {
     });
   }
 
-  async findByEmailWithPassword(email: string) {
-    return await prisma.storeOwner.findUnique({
-      where: { email },
-      select: {
-        id: true,
-        email: true,
-        passwordHash: true,
-        name: true,
-        isActive: true,
-        storeId: true,
-      },
-    });
-  }
+async findByPhoneNumberWithPassword(phoneNumber: string) {
+  return await prisma.storeOwner.findUnique({
+    where: { 
+      phoneNumber: phoneNumber 
+    },
+    select: {
+      id: true,
+      name: true,
+      phoneNumber: true,
+      passwordHash: true, // Explicitly included for verification
+      isActive: true,
+      storeId: true,
+    },
+  });
+}
 
   async setLastLogin(id: string, date: Date) {
     return await prisma.storeOwner.update({

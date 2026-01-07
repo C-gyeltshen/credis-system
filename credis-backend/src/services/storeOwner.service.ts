@@ -20,15 +20,15 @@ const SIX_MONTHS_MS = 180 * MS_IN_DAY;
 
 interface TokenPayload {
   id: string;
-  email: string;
+  phoneNumber: string;
   name: string;
   storeId?: string | null;
 }
 
 export class StoreOwnerService {
   async register(data: CreateStoreOwnerInput) {
-    const existing = await storeOwnerRepository.findByEmail(data.email);
-    if (existing) throw new Error("Email already registered");
+    const existing = await storeOwnerRepository.findByPhoneNumberWithPassword(data.phoneNumber);
+    if (existing) throw new Error("PhoneNumber already registered");
 
     const password = await bcrypt.hash(data.password, 10);
     const owner = await storeOwnerRepository.create({ ...data, password });
@@ -36,15 +36,14 @@ export class StoreOwnerService {
     return {
       id: owner.id,
       name: owner.name,
-      email: owner.email,
       storeId: owner.storeId,
       isActive: owner.isActive,
       createdAt: owner.createdAt,
     };
   }
 
-  async login(email: string, password: string) {
-    const owner = await storeOwnerRepository.findByEmailWithPassword(email);
+  async login(phoneNumber: string, password: string) {
+    const owner = await storeOwnerRepository.findByPhoneNumberWithPassword(phoneNumber);
     if (!owner || !owner.isActive) throw new Error("Invalid credentials");
 
     const valid = await bcrypt.compare(password, owner.passwordHash);
@@ -55,14 +54,14 @@ export class StoreOwnerService {
     // 1. Generate JWTs
     const accessToken = this.generateAccessToken({
       id: owner.id,
-      email: owner.email,
+      phoneNumber: owner.phoneNumber,
       name: owner.name,
       storeId: owner.storeId,
     });
 
     const refreshToken = this.generateRefreshToken({
       id: owner.id,
-      email: owner.email,
+      phoneNumber: owner.phoneNumber,
       name: owner.name,
       storeId: owner.storeId,
     });
@@ -92,7 +91,7 @@ export class StoreOwnerService {
       user: {
         id: owner.id,
         name: owner.name,
-        email: owner.email,
+        phoneNumber: owner.phoneNumber,
         storeId: owner.storeId,
         isActive: owner.isActive,
       },
@@ -119,7 +118,7 @@ export class StoreOwnerService {
       // Generate new access token
       const newAccessToken = this.generateAccessToken({
         id: owner.id,
-        email: owner.email,
+        phoneNumber: owner.phoneNumber,
         name: owner.name,
         storeId: owner.storeId,
       });
@@ -138,7 +137,6 @@ export class StoreOwnerService {
         user: {
           id: owner.id,
           name: owner.name,
-          email: owner.email,
           storeId: owner.storeId,
           isActive: owner.isActive,
           createdAt: owner.createdAt,
@@ -161,7 +159,6 @@ export class StoreOwnerService {
       return {
         id: owner.id,
         name: owner.name,
-        email: owner.email,
         storeId: owner.storeId,
         isActive: owner.isActive,
         createdAt: owner.createdAt,
