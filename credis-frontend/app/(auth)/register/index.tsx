@@ -1,334 +1,44 @@
 import React, { useState } from "react";
-import {
-  ChevronRight,
-  Check,
-  Store,
-  User,
-  Mail,
-  Lock,
-  AlertCircle,
-  Eye,
-  EyeOff,
-} from "lucide-react";
+import { Store, Lock, User, Phone, Eye, EyeOff, Check } from "lucide-react";
 
-const styles = {
-  container: {
-    minHeight: "100vh",
-    background:
-      "linear-gradient(135deg, #f0f5ff 0%, #f0e8ff 50%, #ffe8f5 100%)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "16px",
-    paddingTop: "32px",
-    paddingBottom: "32px",
-  },
-  wrapper: {
-    width: "100%",
-    maxWidth: "448px",
-  },
-  progressContainer: {
-    marginBottom: "32px",
-  },
-  progressHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "16px",
-  },
-  progressTitle: {
-    fontSize: "24px",
-    fontWeight: "700",
-    color: "#111827",
-    margin: 0,
-  },
-  progressStep: {
-    fontSize: "14px",
-    fontWeight: "500",
-    color: "#6b7280",
-  },
-  progressBar: {
-    height: "6px",
-    backgroundColor: "#e5e7eb",
-    borderRadius: "9999px",
-    overflow: "hidden",
-  },
-  progressFill: {
-    height: "100%",
-    background: "linear-gradient(90deg, #2563eb 0%, #4f46e5 100%)",
-    borderRadius: "9999px",
-    transition: "width 0.3s ease",
-  },
-  card: {
-    backgroundColor: "#ffffff",
-    borderRadius: "16px",
-    boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
-    padding: "32px",
-    display: "flex",
-    flexDirection: "column",
-    gap: "32px",
-  },
-  stepContent: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "24px",
-    animation: "fadeIn 0.3s ease-out",
-  },
-  stepHeader: {
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-  },
-  iconBox: {
-    width: "48px",
-    height: "48px",
-    borderRadius: "8px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    flexShrink: 0,
-  },
-  iconBoxBlue: {
-    backgroundColor: "#dbeafe",
-  },
-  iconBoxPurple: {
-    backgroundColor: "#f3e8ff",
-  },
-  iconBoxPink: {
-    backgroundColor: "#fce7f3",
-  },
-  iconBoxGreen: {
-    backgroundColor: "#dcfce7",
-  },
-  iconBlue: {
-    color: "#2563eb",
-  },
-  iconPurple: {
-    color: "#9333ea",
-  },
-  iconPink: {
-    color: "#ec4899",
-  },
-  iconGreen: {
-    color: "#16a34a",
-  },
-  stepHeaderText: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "4px",
-  },
-  stepTitle: {
-    fontSize: "20px",
-    fontWeight: "700",
-    color: "#111827",
-    margin: 0,
-  },
-  stepSubtitle: {
-    fontSize: "14px",
-    color: "#6b7280",
-    margin: 0,
-  },
-  inputContainer: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "12px",
-  },
-  input: {
-    width: "100%",
-    padding: "12px 16px",
-    borderRadius: "8px",
-    border: "2px solid #e5e7eb",
-    backgroundColor: "#f9fafb",
-    fontSize: "14px",
-    color: "#111827",
-    fontFamily: "inherit",
-    transition: "all 0.2s ease",
-    boxSizing: "border-box",
-  },
-  inputError: {
-    borderColor: "#fca5a5",
-    backgroundColor: "#fef2f2",
-  },
-  passwordInputWrapper: {
-    position: "relative",
-    display: "flex",
-    alignItems: "center",
-  },
-  passwordInput: {
-    width: "100%",
-  },
-  passwordToggleButton: {
-    position: "absolute",
-    right: "12px",
-    background: "none",
-    border: "none",
-    cursor: "pointer",
-    padding: "8px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    color: "#6b7280",
-    transition: "color 0.2s ease",
-  },
-  errorMessage: {
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    fontSize: "14px",
-    color: "#dc2626",
-  },
-  securityInfo: {
-    backgroundColor: "#eff6ff",
-    border: "1px solid #bfdbfe",
-    borderRadius: "8px",
-    padding: "12px",
-    fontSize: "14px",
-    color: "#1e40af",
-  },
-  buttonGroup: {
-    display: "flex",
-    gap: "12px",
-  },
-  buttonBack: {
-    flex: 1,
-    padding: "12px 16px",
-    borderRadius: "8px",
-    border: "2px solid #e5e7eb",
-    backgroundColor: "#ffffff",
-    color: "#374151",
-    fontWeight: "600",
-    fontSize: "16px",
-    cursor: "pointer",
-    transition: "all 0.2s ease",
-  },
-  buttonNext: {
-    flex: 1,
-    padding: "12px 16px",
-    borderRadius: "8px",
-    border: "none",
-    background: "linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)",
-    color: "#ffffff",
-    fontWeight: "600",
-    fontSize: "16px",
-    cursor: "pointer",
-    transition: "all 0.2s ease",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "8px",
-  },
-  buttonSubmit: {
-    flex: 1,
-    padding: "12px 16px",
-    borderRadius: "8px",
-    border: "none",
-    background: "linear-gradient(135deg, #16a34a 0%, #059669 100%)",
-    color: "#ffffff",
-    fontWeight: "600",
-    fontSize: "16px",
-    cursor: "pointer",
-    transition: "all 0.2s ease",
-  },
-  buttonDisabled: {
-    opacity: "0.5",
-    cursor: "not-allowed",
-  },
-  footerLink: {
-    textAlign: "center",
-    fontSize: "14px",
-    color: "#4b5563",
-  },
-  signInLink: {
-    color: "#2563eb",
-    fontWeight: "600",
-    cursor: "pointer",
-    textDecoration: "none",
-  },
-  trustBadges: {
-    marginTop: "32px",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: "24px",
-    fontSize: "12px",
-    color: "#6b7280",
-  },
-  successContainer: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: "24px",
-    textAlign: "center",
-  },
-  successIcon: {
-    width: "64px",
-    height: "64px",
-    borderRadius: "50%",
-    background: "linear-gradient(135deg, #4ade80 0%, #10b981 100%)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    animation: "bounce 2s ease-in-out infinite",
-  },
-  successTitle: {
-    fontSize: "28px",
-    fontWeight: "700",
-    color: "#111827",
-    margin: 0,
-  },
-  successText: {
-    fontSize: "16px",
-    color: "#6b7280",
-    margin: 0,
-  },
-};
+interface FormData {
+  storeName: string;
+  phoneNumber: string;
+  ownerName: string;
+  password: string;
+  confirmPassword: string;
+}
 
-const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000";
-
-type ErrorType = {
+interface FormErrors {
   storeName?: string;
-  address?: string;
   phoneNumber?: string;
   ownerName?: string;
-  email?: string;
   password?: string;
   confirmPassword?: string;
   submit?: string;
-  [key: string]: string | undefined;
-};
-
-type FormDataType = {
-  storeName: string;
-  address: string;
-  phoneNumber: string;
-  ownerName: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-};
+}
+const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000";
 
 const RegisterScreen = () => {
   const [step, setStep] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
-  const [errors, setErrors] = useState<ErrorType>({});
+  const [errors, setErrors] = useState<FormErrors>({});
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
-  const [formData, setFormData] = useState<FormDataType>({
+  const [formData, setFormData] = useState<FormData>({
     storeName: "",
-    address: "",
     phoneNumber: "",
     ownerName: "",
-    email: "",
     password: "",
     confirmPassword: "",
   });
 
-  const totalSteps = 4;
+  const totalSteps = 2;
   const progressPercent = (step / totalSteps) * 100;
 
   const validateStep = (currentStep: number): boolean => {
-    const newErrors: ErrorType = {};
+    const newErrors: FormErrors = {};
 
     if (currentStep === 1) {
       if (!formData.storeName.trim()) {
@@ -336,31 +46,19 @@ const RegisterScreen = () => {
       } else if (formData.storeName.trim().length < 2) {
         newErrors.storeName = "Store name must be at least 2 characters";
       }
-      if (!formData.address.trim()) {
-        newErrors.address = "Address is required";
-      }
       if (!formData.phoneNumber.trim()) {
         newErrors.phoneNumber = "Phone number is required";
-      } else if (!/^\+?[0-9\-\s]{7,15}$/.test(formData.phoneNumber.trim())) {
+      } else if (!/^\+?[0-9\-\s()]{7,15}$/.test(formData.phoneNumber.trim())) {
         newErrors.phoneNumber = "Enter a valid phone number";
+      }
+      if (!formData.ownerName.trim()) {
+        newErrors.ownerName = "Your name is required";
+      } else if (formData.ownerName.trim().length < 2) {
+        newErrors.ownerName = "Name must be at least 2 characters";
       }
     }
 
     if (currentStep === 2) {
-      if (!formData.ownerName.trim()) {
-        newErrors.ownerName = "Your name is required";
-      }
-    }
-
-    if (currentStep === 3) {
-      if (!formData.email.trim()) {
-        newErrors.email = "Email is required";
-      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-        newErrors.email = "Please enter a valid email";
-      }
-    }
-
-    if (currentStep === 4) {
       if (!formData.password) {
         newErrors.password = "Password is required";
       } else if (formData.password.length < 6) {
@@ -376,7 +74,8 @@ const RegisterScreen = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleNext = (): void => {
+  const handleNext = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     if (validateStep(step)) {
       if (step < totalSteps) {
         setStep(step + 1);
@@ -384,7 +83,8 @@ const RegisterScreen = () => {
     }
   };
 
-  const handleBack = (): void => {
+  const handleBack = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     if (step > 1) {
       setStep(step - 1);
       setErrors({});
@@ -406,7 +106,6 @@ const RegisterScreen = () => {
         },
         body: JSON.stringify({
           name: formData.storeName,
-          address: formData.address,
           phone_number: formData.phoneNumber,
         }),
       });
@@ -427,7 +126,7 @@ const RegisterScreen = () => {
       // Step 2: Register the store owner with the storeId
       const registrationBody = {
         name: formData.ownerName,
-        email: formData.email,
+        phoneNumber: formData.phoneNumber,
         password: formData.password,
         storeId: storeId,
       };
@@ -472,7 +171,7 @@ const RegisterScreen = () => {
         },
         credentials: "include",
         body: JSON.stringify({
-          email: formData.email,
+          phoneNumber: formData.phoneNumber,
           password: formData.password,
         }),
       });
@@ -497,58 +196,95 @@ const RegisterScreen = () => {
     }
   };
 
-  const handleInputChange = (
-    field: keyof FormDataType,
-    value: string
-  ): void => {
+  const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: "" }));
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
     }
   };
 
   // Success Screen
-  if (step === 5) {
+  if (step === 3) {
     return (
-      <div style={styles.container}>
-        <div style={styles.wrapper}>
-          <div style={{ ...styles.card } as React.CSSProperties}>
-            <div style={styles.successContainer as React.CSSProperties}>
-              <div style={styles.successIcon}>
-                <Check size={32} color="#ffffff" />
-              </div>
-
-              <div>
-                <h2 style={styles.successTitle}>Welcome to Your Store! 🎉</h2>
-                <p style={styles.successText}>
-                  Your account is ready to go. Let's get you started with
-                  managing credit. You're now logged in securely.
-                </p>
-              </div>
-
-              <button
-                onClick={() => {
-                  window.location.href = "/customer-dashboard";
-                }}
-                style={{
-                  ...styles.buttonSubmit,
-                  width: "100%",
-                }}
-                onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
-                  (e.currentTarget as HTMLButtonElement).style.boxShadow =
-                    "0 10px 15px -3px rgba(22, 163, 74, 0.3)";
-                }}
-                onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
-                  (e.currentTarget as HTMLButtonElement).style.boxShadow =
-                    "none";
-                }}
-              >
-                Go to Dashboard
-              </button>
+      <div style={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #f0f5ff 0%, #f0e8ff 50%, #ffe8f5 100%)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "16px",
+      }}>
+        <div style={{ width: "100%", maxWidth: "448px" }}>
+          <div style={{
+            backgroundColor: "#ffffff",
+            borderRadius: "16px",
+            boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
+            padding: "32px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "24px",
+            alignItems: "center",
+            textAlign: "center",
+          }}>
+            <div style={{
+              width: "64px",
+              height: "64px",
+              borderRadius: "50%",
+              background: "linear-gradient(135deg, #4ade80 0%, #10b981 100%)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}>
+              <Check size={32} color="#ffffff" />
             </div>
+
+            <div>
+              <h2 style={{
+                fontSize: "28px",
+                fontWeight: "700",
+                color: "#111827",
+                margin: 0,
+                marginBottom: "8px",
+              }}>Welcome to Your Store! 🎉</h2>
+              <p style={{
+                fontSize: "16px",
+                color: "#6b7280",
+                margin: 0,
+              }}>
+                Your account is ready to go. Let's get you started!
+              </p>
+            </div>
+
+            <button
+              onClick={() => alert("Dashboard navigation would happen here")}
+              style={{
+                width: "100%",
+                padding: "12px 16px",
+                borderRadius: "8px",
+                border: "none",
+                background: "linear-gradient(135deg, #16a34a 0%, #059669 100%)",
+                color: "#ffffff",
+                fontWeight: "600",
+                fontSize: "16px",
+                cursor: "pointer",
+              }}
+            >
+              Go to Dashboard
+            </button>
           </div>
 
-          <div style={styles.trustBadges}>
+          <div style={{
+            marginTop: "32px",
+            display: "flex",
+            justifyContent: "center",
+            gap: "24px",
+            fontSize: "12px",
+            color: "#6b7280",
+          }}>
             <span>🔒 Secure</span>
             <span>⚡ Quick</span>
             <span>✨ Easy</span>
@@ -559,7 +295,15 @@ const RegisterScreen = () => {
   }
 
   return (
-    <div style={styles.container}>
+    <div style={{
+      minHeight: "100vh",
+      background: "linear-gradient(135deg, #f0f5ff 0%, #f0e8ff 50%, #ffe8f5 100%)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "16px",
+      fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+    }}>
       <style>{`
         @keyframes fadeIn {
           from {
@@ -571,363 +315,355 @@ const RegisterScreen = () => {
             transform: translateY(0);
           }
         }
-        @keyframes bounce {
-          0%, 100% {
-            transform: translateY(0);
-          }
-          50% {
-            transform: translateY(-10px);
-          }
-        }
         input:focus {
           outline: none;
-          border-color: #2563eb;
-          background-color: #fff;
+          border-color: #2563eb !important;
+          background-color: #fff !important;
+          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        button:disabled {
+          cursor: not-allowed;
         }
       `}</style>
 
-      <div style={styles.wrapper}>
+      <div style={{ width: "100%", maxWidth: "448px" }}>
         {/* Progress Bar */}
-        <div style={styles.progressContainer}>
-          <div style={styles.progressHeader}>
-            <h1 style={styles.progressTitle}>Start Your Store</h1>
-            <span style={styles.progressStep}>
+        <div style={{ marginBottom: "32px" }}>
+          <div style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "16px",
+          }}>
+            <h1 style={{
+              fontSize: "24px",
+              fontWeight: "700",
+              color: "#111827",
+              margin: 0,
+            }}>Start Your Store</h1>
+            <span style={{
+              fontSize: "14px",
+              fontWeight: "500",
+              color: "#6b7280",
+            }}>
               Step {step}/{totalSteps}
             </span>
           </div>
-          <div style={styles.progressBar}>
+          <div style={{
+            height: "6px",
+            backgroundColor: "#e5e7eb",
+            borderRadius: "9999px",
+            overflow: "hidden",
+          }}>
             <div
               style={{
-                ...styles.progressFill,
+                height: "100%",
+                background: "linear-gradient(90deg, #2563eb 0%, #4f46e5 100%)",
+                borderRadius: "9999px",
                 width: `${progressPercent}%`,
+                transition: "width 0.3s ease",
               }}
             />
           </div>
         </div>
 
         {/* Main Content Card */}
-        <div style={styles.card as React.CSSProperties}>
-          {/* Step 1: Store Name, Address, Phone Number */}
+        <div style={{
+          backgroundColor: "#ffffff",
+          borderRadius: "16px",
+          boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
+          padding: "32px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "32px",
+        }}>
+          {/* Step 1: Store Info & Owner Name */}
           {step === 1 && (
-            <div style={styles.stepContent as React.CSSProperties}>
-              <div style={styles.stepHeader}>
-                <div style={{ ...styles.iconBox, ...styles.iconBoxBlue }}>
-                  <Store size={24} style={styles.iconBlue} />
-                </div>
-                <div style={styles.stepHeaderText as React.CSSProperties}>
-                  <h2 style={styles.stepTitle}>What's your store called?</h2>
-                </div>
-              </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "24px", animation: "fadeIn 0.3s ease-out" }}>
+              <h2 style={{
+                fontSize: "20px",
+                fontWeight: "700",
+                color: "#111827",
+                margin: 0,
+              }}>Business Information</h2>
 
-              <div style={styles.inputContainer as React.CSSProperties}>
+              {/* Store Name */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <label style={{
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  color: "#374151",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}>
+                  <Store size={18} color="#2563eb" /> Store Name
+                </label>
                 <input
                   type="text"
-                  placeholder="e.g. Sweet Treats Bakery"
+                  placeholder="Enter your store name"
                   value={formData.storeName}
-                  onChange={(e) =>
-                    handleInputChange("storeName", e.target.value)
-                  }
-                  style={
-                    {
-                      ...styles.input,
-                      ...(errors.storeName ? styles.inputError : {}),
-                    } as React.CSSProperties
-                  }
+                  onChange={(e) => handleInputChange("storeName", e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "12px 16px",
+                    borderRadius: "8px",
+                    border: errors.storeName ? "2px solid #fca5a5" : "2px solid #e5e7eb",
+                    backgroundColor: errors.storeName ? "#fef2f2" : "#f9fafb",
+                    fontSize: "14px",
+                    color: "#111827",
+                    fontFamily: "inherit",
+                    boxSizing: "border-box",
+                    transition: "border-color 0.2s",
+                  }}
                 />
                 {errors.storeName && (
-                  <div style={styles.errorMessage}>
-                    <AlertCircle size={16} />
-                    <span>{errors.storeName}</span>
-                  </div>
-                )}
-
-                <input
-                  type="text"
-                  placeholder="Store address"
-                  value={formData.address}
-                  onChange={(e) => handleInputChange("address", e.target.value)}
-                  style={
-                    {
-                      ...styles.input,
-                      ...(errors.address ? styles.inputError : {}),
-                    } as React.CSSProperties
-                  }
-                />
-                {errors.address && (
-                  <div style={styles.errorMessage}>
-                    <AlertCircle size={16} />
-                    <span>{errors.address}</span>
-                  </div>
-                )}
-
-                <input
-                  type="tel"
-                  placeholder="Phone number"
-                  value={formData.phoneNumber}
-                  onChange={(e) =>
-                    handleInputChange("phoneNumber", e.target.value)
-                  }
-                  style={
-                    {
-                      ...styles.input,
-                      ...(errors.phoneNumber ? styles.inputError : {}),
-                    } as React.CSSProperties
-                  }
-                />
-                {errors.phoneNumber && (
-                  <div style={styles.errorMessage}>
-                    <AlertCircle size={16} />
-                    <span>{errors.phoneNumber}</span>
-                  </div>
+                  <div style={{ fontSize: "12px", color: "#dc2626" }}>⚠️ {errors.storeName}</div>
                 )}
               </div>
-            </div>
-          )}
 
-          {/* Step 2: Owner Name */}
-          {step === 2 && (
-            <div style={styles.stepContent as React.CSSProperties}>
-              <div style={styles.stepHeader}>
-                <div style={{ ...styles.iconBox, ...styles.iconBoxPurple }}>
-                  <User size={24} style={styles.iconPurple} />
-                </div>
-                <div style={styles.stepHeaderText as React.CSSProperties}>
-                  <h2 style={styles.stepTitle}>Who's the owner?</h2>
-                  <p style={styles.stepSubtitle}>We'd love to know your name</p>
-                </div>
-              </div>
-
-              <div style={styles.inputContainer as React.CSSProperties}>
+              {/* Owner Name */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <label style={{
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  color: "#374151",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}>
+                  <User size={18} color="#8b5cf6" /> Your Name
+                </label>
                 <input
                   type="text"
-                  placeholder="Your full name"
+                  placeholder="Enter your full name"
                   value={formData.ownerName}
-                  onChange={(e) =>
-                    handleInputChange("ownerName", e.target.value)
-                  }
-                  style={
-                    {
-                      ...styles.input,
-                      ...(errors.ownerName ? styles.inputError : {}),
-                    } as React.CSSProperties
-                  }
+                  onChange={(e) => handleInputChange("ownerName", e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "12px 16px",
+                    borderRadius: "8px",
+                    border: errors.ownerName ? "2px solid #fca5a5" : "2px solid #e5e7eb",
+                    backgroundColor: errors.ownerName ? "#fef2f2" : "#f9fafb",
+                    fontSize: "14px",
+                    color: "#111827",
+                    fontFamily: "inherit",
+                    boxSizing: "border-box",
+                    transition: "border-color 0.2s",
+                  }}
                 />
                 {errors.ownerName && (
-                  <div style={styles.errorMessage}>
-                    <AlertCircle size={16} />
-                    <span>{errors.ownerName}</span>
-                  </div>
+                  <div style={{ fontSize: "12px", color: "#dc2626" }}>⚠️ {errors.ownerName}</div>
                 )}
               </div>
-            </div>
-          )}
 
-          {/* Step 3: Email */}
-          {step === 3 && (
-            <div style={styles.stepContent as React.CSSProperties}>
-              <div style={styles.stepHeader}>
-                <div style={{ ...styles.iconBox, ...styles.iconBoxPink }}>
-                  <Mail size={24} style={styles.iconPink} />
-                </div>
-                <div style={styles.stepHeaderText as React.CSSProperties}>
-                  <h2 style={styles.stepTitle}>Your email address</h2>
-                  <p style={styles.stepSubtitle}>
-                    We'll use this to sign you in
-                  </p>
-                </div>
-              </div>
-
-              <div style={styles.inputContainer as React.CSSProperties}>
+              {/* Phone Number */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <label style={{
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  color: "#374151",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}>
+                  <Phone size={18} color="#10b981" /> Phone Number
+                </label>
                 <input
-                  type="email"
-                  placeholder="you@example.com"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange("email", e.target.value)}
-                  style={
-                    {
-                      ...styles.input,
-                      ...(errors.email ? styles.inputError : {}),
-                    } as React.CSSProperties
-                  }
+                  type="tel"
+                  placeholder="Enter phone number"
+                  value={formData.phoneNumber}
+                  onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "12px 16px",
+                    borderRadius: "8px",
+                    border: errors.phoneNumber ? "2px solid #fca5a5" : "2px solid #e5e7eb",
+                    backgroundColor: errors.phoneNumber ? "#fef2f2" : "#f9fafb",
+                    fontSize: "14px",
+                    color: "#111827",
+                    fontFamily: "inherit",
+                    boxSizing: "border-box",
+                    transition: "border-color 0.2s",
+                  }}
                 />
-                {errors.email && (
-                  <div style={styles.errorMessage}>
-                    <AlertCircle size={16} />
-                    <span>{errors.email}</span>
-                  </div>
+                {errors.phoneNumber && (
+                  <div style={{ fontSize: "12px", color: "#dc2626" }}>⚠️ {errors.phoneNumber}</div>
                 )}
               </div>
             </div>
           )}
 
-          {/* Step 4: Password */}
-          {step === 4 && (
-            <div style={styles.stepContent as React.CSSProperties}>
-              <div style={styles.stepHeader}>
-                <div style={{ ...styles.iconBox, ...styles.iconBoxGreen }}>
-                  <Lock size={24} style={styles.iconGreen} />
+          {/* Step 2: Password */}
+          {step === 2 && (
+            <div style={{ display: "flex", flexDirection: "column", gap: "24px", animation: "fadeIn 0.3s ease-out" }}>
+              <h2 style={{
+                fontSize: "20px",
+                fontWeight: "700",
+                color: "#111827",
+                margin: 0,
+              }}>Secure Your Account</h2>
+
+              {/* Password */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <label style={{
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  color: "#374151",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}>
+                  <Lock size={18} color="#f59e0b" /> Password
+                </label>
+                <div style={{ position: "relative" }}>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="At least 6 characters"
+                    value={formData.password}
+                    onChange={(e) => handleInputChange("password", e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "12px 16px",
+                      paddingRight: "44px",
+                      borderRadius: "8px",
+                      border: errors.password ? "2px solid #fca5a5" : "2px solid #e5e7eb",
+                      backgroundColor: errors.password ? "#fef2f2" : "#f9fafb",
+                      fontSize: "14px",
+                      color: "#111827",
+                      fontFamily: "inherit",
+                      boxSizing: "border-box",
+                      transition: "border-color 0.2s",
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{
+                      position: "absolute",
+                      right: "12px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      padding: "8px",
+                      color: "#6b7280",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+                  </button>
                 </div>
-                <div style={styles.stepHeaderText as React.CSSProperties}>
-                  <h2 style={styles.stepTitle}>Secure your account</h2>
-                  <p style={styles.stepSubtitle}>Create a strong password</p>
-                </div>
+                {errors.password && (
+                  <div style={{ fontSize: "12px", color: "#dc2626" }}>⚠️ {errors.password}</div>
+                )}
               </div>
 
-              <div style={styles.inputContainer as React.CSSProperties}>
-                <div
-                  style={
-                    {
+              {/* Confirm Password */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <label style={{
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  color: "#374151",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}>
+                  <Lock size={18} color="#ef4444" /> Confirm Password
+                </label>
+                <div style={{ position: "relative" }}>
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Confirm your password"
+                    value={formData.confirmPassword}
+                    onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "12px 16px",
+                      paddingRight: "44px",
+                      borderRadius: "8px",
+                      border: errors.confirmPassword ? "2px solid #fca5a5" : "2px solid #e5e7eb",
+                      backgroundColor: errors.confirmPassword ? "#fef2f2" : "#f9fafb",
+                      fontSize: "14px",
+                      color: "#111827",
+                      fontFamily: "inherit",
+                      boxSizing: "border-box",
+                      transition: "border-color 0.2s",
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    style={{
+                      position: "absolute",
+                      right: "12px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      padding: "8px",
+                      color: "#6b7280",
                       display: "flex",
-                      flexDirection: "column",
-                      gap: "8px",
-                    } as React.CSSProperties
-                  }
-                >
-                  <div style={styles.passwordInputWrapper}>
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      placeholder="At least 6 characters"
-                      value={formData.password}
-                      onChange={(e) =>
-                        handleInputChange("password", e.target.value)
-                      }
-                      style={
-                        {
-                          ...styles.input,
-                          ...styles.passwordInput,
-                          paddingRight: "44px",
-                          ...(errors.password ? styles.inputError : {}),
-                        } as React.CSSProperties
-                      }
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      style={styles.passwordToggleButton}
-                      onMouseEnter={(e) => {
-                        (e.currentTarget as HTMLButtonElement).style.color =
-                          "#374151";
-                      }}
-                      onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLButtonElement).style.color =
-                          "#6b7280";
-                      }}
-                    >
-                      {showPassword ? (
-                        <EyeOff size={20} />
-                      ) : (
-                        <Eye size={20} />
-                      )}
-                    </button>
-                  </div>
-                  {errors.password && (
-                    <div style={styles.errorMessage}>
-                      <AlertCircle size={16} />
-                      <span>{errors.password}</span>
-                    </div>
-                  )}
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {showConfirmPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+                  </button>
                 </div>
-
-                <div
-                  style={
-                    {
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "8px",
-                    } as React.CSSProperties
-                  }
-                >
-                  <div style={styles.passwordInputWrapper}>
-                    <input
-                      type={showConfirmPassword ? "text" : "password"}
-                      placeholder="Confirm password"
-                      value={formData.confirmPassword}
-                      onChange={(e) =>
-                        handleInputChange("confirmPassword", e.target.value)
-                      }
-                      style={
-                        {
-                          ...styles.input,
-                          ...styles.passwordInput,
-                          paddingRight: "44px",
-                          ...(errors.confirmPassword ? styles.inputError : {}),
-                        } as React.CSSProperties
-                      }
-                    />
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setShowConfirmPassword(!showConfirmPassword)
-                      }
-                      style={styles.passwordToggleButton}
-                      onMouseEnter={(e) => {
-                        (e.currentTarget as HTMLButtonElement).style.color =
-                          "#374151";
-                      }}
-                      onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLButtonElement).style.color =
-                          "#6b7280";
-                      }}
-                    >
-                      {showConfirmPassword ? (
-                        <EyeOff size={20} />
-                      ) : (
-                        <Eye size={20} />
-                      )}
-                    </button>
-                  </div>
-                  {errors.confirmPassword && (
-                    <div style={styles.errorMessage}>
-                      <AlertCircle size={16} />
-                      <span>{errors.confirmPassword}</span>
-                    </div>
-                  )}
-                </div>
+                {errors.confirmPassword && (
+                  <div style={{ fontSize: "12px", color: "#dc2626" }}>⚠️ {errors.confirmPassword}</div>
+                )}
               </div>
 
-              <div style={styles.securityInfo}>
+              <div style={{
+                backgroundColor: "#eff6ff",
+                border: "1px solid #bfdbfe",
+                borderRadius: "8px",
+                padding: "12px",
+                fontSize: "14px",
+                color: "#1e40af",
+              }}>
                 ✓ Password will be securely encrypted with bcrypt
               </div>
             </div>
           )}
 
           {errors.submit && (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-                fontSize: "14px",
-                color: "#dc2626",
-                backgroundColor: "#fef2f2",
-                padding: "12px",
-                borderRadius: "8px",
-              }}
-            >
-              <AlertCircle size={20} />
-              <span>{errors.submit}</span>
+            <div style={{
+              fontSize: "14px",
+              color: "#dc2626",
+              backgroundColor: "#fef2f2",
+              padding: "12px",
+              borderRadius: "8px",
+            }}>
+              ⚠️ {errors.submit}
             </div>
           )}
 
           {/* Navigation Buttons */}
-          <div style={styles.buttonGroup as React.CSSProperties}>
+          <div style={{ display: "flex", gap: "12px" }}>
             {step > 1 && (
               <button
+                type="button"
                 onClick={handleBack}
                 disabled={loading}
                 style={{
-                  ...styles.buttonBack,
-                  ...(loading ? styles.buttonDisabled : {}),
-                }}
-                onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
-                  if (!loading)
-                    (
-                      e.currentTarget as HTMLButtonElement
-                    ).style.backgroundColor = "#f3f4f6";
-                }}
-                onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
-                  (e.currentTarget as HTMLButtonElement).style.backgroundColor =
-                    "#ffffff";
+                  flex: 1,
+                  padding: "12px 16px",
+                  borderRadius: "8px",
+                  border: "2px solid #e5e7eb",
+                  backgroundColor: "#ffffff",
+                  color: "#374151",
+                  fontWeight: "600",
+                  fontSize: "16px",
+                  cursor: loading ? "not-allowed" : "pointer",
+                  opacity: loading ? 0.5 : 1,
+                  transition: "all 0.2s",
                 }}
               >
                 Back
@@ -936,41 +672,42 @@ const RegisterScreen = () => {
 
             {step < totalSteps ? (
               <button
+                type="button"
                 onClick={handleNext}
                 disabled={loading}
                 style={{
-                  ...styles.buttonNext,
-                  ...(loading ? styles.buttonDisabled : {}),
-                }}
-                onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
-                  if (!loading)
-                    (e.currentTarget as HTMLButtonElement).style.boxShadow =
-                      "0 10px 15px -3px rgba(37, 99, 235, 0.3)";
-                }}
-                onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
-                  (e.currentTarget as HTMLButtonElement).style.boxShadow =
-                    "none";
+                  flex: 1,
+                  padding: "12px 16px",
+                  borderRadius: "8px",
+                  border: "none",
+                  background: "linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)",
+                  color: "#ffffff",
+                  fontWeight: "600",
+                  fontSize: "16px",
+                  cursor: loading ? "not-allowed" : "pointer",
+                  opacity: loading ? 0.5 : 1,
+                  transition: "all 0.2s",
                 }}
               >
-                Next
-                <ChevronRight size={16} />
+                Next →
               </button>
             ) : (
               <button
+                type="button"
                 onClick={handleRegister}
                 disabled={loading}
                 style={{
-                  ...styles.buttonSubmit,
-                  ...(loading ? styles.buttonDisabled : {}),
-                }}
-                onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
-                  if (!loading)
-                    (e.currentTarget as HTMLButtonElement).style.boxShadow =
-                      "0 10px 15px -3px rgba(22, 163, 74, 0.3)";
-                }}
-                onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
-                  (e.currentTarget as HTMLButtonElement).style.boxShadow =
-                    "none";
+                  flex: 1,
+                  padding: "12px 16px",
+                  borderRadius: "8px",
+                  border: "none",
+                  background: "linear-gradient(135deg, #16a34a 0%, #059669 100%)",
+                  color: "#ffffff",
+                  fontWeight: "600",
+                  fontSize: "16px",
+                  cursor: loading ? "not-allowed" : "pointer",
+                  opacity: loading ? 0.5 : 1,
+                  transition: "all 0.2s",
                 }}
               >
                 {loading ? "Creating..." : "Create Store"}
@@ -979,18 +716,24 @@ const RegisterScreen = () => {
           </div>
 
           {/* Sign In Link */}
-          <div style={styles.footerLink as React.CSSProperties}>
+          <div style={{
+            textAlign: "center",
+            fontSize: "14px",
+            color: "#4b5563",
+          }}>
             Already have an account?{" "}
             <button
+              type="button"
               style={{
-                ...styles.signInLink,
+                color: "#2563eb",
+                fontWeight: "600",
+                cursor: "pointer",
                 background: "none",
                 border: "none",
                 padding: 0,
+                textDecoration: "none",
               }}
-              onClick={() => {
-                window.location.href = "/login";
-              }}
+              onClick={() => alert("Sign in page would open here")}
             >
               Sign in
             </button>
@@ -998,7 +741,14 @@ const RegisterScreen = () => {
         </div>
 
         {/* Trust Badges */}
-        <div style={styles.trustBadges}>
+        <div style={{
+          marginTop: "32px",
+          display: "flex",
+          justifyContent: "center",
+          gap: "24px",
+          fontSize: "12px",
+          color: "#6b7280",
+        }}>
           <span>🔒 Secure</span>
           <span>⚡ Quick</span>
           <span>✨ Easy</span>
@@ -1008,4 +758,4 @@ const RegisterScreen = () => {
   );
 };
 
-export default RegisterScreen;
+export default RegisterScreen;                
