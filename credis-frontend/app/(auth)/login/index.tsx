@@ -245,7 +245,7 @@ const LoginScreen: React.FC = () => {
       });
 
       const data = await response.json();
-
+      console.log("phone number",data.phoneNumber)
       if (response.ok) {
         console.log("Login successful", data.user);
         window.location.href = "/customer-dashboard";
