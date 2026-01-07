@@ -60,7 +60,7 @@ model Token {
 model StoreOwner {
   id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name              String
-  phoneNumber       String              @unique @map("phone_number") @db.Uuid
+  phoneNumber       String              @unique @map("phone_number")
   passwordHash      String              @map("password_hash")
   storeId           String?             @map("store_id") @db.Uuid
   isActive          Boolean             @default(true) @map("is_active")

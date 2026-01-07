@@ -51,17 +51,17 @@ export class StoreOwnerRepository {
 
 async findByPhoneNumberWithPassword(phoneNumber: string) {
   return await prisma.storeOwner.findUnique({
-    where: { 
-      phoneNumber: phoneNumber 
+    where: {
+      phoneNumber: phoneNumber, // This will now be recognized!
     },
     select: {
       id: true,
       name: true,
       phoneNumber: true,
-      passwordHash: true, // Explicitly included for verification
+      passwordHash: true,
       isActive: true,
-      storeId: true,
-    },
+      storeId: true
+    }
   });
 }
 
