@@ -14,23 +14,22 @@ const ONE_MONTH_MS = 30 * MS_IN_DAY;
 const SIX_MONTHS_MS = 180 * MS_IN_DAY;
 export class StoreOwnerService {
     async register(data) {
-        const existing = await storeOwnerRepository.findByEmail(data.email);
+        const existing = await storeOwnerRepository.findByPhoneNumberWithPassword(data.phoneNumber);
         if (existing)
-            throw new Error("Email already registered");
+            throw new Error("PhoneNumber already registered");
         const password = await bcrypt.hash(data.password, 10);
         const owner = await storeOwnerRepository.create({ ...data, password });
         return {
             id: owner.id,
             name: owner.name,
-            email: owner.email,
             storeId: owner.storeId,
             isActive: owner.isActive,
             createdAt: owner.createdAt,
         };
     }
-    async login(email, password) {
-        const owner = await storeOwnerRepository.findByEmailWithPassword(email);
-        if (!owner || !owner.isActive)
+    async login(phoneNumber, password) {
+        const owner = await storeOwnerRepository.findByPhoneNumberWithPassword(phoneNumber);
+        if (!owner)
             throw new Error("Invalid credentials");
         const valid = await bcrypt.compare(password, owner.passwordHash);
         if (!valid)
@@ -39,13 +38,13 @@ export class StoreOwnerService {
         // 1. Generate JWTs
         const accessToken = this.generateAccessToken({
             id: owner.id,
-            email: owner.email,
+            phoneNumber: owner.phoneNumber,
             name: owner.name,
             storeId: owner.storeId,
         });
         const refreshToken = this.generateRefreshToken({
             id: owner.id,
-            email: owner.email,
+            phoneNumber: owner.phoneNumber,
             name: owner.name,
             storeId: owner.storeId,
         });
@@ -62,7 +61,7 @@ export class StoreOwnerService {
             user: {
                 id: owner.id,
                 name: owner.name,
-                email: owner.email,
+                phoneNumber: owner.phoneNumber,
                 storeId: owner.storeId,
                 isActive: owner.isActive,
             },
@@ -76,12 +75,12 @@ export class StoreOwnerService {
             if (!isValid)
                 throw new Error("Token revoked or invalid");
             const owner = await storeOwnerRepository.findById(decoded.id);
-            if (!owner || !owner.isActive)
+            if (!owner)
                 throw new Error("User inactive");
             // Generate new access token
             const newAccessToken = this.generateAccessToken({
                 id: owner.id,
-                email: owner.email,
+                phoneNumber: owner.phoneNumber,
                 name: owner.name,
                 storeId: owner.storeId,
             });
@@ -94,7 +93,6 @@ export class StoreOwnerService {
                 user: {
                     id: owner.id,
                     name: owner.name,
-                    email: owner.email,
                     storeId: owner.storeId,
                     isActive: owner.isActive,
                     createdAt: owner.createdAt,
@@ -102,7 +100,15 @@ export class StoreOwnerService {
             };
         }
         catch (error) {
-            throw new Error("Invalid refresh token");
+            // If it's an error we threw manually, just re-throw it
+            if (error instanceof Error &&
+                (error.message === "Token revoked or invalid" ||
+                    error.message === "User inactive")) {
+                throw error;
+            }
+            // Otherwise, log the unexpected system error and throw a generic one
+            console.error("JWT Refresh System Error:", error);
+            throw new Error("Invalid refresh token", { cause: error });
         }
     }
     async logout(storeOwnerId) {
@@ -116,7 +122,6 @@ export class StoreOwnerService {
         return {
             id: owner.id,
             name: owner.name,
-            email: owner.email,
             storeId: owner.storeId,
             isActive: owner.isActive,
             createdAt: owner.createdAt,

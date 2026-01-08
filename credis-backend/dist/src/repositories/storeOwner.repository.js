@@ -5,15 +5,10 @@ export class StoreOwnerRepository {
         return await prisma.storeOwner.create({
             data: {
                 name: data.name,
-                email: data.email,
+                phoneNumber: data.phoneNumber,
                 passwordHash: data.password,
                 ...(data.storeId && { storeId: data.storeId }),
             },
-        });
-    }
-    async findByEmail(email) {
-        return await prisma.storeOwner.findUnique({
-            where: { email },
         });
     }
     async findById(id) {
@@ -31,7 +26,7 @@ export class StoreOwnerRepository {
             where: { id },
             data: {
                 ...(data.name && { name: data.name }),
-                ...(data.email && { email: data.email }),
+                ...(data.phoneNumber && { phoneNumber: data.phoneNumber }),
                 ...(data.passwordHash && { passwordHash: data.passwordHash }),
                 ...(data.storeId && { storeId: data.storeId }),
                 ...(typeof data.isActive === "boolean" && { isActive: data.isActive }),
@@ -44,17 +39,24 @@ export class StoreOwnerRepository {
             where: { id },
         });
     }
-    async findByEmailWithPassword(email) {
+    async findByPhoneNumberWithPassword(phoneNumber) {
+        if (!phoneNumber) {
+            throw new Error('Phone number is required');
+        }
+        const userPhoneNumber = phoneNumber;
+        console.log("phoneNumber : ", phoneNumber);
         return await prisma.storeOwner.findUnique({
-            where: { email },
+            where: {
+                phoneNumber: userPhoneNumber, // This will now be recognized!
+            },
             select: {
                 id: true,
-                email: true,
-                passwordHash: true,
                 name: true,
+                phoneNumber: true,
+                passwordHash: true,
                 isActive: true,
-                storeId: true,
-            },
+                storeId: true
+            }
         });
     }
     async setLastLogin(id, date) {

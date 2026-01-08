@@ -5,17 +5,26 @@ import { serve } from "@hono/node-server";
 import router from "./routes/index.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 const app = new Hono();
-// Middleware
-app.use(cors({
-    origin: [
-        process.env.FRONTEND_URL || "http://localhost:8081",
-        "http://localhost:*",
-    ],
-    credentials: true, // Allow cookies
-    allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+// CORS configuration for httpOnly JWT
+// const allowedOrigins = (process.env.FRONTEND_URL || "http://54.255.195.110:8081").split(",").map(url => url.trim());
+const allowedOrigins = [
+    process.env.FRONTEND_URL || "",
+    "http://54.255.195.110:8081"
+];
+app.use("*", cors({
+    origin: allowedOrigins,
+    credentials: true, // Required for httpOnly cookies
+    allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
+    exposeHeaders: ["Content-Length"],
+    maxAge: 600,
 }));
 app.use("*", logger());
+app.use("*", async (c, next) => {
+    console.log(`${c.req.method} ${c.req.path}`);
+    console.log("Origin:", c.req.header("origin"));
+    await next();
+});
 app.use("*", errorHandler);
 // Health check
 app.get("/", (c) => {
