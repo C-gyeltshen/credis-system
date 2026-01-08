@@ -8,7 +8,7 @@ import { errorHandler } from "./middlewares/errorHandler.js";
 const app = new Hono();
 
 // CORS configuration for httpOnly JWT
-const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:8081").split(",").map(url => url.trim());
+const allowedOrigins = (process.env.FRONTEND_URL || "http://54.255.195.110:8081").split(",").map(url => url.trim());
 
 app.use(
   "*",
