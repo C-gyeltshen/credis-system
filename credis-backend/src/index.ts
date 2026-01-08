@@ -9,20 +9,15 @@ const app = new Hono();
 
 // CORS configuration for httpOnly JWT
 // const allowedOrigins = (process.env.FRONTEND_URL || "http://54.255.195.110:8081").split(",").map(url => url.trim());
-// Allow specific origins; prefer env var list, fallback to known frontend URL
-const allowedOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || "http://54.255.195.110:8081")
-  .split(",")
-  .map((o) => o.trim())
-  .filter(Boolean);
+const allowedOrigins = [
+  process.env.FRONTEND_URL || "",
+  "http://54.255.195.110:8081"
+];
 
 app.use(
   "*",
   cors({
-    origin: (origin) => {
-      // Honor no-origin requests (like curl or same-origin) and explicit allowed list
-      if (!origin) return true;
-      return allowedOrigins.includes(origin);
-    },
+    origin: allowedOrigins,
     credentials: true, // Required for httpOnly cookies
     allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
