@@ -125,7 +125,7 @@ export class StoreOwnerController {
     try {
       const user = c.get("user"); // Get user from auth middleware
       
-      if (!user || !user.id) {
+      if (!user.id) {
         return c.json({ error: "Unauthorized" }, 401);
       }
 

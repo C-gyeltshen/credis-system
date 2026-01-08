@@ -27,12 +27,14 @@ interface TokenPayload {
 
 export class StoreOwnerService {
   async register(data: CreateStoreOwnerInput) {
-    const existing = await storeOwnerRepository.findByPhoneNumberWithPassword(data.phoneNumber);
+    const existing = await storeOwnerRepository.findByPhoneNumberWithPassword(
+      data.phoneNumber
+    );
     if (existing) throw new Error("PhoneNumber already registered");
 
     const password = await bcrypt.hash(data.password, 10);
     const owner = await storeOwnerRepository.create({ ...data, password });
-    
+
     return {
       id: owner.id,
       name: owner.name,
@@ -43,8 +45,10 @@ export class StoreOwnerService {
   }
 
   async login(phoneNumber: string, password: string) {
-    const owner = await storeOwnerRepository.findByPhoneNumberWithPassword(phoneNumber);
-    if (!owner || !owner.isActive) throw new Error("Invalid credentials");
+    const owner = await storeOwnerRepository.findByPhoneNumberWithPassword(
+      phoneNumber
+    );
+    if (!owner) throw new Error("Invalid credentials");
 
     const valid = await bcrypt.compare(password, owner.passwordHash);
     if (!valid) throw new Error("Invalid credentials");
@@ -72,16 +76,16 @@ export class StoreOwnerService {
 
     // 3. Save Refresh Token to DB
     const refreshTokenRecord = await storeOwnerRepository.saveRefreshToken(
-      owner.id, 
-      refreshToken, 
+      owner.id,
+      refreshToken,
       refreshExpiresAt
     );
-    
+
     // 4. Save Access Token linked to the Refresh Token session
     await storeOwnerRepository.saveAccessToken(
-      owner.id, 
-      refreshTokenRecord.id, 
-      accessToken, 
+      owner.id,
+      refreshTokenRecord.id,
+      accessToken,
       accessExpiresAt
     );
 
@@ -113,7 +117,7 @@ export class StoreOwnerService {
       if (!isValid) throw new Error("Token revoked or invalid");
 
       const owner = await storeOwnerRepository.findById(decoded.id);
-      if (!owner || !owner.isActive) throw new Error("User inactive");
+      if (!owner) throw new Error("User inactive");
 
       // Generate new access token
       const newAccessToken = this.generateAccessToken({
@@ -126,9 +130,9 @@ export class StoreOwnerService {
       // Update the access token record in DB for the new token
       const accessExpiresAt = new Date(Date.now() + ONE_MONTH_MS);
       await storeOwnerRepository.saveAccessToken(
-        owner.id, 
+        owner.id,
         isValid.id, // Linked to existing refresh token ID
-        newAccessToken, 
+        newAccessToken,
         accessExpiresAt
       );
 
@@ -143,7 +147,18 @@ export class StoreOwnerService {
         },
       };
     } catch (error) {
-      throw new Error("Invalid refresh token");
+      // If it's an error we threw manually, just re-throw it
+      if (
+        error instanceof Error &&
+        (error.message === "Token revoked or invalid" ||
+          error.message === "User inactive")
+      ) {
+        throw error;
+      }
+
+      // Otherwise, log the unexpected system error and throw a generic one
+      console.error("JWT Refresh System Error:", error);
+      throw new Error("Invalid refresh token", { cause: error });
     }
   }
 
@@ -153,17 +168,17 @@ export class StoreOwnerService {
   }
 
   async getProfile(id: string) {
-      const owner = await storeOwnerRepository.findById(id);
-      if (!owner) throw new Error("Store owner not found");
+    const owner = await storeOwnerRepository.findById(id);
+    if (!owner) throw new Error("Store owner not found");
 
-      return {
-        id: owner.id,
-        name: owner.name,
-        storeId: owner.storeId,
-        isActive: owner.isActive,
-        createdAt: owner.createdAt,
-      };
-    }
+    return {
+      id: owner.id,
+      name: owner.name,
+      storeId: owner.storeId,
+      isActive: owner.isActive,
+      createdAt: owner.createdAt,
+    };
+  }
 
   private generateAccessToken(payload: TokenPayload): string {
     return jwt.sign(payload, JWT_SECRET, {
