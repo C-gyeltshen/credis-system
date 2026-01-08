@@ -21,10 +21,9 @@ export const authMiddleware = async (c: Context, next: Next) => {
         })
       );
       token = cookies["accessToken"];
-      console.log("token from routes", token)
     }
   }
-
+  console.log("token from routes", token)
   if (!token) {
     return c.json({ error: "Unauthorized from routes" }, 401);
   }
