@@ -21,6 +21,7 @@ export const authMiddleware = async (c: Context, next: Next) => {
         })
       );
       token = cookies["accessToken"];
+      console.log("token from routes", token)
     }
   }
 
