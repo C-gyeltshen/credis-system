@@ -6,10 +6,9 @@ const storeOwnerService = new StoreOwnerService();
 
 function buildCookieAttributes(c: Context, maxAgeSeconds: number) {
   const reqUrl = new URL(c.req.url);
-  const origin = c.req.header("origin") || "";
-  const isHttps = reqUrl.protocol === "https:" || origin.startsWith("https://");
-
-  // If request is cross-site, we must use SameSite=None and Secure=true per modern browsers.
+  const origin = c.req.header("origin");
+  const isHttps = reqUrl.protocol === "https:" || (origin ? origin.startsWith("https://") : false);
+  // Determine cross-site by comparing origins (scheme+host+port)
   let isCrossSite = false;
   try {
     if (origin) {
@@ -17,13 +16,12 @@ function buildCookieAttributes(c: Context, maxAgeSeconds: number) {
       isCrossSite = origin !== backendOrigin;
     }
   } catch {
-    isCrossSite = true; // be conservative
+    isCrossSite = false;
   }
-
-  const sameSite = isCrossSite ? "None" : "Lax";
-  const secureAttr = isCrossSite ? "Secure; " : (isHttps ? "Secure; " : "");
-
-  return `HttpOnly; ${secureAttr}SameSite=${sameSite}; Path=/; Max-Age=${maxAgeSeconds}`;
+  // SameSite strategy: use None only when cross-site over HTTPS; else Lax
+  const sameSite = isCrossSite && isHttps ? "None" : "Lax";
+  const secure = isHttps ? "Secure; " : "";
+  return `HttpOnly; ${secure}SameSite=${sameSite}; Path=/; Max-Age=${maxAgeSeconds}`;
 }
 
 export class StoreOwnerController {
