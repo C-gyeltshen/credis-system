@@ -25,7 +25,7 @@ export const authMiddleware = async (c: Context, next: Next) => {
   }
 
   if (!token) {
-    return c.json({ error: "Unauthorized" }, 401);
+    return c.json({ error: "Unauthorized from routes" }, 401);
   }
 
   const decoded = storeOwnerService.verifyAccessToken(token);
