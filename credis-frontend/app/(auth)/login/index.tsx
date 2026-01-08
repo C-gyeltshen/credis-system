@@ -341,7 +341,7 @@ const LoginScreen: React.FC = () => {
                 </div>
                 <input
                   type="tel"
-                  placeholder="+1 (555) 000-0000"
+                  placeholder="Enter phone number"
                   value={formData.phoneNumber}
                   onChange={(e) =>
                     handleInputChange("phoneNumber", e.target.value)
@@ -500,10 +500,10 @@ const LoginScreen: React.FC = () => {
                 padding: 0,
               }}
               onClick={() => {
-                window.location.href = "/register";
+                globalThis.location.href = "/register";
               }}
             >
-              Create one
+              Register
             </button>
           </div>
         </div>
