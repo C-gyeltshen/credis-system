@@ -18,10 +18,6 @@ interface Customer {
   id: string;
   name: string;
   phoneNumber: string;
-  cidNumber?: string;
-  address?: string;
-  email?: string;
-  creditLimit?: number;
   isActive?: boolean;
   createdAt: string;
   modifiedAt: string;
@@ -189,7 +185,7 @@ export default function CustomersScreen() {
           {/* Customer Management Table */}
           <View
             style={{
-              marginHorizontal: cardMargin,
+              marginHorizontal: 0,
               marginTop: 24,
               marginBottom: 24,
             }}
@@ -198,19 +194,18 @@ export default function CustomersScreen() {
               <Card.Content style={{ padding: isSmallScreen ? 12 : 20 }}>
                 <View style={styles.tableHeader}>
                   <View style={styles.tableHeaderLeft}>
-                    {/* <MaterialIcons name="table-chart" size={24} color="#667eea" /> */}
                     <Text style={styles.sectionTitle}>Clients</Text>
-                    <TouchableOpacity
-                      style={styles.addButton}
-                      onPress={addNewCustomer}
-                      activeOpacity={0.8}
-                    >
-                      <MaterialIcons name="add" size={24} color="#fff" />
-                      {!isSmallScreen && (
-                        <Text style={styles.addButtonText}>Add Customer</Text>
-                      )}
-                    </TouchableOpacity>
                   </View>
+                  <TouchableOpacity
+                    style={styles.addButton}
+                    onPress={addNewCustomer}
+                    activeOpacity={0.8}
+                  >
+                    <MaterialIcons name="add" size={24} color="#fff" />
+                    {!isSmallScreen && (
+                      <Text style={styles.addButtonText}>Add Customer</Text>
+                    )}
+                  </TouchableOpacity>
                 </View>
 
                 <ResponsiveCustomerTable
@@ -270,7 +265,7 @@ const styles = StyleSheet.create({
   stickyNavBar: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical:6,
+    paddingVertical: 6,
     backgroundColor: "#f5f7fa",
     zIndex: 10,
     ...Platform.select({
@@ -318,7 +313,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderWidth: 1,
     borderColor: "#e0e0e0",
-    // Added border for visual separation
   },
   searchInput: {
     fontSize: 16,
@@ -351,7 +345,7 @@ const styles = StyleSheet.create({
   tableHeaderLeft: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    flex: 1,
   },
   sectionTitle: {
     fontSize: 20,
