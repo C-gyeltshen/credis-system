@@ -180,16 +180,6 @@ export default function CustomersScreen() {
               placeholderTextColor="#999"
             />
           </View>
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={addNewCustomer}
-            activeOpacity={0.8}
-          >
-            <MaterialIcons name="add" size={24} color="#fff" />
-            {!isSmallScreen && (
-              <Text style={styles.addButtonText}>Add Customer</Text>
-            )}
-          </TouchableOpacity>
         </View>
 
         <ScrollView
