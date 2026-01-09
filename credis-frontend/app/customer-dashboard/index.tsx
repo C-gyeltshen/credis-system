@@ -186,8 +186,8 @@ export default function CustomersScreen() {
           <View
             style={{
               marginHorizontal: 0,
-              marginTop: 24,
-              marginBottom: 24,
+              // marginTop: 24,
+              // marginBottom: 24,
             }}
           >
             <Card style={styles.tableCard}>
