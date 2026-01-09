@@ -70,7 +70,7 @@ export default function CustomersScreen() {
       } finally {
         setLoading(false);
       }
-    };
+    }; 
 
     const fetchOutstandingBalance = async () => {
       try {
@@ -140,7 +140,7 @@ export default function CustomersScreen() {
           style={[styles.header, { padding: cardMargin }]}
         >
           <View style={styles.headerContent}>
-            <View style={{ flex: 1 }}>
+            <View >
               <Text style={styles.headerTitle}>
                 Welcome {user?.name ? user.name : "StoreOwner"}
               </Text>
@@ -164,7 +164,7 @@ export default function CustomersScreen() {
 
         {/* Sticky Search Bar and Add Button Section */}
         <View style={[styles.stickyNavBar, { paddingHorizontal: cardMargin }]}>
-          <View style={{ flex: 1, marginRight: 12 }}>
+          <View style={{ flex: 1}}>
             <Searchbar
               placeholder="Search Client"
               onChangeText={setSearchQuery}
