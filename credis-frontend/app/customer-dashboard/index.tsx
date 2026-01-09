@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 16,
-    paddingBottom: 12,
+    // paddingBottom: 12,
     borderBottomWidth: 2,
     borderBottomColor: "#f0f0f0",
   },
