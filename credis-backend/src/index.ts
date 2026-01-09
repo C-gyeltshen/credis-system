@@ -11,7 +11,8 @@ const app = new Hono();
 // const allowedOrigins = (process.env.FRONTEND_URL || "http://54.255.195.110:8081").split(",").map(url => url.trim());
 const allowedOrigins = [
   process.env.FRONTEND_URL || "",
-  "http://54.255.195.110:8081"
+  "http://54.255.195.110:8081",
+  "http://localhost:8081",
 ];
 
 app.use(
@@ -45,9 +46,9 @@ app.get("/", (c) => {
 app.route("/api", router);
 
 // Start server only if not in test environment
-if (process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== "test") {
   const port = process.env.PORT || 8080;
-  
+
   serve({
     fetch: app.fetch,
     port: Number(port),
