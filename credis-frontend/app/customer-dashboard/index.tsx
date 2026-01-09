@@ -206,7 +206,7 @@ export default function CustomersScreen() {
             <Card.Content style={{ padding: isSmallScreen ? 12 : 20 }}>
               <View style={styles.tableHeader}>
                 <View style={styles.tableHeaderLeft}>
-                  <MaterialIcons name="table-chart" size={24} color="#667eea" />
+                  {/* <MaterialIcons name="table-chart" size={24} color="#667eea" /> */}
                   <Text style={styles.sectionTitle}>Clients</Text>
                 </View>
               </View>

@@ -313,10 +313,7 @@ const LoginScreen: React.FC = () => {
         <div style={styles.card}>
           {/* Header */}
           <div style={styles.header}>
-            <h1 style={styles.headerTitle}>Welcome Back</h1>
-            <p style={styles.headerSubtitle}>
-              Login to manage your store and credit
-            </p>
+            <h1 style={styles.headerTitle}>Welcome to Credis</h1>
           </div>
 
           {/* Error Alert */}
@@ -332,7 +329,7 @@ const LoginScreen: React.FC = () => {
             {/* Phone Number Field */}
             <div style={styles.inputGroup}>
               <label style={styles.label}>
-                <Phone size={16} style={{ color: "#2563eb" }} />
+                {/* <Phone size={16} style={{ color: "#2563eb" }} /> */}
                 Phone Number
               </label>
               <div style={styles.inputWrapper}>
@@ -365,7 +362,7 @@ const LoginScreen: React.FC = () => {
             {/* PIN Field */}
             <div style={styles.inputGroup}>
               <label style={styles.label}>
-                <Lock size={16} style={{ color: "#16a34a" }} />
+                {/* <Lock size={16} style={{ color: "#16a34a" }} /> */}
                 PIN (4 Digits)
               </label>
               <div style={{
