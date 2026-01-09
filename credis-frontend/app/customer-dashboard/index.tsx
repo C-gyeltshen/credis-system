@@ -163,17 +163,19 @@ export default function CustomersScreen() {
         </LinearGradient>
 
         {/* Sticky Search Bar and Add Button Section */}
-        <View style={[styles.stickyNavBar, { paddingHorizontal: 0 }]}>
-          <Searchbar
-            placeholder="Search Client"
-            onChangeText={setSearchQuery}
-            value={searchQuery}
-            style={styles.searchBar}
-            inputStyle={styles.searchInput}
-            icon="magnify"
-            iconColor="#667eea"
-            placeholderTextColor="#999"
-          />
+        <View style={[styles.stickyNavBar, { paddingHorizontal: cardMargin }]}>
+          <View style={{ flex: 1, marginRight: 12 }}>
+            <Searchbar
+              placeholder="Search Client"
+              onChangeText={setSearchQuery}
+              value={searchQuery}
+              style={styles.searchBar}
+              inputStyle={styles.searchInput}
+              icon="magnify"
+              iconColor="#667eea"
+              placeholderTextColor="#999"
+            />
+          </View>
         </View>
 
         <ScrollView
@@ -184,7 +186,7 @@ export default function CustomersScreen() {
           <View
             style={{
               marginHorizontal: 0,
-              marginTop: 12,
+              marginTop: 24,
               marginBottom: 24,
             }}
           >
@@ -263,8 +265,7 @@ const styles = StyleSheet.create({
   stickyNavBar: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingVertical: 6,
     backgroundColor: "#f5f7fa",
     zIndex: 10,
     ...Platform.select({
