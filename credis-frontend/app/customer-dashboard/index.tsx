@@ -270,9 +270,7 @@ const styles = StyleSheet.create({
   stickyNavBar: {
     flexDirection: "row",
     alignItems: "center",
-    paddingStart: 6,
-
-    paddingEnd: 12,
+    paddingVertical:6,
     backgroundColor: "#f5f7fa",
     zIndex: 10,
     ...Platform.select({
