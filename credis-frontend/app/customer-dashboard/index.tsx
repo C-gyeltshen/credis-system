@@ -135,95 +135,107 @@ export default function CustomersScreen() {
 
   return (
     <Navigation>
-    <SafeAreaView style={styles.container}>
-      {/* Header Section */}
-      <LinearGradient
-        colors={["#667eea", "#764ba2"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={[styles.header, { padding: cardMargin }]}
-      >
-        <View style={styles.headerContent}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.headerTitle}>
-              Welcome {user?.name ? user.name : "StoreOwner"}
-            </Text>
-            <View style={{ marginTop: 8 }}>
-              <Text style={{ color: "#fff", fontWeight: "600", fontSize: 16 }}>
-                Total Remaining Credit:
-                <Text style={{ color: "#ffd700", fontWeight: "bold" }}>
-                  {outstandingBalance !== null
-                    ? ` Nu. ${outstandingBalance.toLocaleString("en-IN", {
-                        minimumFractionDigits: 2,
-                      })}`
-                    : " Loading..."}
-                </Text>
+      <SafeAreaView style={styles.container}>
+        {/* Header Section */}
+        <LinearGradient
+          colors={["#667eea", "#764ba2"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={[styles.header, { padding: cardMargin }]}
+        >
+          <View style={styles.headerContent}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.headerTitle}>
+                Welcome {user?.name ? user.name : "StoreOwner"}
               </Text>
+              <View style={{ marginTop: 8 }}>
+                <Text
+                  style={{ color: "#fff", fontWeight: "600", fontSize: 16 }}
+                >
+                  Total Remaining Credit:
+                  <Text style={{ color: "#ffd700", fontWeight: "bold" }}>
+                    {outstandingBalance !== null
+                      ? ` Nu. ${outstandingBalance.toLocaleString("en-IN", {
+                          minimumFractionDigits: 2,
+                        })}`
+                      : " Loading..."}
+                  </Text>
+                </Text>
+              </View>
             </View>
           </View>
-        </View>
-      </LinearGradient>
+        </LinearGradient>
 
-      {/* Sticky Search Bar and Add Button Section */}
-      <View style={[styles.stickyNavBar, { paddingHorizontal: cardMargin }]}>
-        <View style={{ flex: 1, marginRight: 12 }}>
-          <Searchbar
-            placeholder="Search by name, phone, email, or CID..."
-            onChangeText={setSearchQuery}
-            value={searchQuery}
-            style={styles.searchBar}
-            inputStyle={styles.searchInput}
-            icon="magnify"
-            iconColor="#667eea"
-            placeholderTextColor="#999"
-          />
+        {/* Sticky Search Bar and Add Button Section */}
+        <View style={[styles.stickyNavBar, { paddingHorizontal: cardMargin }]}>
+          <View style={{ flex: 1, marginRight: 12 }}>
+            <Searchbar
+              placeholder="Search by name, phone, email, or CID..."
+              onChangeText={setSearchQuery}
+              value={searchQuery}
+              style={styles.searchBar}
+              inputStyle={styles.searchInput}
+              icon="magnify"
+              iconColor="#667eea"
+              placeholderTextColor="#999"
+            />
+          </View>
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={addNewCustomer}
+            activeOpacity={0.8}
+          >
+            <MaterialIcons name="add" size={24} color="#fff" />
+            {!isSmallScreen && (
+              <Text style={styles.addButtonText}>Add Customer</Text>
+            )}
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={addNewCustomer}
-          activeOpacity={0.8}
-        >
-          <MaterialIcons name="add" size={24} color="#fff" />
-          {!isSmallScreen && (
-            <Text style={styles.addButtonText}>Add Customer</Text>
-          )}
-        </TouchableOpacity>
-      </View>
 
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{ paddingBottom: 24 }}
-      >
-        {/* Customer Management Table */}
-        <View
-          style={{
-            marginHorizontal: cardMargin,
-            marginTop: 24,
-            marginBottom: 24,
-          }}
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ paddingBottom: 24 }}
         >
-          <Card style={styles.tableCard}>
-            <Card.Content style={{ padding: isSmallScreen ? 12 : 20 }}>
-              <View style={styles.tableHeader}>
-                <View style={styles.tableHeaderLeft}>
-                  {/* <MaterialIcons name="table-chart" size={24} color="#667eea" /> */}
-                  <Text style={styles.sectionTitle}>Clients</Text>
+          {/* Customer Management Table */}
+          <View
+            style={{
+              marginHorizontal: cardMargin,
+              marginTop: 24,
+              marginBottom: 24,
+            }}
+          >
+            <Card style={styles.tableCard}>
+              <Card.Content style={{ padding: isSmallScreen ? 12 : 20 }}>
+                <View style={styles.tableHeader}>
+                  <View style={styles.tableHeaderLeft}>
+                    {/* <MaterialIcons name="table-chart" size={24} color="#667eea" /> */}
+                    <Text style={styles.sectionTitle}>Clients</Text>
+                    <TouchableOpacity
+                      style={styles.addButton}
+                      onPress={addNewCustomer}
+                      activeOpacity={0.8}
+                    >
+                      <MaterialIcons name="add" size={24} color="#fff" />
+                      {!isSmallScreen && (
+                        <Text style={styles.addButtonText}>Add Customer</Text>
+                      )}
+                    </TouchableOpacity>
+                  </View>
                 </View>
-              </View>
 
-              <ResponsiveCustomerTable
-                searchQuery={searchQuery}
-                customers={customers}
-                loading={loading}
-                onCustomerDelete={(customerIds: string[]) => {
-                  console.log("Delete customers:", customerIds);
-                }}
-              />
-            </Card.Content>
-          </Card>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+                <ResponsiveCustomerTable
+                  searchQuery={searchQuery}
+                  customers={customers}
+                  loading={loading}
+                  onCustomerDelete={(customerIds: string[]) => {
+                    console.log("Delete customers:", customerIds);
+                  }}
+                />
+              </Card.Content>
+            </Card>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
     </Navigation>
   );
 }
