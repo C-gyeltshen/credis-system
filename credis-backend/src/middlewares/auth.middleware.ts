@@ -8,11 +8,14 @@ export const authMiddleware = async (c: Context, next: Next) => {
   let token: string | undefined;
 
   const authHeader = c.req.header("Authorization");
+  console.log("auth header", authHeader)
   if (authHeader?.startsWith("Bearer ")) {
     token = authHeader.slice(7);
+    console.log("auth tokeen from header", token)
   } else {
     // Try to get token from cookies
     const cookieHeader = c.req.header("Cookie");
+    console.log("auth token from cookies", cookieHeader)
     if (cookieHeader) {
       const cookies = Object.fromEntries(
         cookieHeader.split(";").map((cookie) => {
