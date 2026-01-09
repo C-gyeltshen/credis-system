@@ -170,7 +170,7 @@ export default function CustomersScreen() {
         <View style={[styles.stickyNavBar, { paddingHorizontal: cardMargin }]}>
           <View style={{ flex: 1, marginRight: 12 }}>
             <Searchbar
-              placeholder="Search by name, phone, email, or CID..."
+              placeholder="Search Client"
               onChangeText={setSearchQuery}
               value={searchQuery}
               style={styles.searchBar}
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
   stickyNavBar: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 12,
+    paddingEnd: 12,
     backgroundColor: "#f5f7fa",
     zIndex: 10,
     ...Platform.select({
