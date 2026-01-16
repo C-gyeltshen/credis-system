@@ -431,7 +431,7 @@ const LoginScreen: React.FC = () => {
               {/* Info Box */}
               <div style={styles.infoBox}>
                 <span>ℹ️</span>
-                <span>Don't have an account? Click "New to Credis?" above</span>
+                <span>Not registeered ? Click "New to Credis?" above</span>
               </div>
 
               {/* Form */}
