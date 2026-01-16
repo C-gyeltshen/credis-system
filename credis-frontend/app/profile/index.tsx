@@ -18,7 +18,6 @@ import { router } from "expo-router";
 interface StoreOwnerResponse {
   id: string;
   name: string;
-  email: string;
   accountNumber?: string;
   phone_number: string;
   storeId?: string | null;
@@ -98,12 +97,10 @@ export default function ProfilePage() {
       }
       const ownerData: FirstResponse = await ownerResponse.json();
       console.log(ownerData)
-      const phoneNUmber = ownerData.user.phone_number;
       ownerData.createdAt = new Date(ownerData.createdAt);
 
       setStoreOwner(ownerData);
       setEditedOwnerName(ownerData.user.name);
-      setEditedOwnerEmail(ownerData.user.email);
       setEditedAccountNumber(ownerData.user.accountNumber || "");
       // console.log("phoneNumber", ownerData.user.phoneNumber)
 
@@ -210,7 +207,6 @@ export default function ProfilePage() {
     // Reset edited values to original
     if (storeOwner) {
       setEditedOwnerName(storeOwner.user.name);
-      setEditedOwnerEmail(storeOwner.user.email);
       setEditedAccountNumber(storeOwner.user.accountNumber || "");
     }
     if (store) {
@@ -321,12 +317,6 @@ export default function ProfilePage() {
                 </View>
               ) : (
                 <View style={styles.contactInfo}>
-                  <View style={styles.contactItem}>
-                    <MaterialIcons name="email" size={16} color="#666" />
-                    <Text style={styles.contactText}>
-                      {storeOwner.user.email}
-                    </Text>
-                  </View>
                   {storeOwner.user.accountNumber && (
                     <View style={styles.contactItem}>
                       <MaterialIcons
