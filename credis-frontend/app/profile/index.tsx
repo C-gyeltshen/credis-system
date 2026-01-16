@@ -47,8 +47,7 @@ interface FirstStoreResponse {
   updatedAt: Date;
 }
 
-const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_URL;
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export default function ProfilePage() {
   const { width } = useWindowDimensions();
@@ -107,9 +106,7 @@ export default function ProfilePage() {
 
       // Fetch store data only if storeId exists
       if (storeId) {
-        const storeResponse = await fetch(
-          `${API_BASE_URL}/stores/${storeId}`
-        );
+        const storeResponse = await fetch(`${API_BASE_URL}/stores/${storeId}`);
         if (!storeResponse.ok) {
           throw new Error("Failed to fetch store data");
         }
@@ -266,19 +263,22 @@ export default function ProfilePage() {
         ]}
       >
         {/* Profile Header Section */}
-        <View style={[styles.profileHeader, isPhone && styles.profileHeaderPhone]}>
+        <View
+          style={[styles.profileHeader, isPhone && styles.profileHeaderPhone]}
+        >
           <View style={styles.profileHeaderContent}>
             <View style={styles.profileImageContainer}>
               <View style={styles.profileImage}>
-                <MaterialIcons name="account-circle" size={100} color="#1976d2" />
+                <MaterialIcons
+                  name="account-circle"
+                  size={100}
+                  color="#1976d2"
+                />
               </View>
             </View>
 
             <View
-              style={[
-                styles.profileInfo,
-                isPhone && styles.profileInfoPhone,
-              ]}
+              style={[styles.profileInfo, isPhone && styles.profileInfoPhone]}
             >
               <Text
                 style={[
@@ -322,16 +322,28 @@ export default function ProfilePage() {
                 <View style={styles.contactInfo}>
                   <View style={styles.contactItem}>
                     <MaterialIcons name="email" size={16} color="#666" />
-                    <Text style={styles.contactText}>{storeOwner.user.email}</Text>
+                    <Text style={styles.contactText}>
+                      {storeOwner.user.email}
+                    </Text>
                   </View>
                   {storeOwner.user.accountNumber && (
                     <View style={styles.contactItem}>
-                      <MaterialIcons name="account-balance" size={16} color="#666" />
-                      <Text style={styles.contactText}>{storeOwner.user.accountNumber}</Text>
+                      <MaterialIcons
+                        name="account-balance"
+                        size={16}
+                        color="#666"
+                      />
+                      <Text style={styles.contactText}>
+                        {storeOwner.user.accountNumber}
+                      </Text>
                     </View>
                   )}
                   <View style={styles.contactItem}>
-                    <MaterialIcons name="check-circle" size={16} color="#4caf50" />
+                    <MaterialIcons
+                      name="check-circle"
+                      size={16}
+                      color="#4caf50"
+                    />
                     <Text style={styles.contactText}>
                       {storeOwner.user.isActive ? "Active" : "Inactive"}
                     </Text>
@@ -383,7 +395,9 @@ export default function ProfilePage() {
           >
             <View style={styles.sectionHeader}>
               <MaterialIcons name="store" size={24} color="#1976d2" />
-              <Text style={[styles.sectionTitle, isSmallPhone && styles.textSmall]}>
+              <Text
+                style={[styles.sectionTitle, isSmallPhone && styles.textSmall]}
+              >
                 Store Information
               </Text>
             </View>
@@ -421,52 +435,53 @@ export default function ProfilePage() {
                     placeholderTextColor="#999"
                   />
                 ) : (
-                  <Text style={styles.detailValue}>{store.data.phone_number}</Text>
+                  <Text style={styles.detailValue}>
+                    {store.data.phone_number}
+                  </Text>
                 )}
+              </View>
+              <View style={styles.sectionHeader}>
+                <MaterialIcons name="info" size={24} color="#1976d2" />
+                <Text
+                  style={[
+                    styles.sectionTitle,
+                    isSmallPhone && styles.textSmall,
+                  ]}
+                >
+                  Account Information
+                </Text>
+              </View>
+
+              <View style={styles.detailsGrid}>
+                <View style={styles.detailCard}>
+                  <Text style={styles.detailLabel}>Account Status</Text>
+                  <Text
+                    style={[
+                      styles.detailValue,
+                      {
+                        color: storeOwner.user.isActive ? "#4caf50" : "#d32f2f",
+                      },
+                    ]}
+                  >
+                    {storeOwner.user.isActive ? "Active" : "Inactive"}
+                  </Text>
+                </View>
+
+                <View style={styles.detailCard}>
+                  <Text style={styles.detailLabel}>Member Since</Text>
+                  <Text style={styles.detailValue}>
+                    {new Date(storeOwner.createdAt).toLocaleDateString()}
+                  </Text>
+                </View>
               </View>
             </View>
           </View>
         )}
 
-        {/* Account Info Section */}
-        <View
-          style={[
-            styles.section,
-            isDesktop && styles.sectionDesktop,
-            isPhone && styles.sectionPhone,
-          ]}
-        >
-          <View style={styles.sectionHeader}>
-            <MaterialIcons name="info" size={24} color="#1976d2" />
-            <Text style={[styles.sectionTitle, isSmallPhone && styles.textSmall]}>
-              Account Information
-            </Text>
-          </View>
-
-          <View style={styles.detailsGrid}>
-            <View style={styles.detailCard}>
-              <Text style={styles.detailLabel}>Account Status</Text>
-              <Text
-                style={[
-                  styles.detailValue,
-                  { color: storeOwner.user.isActive ? "#4caf50" : "#d32f2f" },
-                ]}
-              >
-                {storeOwner.user.isActive ? "Active" : "Inactive"}
-              </Text>
-            </View>
-
-            <View style={styles.detailCard}>
-              <Text style={styles.detailLabel}>Member Since</Text>
-              <Text style={styles.detailValue}>
-                {new Date(storeOwner.createdAt).toLocaleDateString()}
-              </Text>
-            </View>
-          </View>
-        </View>
-
         {/* Action Buttons */}
-        <View style={[styles.actionButtons, isPhone && styles.actionButtonsPhone]}>
+        <View
+          style={[styles.actionButtons, isPhone && styles.actionButtonsPhone]}
+        >
           <TouchableOpacity style={styles.secondaryButton}>
             <MaterialIcons name="password" size={20} color="#1976d2" />
             <Text style={styles.secondaryButtonText}>Change Password</Text>
