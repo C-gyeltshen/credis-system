@@ -424,39 +424,6 @@ export default function ProfilePage() {
                   <Text style={styles.detailValue}>{store.data.phone_number}</Text>
                 )}
               </View>
-
-              {/* Address */}
-              <View style={[styles.detailCard, styles.fullWidth]}>
-                <Text style={styles.detailLabel}>Address</Text>
-                {isEditing ? (
-                  <TextInput
-                    style={[styles.input, styles.textArea]}
-                    value={editedStoreAddress}
-                    onChangeText={setEditedStoreAddress}
-                    multiline
-                    numberOfLines={3}
-                    placeholderTextColor="#999"
-                  />
-                ) : (
-                  <Text style={styles.detailValue}>{store.data.address}</Text>
-                )}
-              </View>
-
-              {/* Created Date */}
-              <View style={styles.detailCard}>
-                <Text style={styles.detailLabel}>Created</Text>
-                <Text style={styles.detailValue}>
-                  {new Date(store.createdAt).toLocaleDateString()}
-                </Text>
-              </View>
-
-              {/* Last Updated */}
-              <View style={styles.detailCard}>
-                <Text style={styles.detailLabel}>Last Updated</Text>
-                <Text style={styles.detailValue}>
-                  {new Date(store.updatedAt).toLocaleDateString()}
-                </Text>
-              </View>
             </View>
           </View>
         )}
