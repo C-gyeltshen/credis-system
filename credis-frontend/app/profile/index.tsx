@@ -55,7 +55,6 @@ export default function ProfilePage() {
   const [storeOwner, setStoreOwner] = useState<FirstResponse | null>(null);
   const [store, setStore] = useState<FirstStoreResponse | null>(null);
   const [editedOwnerName, setEditedOwnerName] = useState("");
-  const [editedOwnerEmail, setEditedOwnerEmail] = useState("");
   const [editedAccountNumber, setEditedAccountNumber] = useState("");
   const [editedStoreName, setEditedStoreName] = useState("");
   const [editedStorePhone, setEditedStorePhone] = useState("");
@@ -140,7 +139,6 @@ export default function ProfilePage() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               name: editedOwnerName,
-              email: editedOwnerEmail,
               accountNumber: editedAccountNumber,
             }),
           }
@@ -155,7 +153,6 @@ export default function ProfilePage() {
           user: {
             ...storeOwner.user,
             name: editedOwnerName,
-            email: editedOwnerEmail,
             accountNumber: editedAccountNumber,
           },
         };
@@ -297,14 +294,6 @@ export default function ProfilePage() {
                     placeholder="Name"
                     value={editedOwnerName}
                     onChangeText={setEditedOwnerName}
-                    placeholderTextColor="#999"
-                  />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Email"
-                    value={editedOwnerEmail}
-                    onChangeText={setEditedOwnerEmail}
-                    keyboardType="email-address"
                     placeholderTextColor="#999"
                   />
                   <TextInput
