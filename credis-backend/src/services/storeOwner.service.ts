@@ -174,6 +174,7 @@ export class StoreOwnerService {
     return {
       id: owner.id,
       name: owner.name,
+      phone_number:owner.phoneNumber,
       storeId: owner.storeId,
       isActive: owner.isActive,
       createdAt: owner.createdAt,

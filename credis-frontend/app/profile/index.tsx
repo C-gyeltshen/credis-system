@@ -20,6 +20,7 @@ interface StoreOwnerResponse {
   name: string;
   email: string;
   accountNumber?: string;
+  phone_number: string;
   storeId?: string | null;
   isActive: boolean;
   createdAt: Date;
@@ -104,6 +105,7 @@ export default function ProfilePage() {
       setEditedOwnerName(ownerData.user.name);
       setEditedOwnerEmail(ownerData.user.email);
       setEditedAccountNumber(ownerData.user.accountNumber || "");
+      // console.log("phoneNumber", ownerData.user.phoneNumber)
 
       // Fetch store data only if storeId exists
       if (storeId) {
