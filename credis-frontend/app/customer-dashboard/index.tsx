@@ -108,7 +108,7 @@ export default function HighestBalanceReport() {
   };
 
   const handleAddCustomer = () => {
-    router.push("/add-customer");
+    router.push("/customer-dashboard/components/modal");
   };
 
   const formatCurrency = (amount: number) => {

@@ -24,7 +24,7 @@ function buildCookieAttributes(c: Context, maxAgeSeconds: number) {
   return `HttpOnly; ${secure}SameSite=${sameSite}; Path=/; Max-Age=${maxAgeSeconds}`;
 }
 
-export class StoreOwnerController {
+export class StoreOwnerController {                                                                               
   async register(c: Context) {
     try {
       const data = c.get("validatedData") as CreateStoreOwnerSchema;
