@@ -58,6 +58,7 @@ export default function ProfilePage() {
   const [store, setStore] = useState<FirstStoreResponse | null>(null);
   const [editedOwnerName, setEditedOwnerName] = useState("");
   const [editedOwnerEmail, setEditedOwnerEmail] = useState("");
+  const [editedOwnerPhone, setEditedOwnerPhone] = useState("");
   const [editedAccountNumber, setEditedAccountNumber] = useState("");
   const [editedStoreName, setEditedStoreName] = useState("");
   const [editedStorePhone, setEditedStorePhone] = useState("");
@@ -98,14 +99,13 @@ export default function ProfilePage() {
         throw new Error("Failed to fetch store owner data");
       }
       const ownerData: FirstResponse = await ownerResponse.json();
-      console.log(ownerData)
       ownerData.createdAt = new Date(ownerData.createdAt);
 
       setStoreOwner(ownerData);
       setEditedOwnerName(ownerData.user.name);
       setEditedOwnerEmail(ownerData.user.email);
+      setEditedOwnerPhone(ownerData.user.phone_number || "");
       setEditedAccountNumber(ownerData.user.accountNumber || "");
-      // console.log("phoneNumber", ownerData.user.phoneNumber)
 
       // Fetch store data only if storeId exists
       if (storeId) {
@@ -145,6 +145,7 @@ export default function ProfilePage() {
             body: JSON.stringify({
               name: editedOwnerName,
               email: editedOwnerEmail,
+              phone_number: editedOwnerPhone,
               accountNumber: editedAccountNumber,
             }),
           }
@@ -160,6 +161,7 @@ export default function ProfilePage() {
             ...storeOwner.user,
             name: editedOwnerName,
             email: editedOwnerEmail,
+            phone_number: editedOwnerPhone,
             accountNumber: editedAccountNumber,
           },
         };
@@ -212,6 +214,7 @@ export default function ProfilePage() {
     if (storeOwner) {
       setEditedOwnerName(storeOwner.user.name);
       setEditedOwnerEmail(storeOwner.user.email);
+      setEditedOwnerPhone(storeOwner.user.phone_number || "");
       setEditedAccountNumber(storeOwner.user.accountNumber || "");
     }
     if (store) {
@@ -315,6 +318,14 @@ export default function ProfilePage() {
                   />
                   <TextInput
                     style={styles.input}
+                    placeholder="Phone Number"
+                    value={editedOwnerPhone}
+                    onChangeText={setEditedOwnerPhone}
+                    keyboardType="phone-pad"
+                    placeholderTextColor="#999"
+                  />
+                  <TextInput
+                    style={styles.input}
                     placeholder="Account Number"
                     value={editedAccountNumber}
                     onChangeText={setEditedAccountNumber}
@@ -327,6 +338,12 @@ export default function ProfilePage() {
                     <MaterialIcons name="email" size={16} color="#666" />
                     <Text style={styles.contactText}>
                       {storeOwner.user.email}
+                    </Text>
+                  </View>
+                  <View style={styles.contactItem}>
+                    <MaterialIcons name="phone" size={16} color="#666" />
+                    <Text style={styles.contactText}>
+                      {storeOwner.user.phone_number}
                     </Text>
                   </View>
                   {storeOwner.user.accountNumber && (
@@ -443,39 +460,57 @@ export default function ProfilePage() {
                   </Text>
                 )}
               </View>
-              <View style={styles.sectionHeader}>
-                <MaterialIcons name="info" size={24} color="#1976d2" />
+
+              {/* Store Address */}
+              <View style={[styles.detailCard, styles.fullWidth]}>
+                <Text style={styles.detailLabel}>Address</Text>
+                {isEditing ? (
+                  <TextInput
+                    style={styles.input}
+                    value={editedStoreAddress}
+                    onChangeText={setEditedStoreAddress}
+                    placeholderTextColor="#999"
+                  />
+                ) : (
+                  <Text style={styles.detailValue}>{store.data.address}</Text>
+                )}
+              </View>
+            </View>
+
+            <View style={styles.sectionHeader}>
+              <MaterialIcons name="info" size={24} color="#1976d2" />
+              <Text
+                style={[styles.sectionTitle, isSmallPhone && styles.textSmall]}
+              >
+                Account Information
+              </Text>
+            </View>
+
+            <View
+              style={[
+                styles.detailsGrid,
+                isDesktop && styles.detailsGridDesktop,
+              ]}
+            >
+              <View style={styles.detailCard}>
+                <Text style={styles.detailLabel}>Account Status</Text>
                 <Text
                   style={[
-                    styles.sectionTitle,
-                    isSmallPhone && styles.textSmall,
+                    styles.detailValue,
+                    {
+                      color: storeOwner.user.isActive ? "#4caf50" : "#d32f2f",
+                    },
                   ]}
                 >
-                  Account Information
+                  {storeOwner.user.isActive ? "Active" : "Inactive"}
                 </Text>
               </View>
 
-              <View style={styles.detailsGrid}>
-                <View style={styles.detailCard}>
-                  <Text style={styles.detailLabel}>Account Status</Text>
-                  <Text
-                    style={[
-                      styles.detailValue,
-                      {
-                        color: storeOwner.user.isActive ? "#4caf50" : "#d32f2f",
-                      },
-                    ]}
-                  >
-                    {storeOwner.user.isActive ? "Active" : "Inactive"}
-                  </Text>
-                </View>
-
-                <View style={styles.detailCard}>
-                  <Text style={styles.detailLabel}>Member Since</Text>
-                  <Text style={styles.detailValue}>
-                    {new Date(storeOwner.createdAt).toLocaleDateString()}
-                  </Text>
-                </View>
+              <View style={styles.detailCard}>
+                <Text style={styles.detailLabel}>Member Since</Text>
+                <Text style={styles.detailValue}>
+                  {new Date(storeOwner.createdAt).toLocaleDateString()}
+                </Text>
               </View>
             </View>
           </View>
