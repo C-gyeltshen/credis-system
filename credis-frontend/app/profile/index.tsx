@@ -97,6 +97,7 @@ export default function ProfilePage() {
         throw new Error("Failed to fetch store owner data");
       }
       const ownerData: FirstResponse = await ownerResponse.json();
+      console.log(ownerData)
       ownerData.createdAt = new Date(ownerData.createdAt);
 
       setStoreOwner(ownerData);
