@@ -174,8 +174,10 @@ const LoginScreen: React.FC = () => {
     },
     footerLink: {
       textAlign: "center",
-      fontSize: "14px",
+      fontSize: "16px",
       color: "#4b5563",
+      fontWeight: "bold"
+
     },
     signUpLink: {
       color: "#2563eb",
@@ -500,7 +502,7 @@ const LoginScreen: React.FC = () => {
                 globalThis.location.href = "/register";
               }}
             >
-              Register
+              REGISTER
             </button>
           </div>
         </div>
