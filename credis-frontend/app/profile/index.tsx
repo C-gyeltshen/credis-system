@@ -61,6 +61,8 @@ export default function ProfilePage() {
   const [editedStoreAddress, setEditedStoreAddress] = useState("");
   const [error, setError] = useState<string | null>(null);
   const { isAuthenticated, isLoading, user } = useAuth();
+    const [sidebarOpen, setSidebarOpen] = useState(true);
+  
 
   const ownerId = user?.id;
   const storeId = user?.storeId;
@@ -460,6 +462,15 @@ export default function ProfilePage() {
             <MaterialIcons name="delete-outline" size={20} color="#d32f2f" />
             <Text style={styles.dangerButtonText}>Delete Account</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+          style={styles.logoutButton}
+          onPress={() => Alert.alert("Logout", "Are you sure?")}
+        >
+          <MaterialIcons name="logout" size={24} color="#d32f2f" />
+          {sidebarOpen && (
+            <Text style={styles.logoutText}>Logout</Text>
+          )}
+        </TouchableOpacity>
         </View>
       </ScrollView>
     </Navigation>
@@ -558,6 +569,12 @@ const styles = StyleSheet.create({
     color: "#1a1a1a",
     marginBottom: 4,
   },
+  logoutText: {
+    fontSize: 13,
+    color: "#d32f2f",
+    marginLeft: 12,
+    fontWeight: "600",
+  },
   ownerRole: {
     fontSize: 14,
     color: "#666",
@@ -587,6 +604,14 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#1a1a1a",
     backgroundColor: "#fafafa",
+  },
+  logoutButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 6,
+    backgroundColor: "#ffe0e0",
   },
   textArea: {
     textAlignVertical: "top",
