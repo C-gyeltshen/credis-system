@@ -37,7 +37,6 @@ interface StoreResponse {
   phone_number: string;
   createdAt: Date;
   updatedAt: Date;
-  address?: string;
 }
 
 interface FirstStoreResponse {
@@ -59,7 +58,6 @@ export default function ProfilePage() {
   const [editedAccountNumber, setEditedAccountNumber] = useState("");
   const [editedStoreName, setEditedStoreName] = useState("");
   const [editedStorePhone, setEditedStorePhone] = useState("");
-  const [editedStoreAddress, setEditedStoreAddress] = useState("");
   const [error, setError] = useState<string | null>(null);
   const { isAuthenticated, isLoading, user } = useAuth();
 
@@ -114,7 +112,6 @@ export default function ProfilePage() {
         setStore(storeData);
         setEditedStoreName(storeData.data.name);
         setEditedStorePhone(storeData.data.phone_number);
-        setEditedStoreAddress(storeData.data.address || "");
       }
 
       setLoading(false);
@@ -164,7 +161,6 @@ export default function ProfilePage() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               name: editedStoreName,
-              address: editedStoreAddress,
               phone_number: editedStorePhone,
             }),
           }
@@ -178,7 +174,6 @@ export default function ProfilePage() {
           data: {
             ...store.data,
             name: editedStoreName,
-            address: editedStoreAddress,
             phone_number: editedStorePhone,
           },
         };
@@ -203,7 +198,6 @@ export default function ProfilePage() {
     if (store) {
       setEditedStoreName(store.data.name);
       setEditedStorePhone(store.data.phone_number);
-      setEditedStoreAddress(store.data.address || "");
     }
     setIsEditing(false);
   };
@@ -449,24 +443,6 @@ export default function ProfilePage() {
                 ) : (
                   <Text style={styles.detailValue}>
                     {store.data.phone_number}
-                  </Text>
-                )}
-              </View>
-
-              {/* Store Address */}
-              <View style={[styles.detailCard, styles.fullWidth]}>
-                <Text style={styles.detailLabel}>Store Address</Text>
-                {isEditing ? (
-                  <TextInput
-                    style={[styles.input, styles.textArea]}
-                    value={editedStoreAddress}
-                    onChangeText={setEditedStoreAddress}
-                    placeholderTextColor="#999"
-                    multiline
-                  />
-                ) : (
-                  <Text style={styles.detailValue}>
-                    {store.data.address || "Not provided"}
                   </Text>
                 )}
               </View>
