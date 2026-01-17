@@ -59,6 +59,7 @@ export default function ProfilePage() {
   const [editedStoreName, setEditedStoreName] = useState("");
   const [editedStorePhone, setEditedStorePhone] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [loggingOut, setLoggingOut] = useState(false);
   const { isAuthenticated, isLoading, user } = useAuth();
 
   const ownerId = user?.id;
@@ -202,6 +203,47 @@ export default function ProfilePage() {
     setIsEditing(false);
   };
 
+  const handleLogout = async () => {
+    Alert.alert("Logout", "Are you sure you want to logout?", [
+      {
+        text: "Cancel",
+        onPress: () => {},
+        style: "cancel",
+      },
+      {
+        text: "Logout",
+        onPress: async () => {
+          try {
+            setLoggingOut(true);
+            const logoutResponse = await fetch(
+              `${API_BASE_URL}/store-owners/logout`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  id: ownerId,
+                }),
+              }
+            );
+
+            if (!logoutResponse.ok) {
+              throw new Error("Failed to logout");
+            }
+
+            router.replace("/login");
+          } catch (err) {
+            const errorMessage =
+              err instanceof Error ? err.message : "An error occurred";
+            Alert.alert("Error", errorMessage);
+            console.error("Error during logout:", err);
+            setLoggingOut(false);
+          }
+        },
+        style: "destructive",
+      },
+    ]);
+  };
+
   if (loading) {
     return (
       <Navigation>
@@ -324,6 +366,16 @@ export default function ProfilePage() {
                         </Text>
                       </View>
                     )}
+                    <View style={styles.contactItem}>
+                      <MaterialIcons
+                        name="phone"
+                        size={16}
+                        color="#666"
+                      />
+                      <Text style={styles.contactText}>
+                        {storeOwner.user.phone_number}
+                      </Text>
+                    </View>
                     <View style={styles.contactItem}>
                       <MaterialIcons
                         name="check-circle"
@@ -529,10 +581,13 @@ export default function ProfilePage() {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.logoutButton}
-            onPress={() => Alert.alert("Logout", "Are you sure?")}
+            onPress={handleLogout}
+            disabled={loggingOut}
           >
             <MaterialIcons name="logout" size={20} color="#d32f2f" />
-            <Text style={styles.logoutText}>Logout</Text>
+            <Text style={styles.logoutText}>
+              {loggingOut ? "Logging out..." : "Logout"}
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
