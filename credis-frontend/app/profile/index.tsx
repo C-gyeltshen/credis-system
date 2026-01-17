@@ -61,8 +61,7 @@ export default function ProfilePage() {
   const [editedStoreAddress, setEditedStoreAddress] = useState("");
   const [error, setError] = useState<string | null>(null);
   const { isAuthenticated, isLoading, user } = useAuth();
-    const [sidebarOpen, setSidebarOpen] = useState(true);
-  
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const ownerId = user?.id;
   const storeId = user?.storeId;
@@ -91,13 +90,13 @@ export default function ProfilePage() {
 
       // Fetch store owner data
       const ownerResponse = await fetch(
-        `${API_BASE_URL}/store-owners/${ownerId}`
+        `${API_BASE_URL}/store-owners/${ownerId}`,
       );
       if (!ownerResponse.ok) {
         throw new Error("Failed to fetch store owner data");
       }
       const ownerData: FirstResponse = await ownerResponse.json();
-      console.log(ownerData)
+      console.log(ownerData);
       ownerData.createdAt = new Date(ownerData.createdAt);
 
       setStoreOwner(ownerData);
@@ -143,7 +142,7 @@ export default function ProfilePage() {
               name: editedOwnerName,
               accountNumber: editedAccountNumber,
             }),
-          }
+          },
         );
         if (!ownerUpdateResponse.ok) {
           throw new Error("Failed to update store owner");
@@ -173,7 +172,7 @@ export default function ProfilePage() {
               address: editedStoreAddress,
               phone_number: editedStorePhone,
             }),
-          }
+          },
         );
         if (!storeUpdateResponse.ok) {
           throw new Error("Failed to update store");
@@ -463,14 +462,12 @@ export default function ProfilePage() {
             <Text style={styles.dangerButtonText}>Delete Account</Text>
           </TouchableOpacity>
           <TouchableOpacity
-          style={styles.logoutButton}
-          onPress={() => Alert.alert("Logout", "Are you sure?")}
-        >
-          <MaterialIcons name="logout" size={24} color="#d32f2f" />
-          {sidebarOpen && (
-            <Text style={styles.logoutText}>Logout</Text>
-          )}
-        </TouchableOpacity>
+            style={styles.logoutButton}
+            onPress={() => Alert.alert("Logout", "Are you sure?")}
+          >
+            <MaterialIcons name="logout" size={24} color="#d32f2f" />
+            {sidebarOpen && <Text style={styles.logoutText}>Logout</Text>}
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </Navigation>
@@ -608,6 +605,7 @@ const styles = StyleSheet.create({
   logoutButton: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: 6,
