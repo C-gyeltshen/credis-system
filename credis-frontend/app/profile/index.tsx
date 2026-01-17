@@ -58,14 +58,15 @@ export default function ProfilePage() {
   const [editedAccountNumber, setEditedAccountNumber] = useState("");
   const [editedStoreName, setEditedStoreName] = useState("");
   const [editedStorePhone, setEditedStorePhone] = useState("");
+  const [editedStoreAddress, setEditedStoreAddress] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [loggingOut, setLoggingOut] = useState(false);
   const { isAuthenticated, isLoading, user } = useAuth();
+    const [sidebarOpen, setSidebarOpen] = useState(true);
+  
 
   const ownerId = user?.id;
   const storeId = user?.storeId;
 
-  // Responsive breakpoints
   const isSmallPhone = width < 360;
   const isPhone = width < 768;
   const isTablet = width >= 768 && width < 1024;
@@ -88,6 +89,7 @@ export default function ProfilePage() {
       setLoading(true);
       setError(null);
 
+      // Fetch store owner data
       const ownerResponse = await fetch(
         `${API_BASE_URL}/store-owners/${ownerId}`
       );
@@ -95,12 +97,15 @@ export default function ProfilePage() {
         throw new Error("Failed to fetch store owner data");
       }
       const ownerData: FirstResponse = await ownerResponse.json();
+      console.log(ownerData)
       ownerData.createdAt = new Date(ownerData.createdAt);
 
       setStoreOwner(ownerData);
       setEditedOwnerName(ownerData.user.name);
       setEditedAccountNumber(ownerData.user.accountNumber || "");
+      // console.log("phoneNumber", ownerData.user.phoneNumber)
 
+      // Fetch store data only if storeId exists
       if (storeId) {
         const storeResponse = await fetch(`${API_BASE_URL}/stores/${storeId}`);
         if (!storeResponse.ok) {
@@ -127,6 +132,7 @@ export default function ProfilePage() {
 
   const handleSaveChanges = async () => {
     try {
+      // Update store owner
       if (storeOwner) {
         const ownerUpdateResponse = await fetch(
           `${API_BASE_URL}/store-owners/${ownerId}`,
@@ -143,6 +149,7 @@ export default function ProfilePage() {
           throw new Error("Failed to update store owner");
         }
 
+        // Update local state with new owner data
         const updatedOwner = {
           ...storeOwner,
           user: {
@@ -154,6 +161,7 @@ export default function ProfilePage() {
         setStoreOwner(updatedOwner);
       }
 
+      // Update store if it exists
       if (store && storeId) {
         const storeUpdateResponse = await fetch(
           `${API_BASE_URL}/stores/${storeId}`,
@@ -162,6 +170,7 @@ export default function ProfilePage() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               name: editedStoreName,
+              address: editedStoreAddress,
               phone_number: editedStorePhone,
             }),
           }
@@ -170,11 +179,13 @@ export default function ProfilePage() {
           throw new Error("Failed to update store");
         }
 
+        // Update local state with new store data
         const updatedStore = {
           ...store,
           data: {
             ...store.data,
             name: editedStoreName,
+            address: editedStoreAddress,
             phone_number: editedStorePhone,
           },
         };
@@ -192,6 +203,7 @@ export default function ProfilePage() {
   };
 
   const handleCancel = () => {
+    // Reset edited values to original
     if (storeOwner) {
       setEditedOwnerName(storeOwner.user.name);
       setEditedAccountNumber(storeOwner.user.accountNumber || "");
@@ -201,47 +213,6 @@ export default function ProfilePage() {
       setEditedStorePhone(store.data.phone_number);
     }
     setIsEditing(false);
-  };
-
-  const handleLogout = async () => {
-    Alert.alert("Logout", "Are you sure you want to logout?", [
-      {
-        text: "Cancel",
-        onPress: () => {},
-        style: "cancel",
-      },
-      {
-        text: "Logout",
-        onPress: async () => {
-          try {
-            setLoggingOut(true);
-            const logoutResponse = await fetch(
-              `${API_BASE_URL}/store-owners/logout`,
-              {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  id: ownerId,
-                }),
-              }
-            );
-
-            if (!logoutResponse.ok) {
-              throw new Error("Failed to logout");
-            }
-
-            router.replace("/login");
-          } catch (err) {
-            const errorMessage =
-              err instanceof Error ? err.message : "An error occurred";
-            Alert.alert("Error", errorMessage);
-            console.error("Error during logout:", err);
-            setLoggingOut(false);
-          }
-        },
-        style: "destructive",
-      },
-    ]);
   };
 
   if (loading) {
@@ -284,39 +255,40 @@ export default function ProfilePage() {
         style={styles.container}
         contentContainerStyle={[
           styles.contentContainer,
-          isTablet && styles.contentContainerTablet,
           isDesktop && styles.contentContainerDesktop,
         ]}
       >
         {/* Profile Header Section */}
-        <View style={[styles.profileHeader, isPhone && styles.profileHeaderPhone]}>
-          <View
-            style={[
-              styles.profileHeaderContent,
-              isPhone && styles.profileHeaderContentPhone,
-            ]}
-          >
+        <View
+          style={[styles.profileHeader, isPhone && styles.profileHeaderPhone]}
+        >
+          <View style={styles.profileHeaderContent}>
             <View style={styles.profileImageContainer}>
-              <View
-                style={[
-                  styles.profileImage,
-                  isSmallPhone && styles.profileImageSmall,
-                ]}
-              >
+              <View style={styles.profileImage}>
                 <MaterialIcons
                   name="account-circle"
-                  size={isSmallPhone ? 60 : 100}
+                  size={100}
                   color="#1976d2"
                 />
               </View>
             </View>
 
             <View
-              style={[
-                styles.profileInfo,
-                isPhone && styles.profileInfoPhone,
-              ]}
+              style={[styles.profileInfo, isPhone && styles.profileInfoPhone]}
             >
+              <Text
+                style={[
+                  styles.ownerName,
+                  isSmallPhone && styles.textSmall,
+                  isTablet && styles.textLarge,
+                ]}
+              >
+                {isEditing ? editedOwnerName : storeOwner.user.name}
+              </Text>
+              <Text style={[styles.ownerRole, isSmallPhone && styles.textTiny]}>
+                Store Owner
+              </Text>
+
               {isEditing ? (
                 <View style={styles.editForm}>
                   <TextInput
@@ -335,70 +307,36 @@ export default function ProfilePage() {
                   />
                 </View>
               ) : (
-                <>
-                  <Text
-                    style={[
-                      styles.ownerName,
-                      isSmallPhone && styles.textSmall,
-                      isTablet && styles.textLarge,
-                    ]}
-                  >
-                    {storeOwner.user.name}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.ownerRole,
-                      isSmallPhone && styles.textTiny,
-                    ]}
-                  >
-                    Store Owner
-                  </Text>
-                  <View style={styles.contactInfo}>
-                    {storeOwner.user.accountNumber && (
-                      <View style={styles.contactItem}>
-                        <MaterialIcons
-                          name="account-balance"
-                          size={16}
-                          color="#666"
-                        />
-                        <Text style={styles.contactText}>
-                          {storeOwner.user.accountNumber}
-                        </Text>
-                      </View>
-                    )}
+                <View style={styles.contactInfo}>
+                  {storeOwner.user.accountNumber && (
                     <View style={styles.contactItem}>
                       <MaterialIcons
-                        name="phone"
+                        name="account-balance"
                         size={16}
                         color="#666"
                       />
                       <Text style={styles.contactText}>
-                        {storeOwner.user.phone_number}
+                        {storeOwner.user.accountNumber}
                       </Text>
                     </View>
-                    <View style={styles.contactItem}>
-                      <MaterialIcons
-                        name="check-circle"
-                        size={16}
-                        color={storeOwner.user.isActive ? "#4caf50" : "#d32f2f"}
-                      />
-                      <Text style={styles.contactText}>
-                        {storeOwner.user.isActive ? "Active" : "Inactive"}
-                      </Text>
-                    </View>
+                  )}
+                  <View style={styles.contactItem}>
+                    <MaterialIcons
+                      name="check-circle"
+                      size={16}
+                      color="#4caf50"
+                    />
+                    <Text style={styles.contactText}>
+                      {storeOwner.user.isActive ? "Active" : "Inactive"}
+                    </Text>
                   </View>
-                </>
+                </View>
               )}
             </View>
           </View>
 
           {/* Edit/Save/Cancel Buttons */}
-          <View
-            style={[
-              styles.buttonGroup,
-              isPhone && styles.buttonGroupPhone,
-            ]}
-          >
+          <View style={styles.buttonGroup}>
             {isEditing ? (
               <>
                 <TouchableOpacity
@@ -433,7 +371,6 @@ export default function ProfilePage() {
           <View
             style={[
               styles.section,
-              isTablet && styles.sectionTablet,
               isDesktop && styles.sectionDesktop,
               isPhone && styles.sectionPhone,
             ]}
@@ -441,10 +378,7 @@ export default function ProfilePage() {
             <View style={styles.sectionHeader}>
               <MaterialIcons name="store" size={24} color="#1976d2" />
               <Text
-                style={[
-                  styles.sectionTitle,
-                  isSmallPhone && styles.sectionTitleSmall,
-                ]}
+                style={[styles.sectionTitle, isSmallPhone && styles.textSmall]}
               >
                 Store Information
               </Text>
@@ -453,17 +387,11 @@ export default function ProfilePage() {
             <View
               style={[
                 styles.detailsGrid,
-                isTablet && styles.detailsGridTablet,
                 isDesktop && styles.detailsGridDesktop,
               ]}
             >
               {/* Store Name */}
-              <View
-                style={[
-                  styles.detailCard,
-                  isDesktop && styles.detailCardHalf,
-                ]}
-              >
+              <View style={styles.detailCard}>
                 <Text style={styles.detailLabel}>Store Name</Text>
                 {isEditing ? (
                   <TextInput
@@ -477,99 +405,54 @@ export default function ProfilePage() {
                 )}
               </View>
 
-              {/* Store Phone */}
-              <View
-                style={[
-                  styles.detailCard,
-                  isDesktop && styles.detailCardHalf,
-                ]}
-              >
+              {/* Store Owner Phone Number */}
+              <View style={styles.detailCard}>
                 <Text style={styles.detailLabel}>Phone Number</Text>
-                {isEditing ? (
-                  <TextInput
-                    style={styles.input}
-                    value={storeOwner.user.phone_number}
-                    onChangeText={setEditedStorePhone}
-                    placeholderTextColor="#999"
-                  />
-                ) : (
-                  <Text style={styles.detailValue}>
-                    {store.data.phone_number}
+                <Text style={styles.detailValue}>
+                  {storeOwner.user.phone_number}
+                </Text>
+              </View>
+              <View style={styles.sectionHeader}>
+                <MaterialIcons name="info" size={24} color="#1976d2" />
+                <Text
+                  style={[
+                    styles.sectionTitle,
+                    isSmallPhone && styles.textSmall,
+                  ]}
+                >
+                  Account Information
+                </Text>
+              </View>
+
+              <View style={styles.detailsGrid}>
+                <View style={styles.detailCard}>
+                  <Text style={styles.detailLabel}>Account Status</Text>
+                  <Text
+                    style={[
+                      styles.detailValue,
+                      {
+                        color: storeOwner.user.isActive ? "#4caf50" : "#d32f2f",
+                      },
+                    ]}
+                  >
+                    {storeOwner.user.isActive ? "Active" : "Inactive"}
                   </Text>
-                )}
+                </View>
+
+                <View style={styles.detailCard}>
+                  <Text style={styles.detailLabel}>Member Since</Text>
+                  <Text style={styles.detailValue}>
+                    {new Date(storeOwner.createdAt).toLocaleDateString()}
+                  </Text>
+                </View>
               </View>
             </View>
           </View>
         )}
 
-        {/* Account Information Section */}
-        <View
-          style={[
-            styles.section,
-            isTablet && styles.sectionTablet,
-            isDesktop && styles.sectionDesktop,
-            isPhone && styles.sectionPhone,
-          ]}
-        >
-          <View style={styles.sectionHeader}>
-            <MaterialIcons name="info" size={24} color="#1976d2" />
-            <Text
-              style={[
-                styles.sectionTitle,
-                isSmallPhone && styles.sectionTitleSmall,
-              ]}
-            >
-              Account Information
-            </Text>
-          </View>
-
-          <View
-            style={[
-              styles.detailsGrid,
-              isTablet && styles.detailsGridTablet,
-              isDesktop && styles.detailsGridDesktop,
-            ]}
-          >
-            <View
-              style={[
-                styles.detailCard,
-                isDesktop && styles.detailCardHalf,
-              ]}
-            >
-              <Text style={styles.detailLabel}>Account Status</Text>
-              <Text
-                style={[
-                  styles.detailValue,
-                  {
-                    color: storeOwner.user.isActive ? "#4caf50" : "#d32f2f",
-                  },
-                ]}
-              >
-                {storeOwner.user.isActive ? "Active" : "Inactive"}
-              </Text>
-            </View>
-
-            <View
-              style={[
-                styles.detailCard,
-                isDesktop && styles.detailCardHalf,
-              ]}
-            >
-              <Text style={styles.detailLabel}>Member Since</Text>
-              <Text style={styles.detailValue}>
-                {new Date(storeOwner.createdAt).toLocaleDateString()}
-              </Text>
-            </View>
-          </View>
-        </View>
-
         {/* Action Buttons */}
         <View
-          style={[
-            styles.actionButtons,
-            isPhone && styles.actionButtonsPhone,
-            isDesktop && styles.actionButtonsDesktop,
-          ]}
+          style={[styles.actionButtons, isPhone && styles.actionButtonsPhone]}
         >
           <TouchableOpacity style={styles.secondaryButton}>
             <MaterialIcons name="password" size={20} color="#1976d2" />
@@ -580,15 +463,14 @@ export default function ProfilePage() {
             <Text style={styles.dangerButtonText}>Delete Account</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.logoutButton}
-            onPress={handleLogout}
-            disabled={loggingOut}
-          >
-            <MaterialIcons name="logout" size={20} color="#d32f2f" />
-            <Text style={styles.logoutText}>
-              {loggingOut ? "Logging out..." : "Logout"}
-            </Text>
-          </TouchableOpacity>
+          style={styles.logoutButton}
+          onPress={() => Alert.alert("Logout", "Are you sure?")}
+        >
+          <MaterialIcons name="logout" size={24} color="#d32f2f" />
+          {sidebarOpen && (
+            <Text style={styles.logoutText}>Logout</Text>
+          )}
+        </TouchableOpacity>
         </View>
       </ScrollView>
     </Navigation>
@@ -601,16 +483,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#f5f5f5",
   },
   contentContainer: {
-    padding: 12,
-    paddingBottom: 32,
-  },
-  contentContainerTablet: {
     padding: 16,
     paddingBottom: 32,
   },
   contentContainerDesktop: {
     padding: 24,
-    paddingBottom: 32,
     maxWidth: 1400,
     alignSelf: "center",
     width: "100%",
@@ -652,8 +529,8 @@ const styles = StyleSheet.create({
   profileHeader: {
     backgroundColor: "#fff",
     borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
+    padding: 20,
+    marginBottom: 20,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -661,20 +538,14 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   profileHeaderPhone: {
-    padding: 12,
-    marginBottom: 12,
+    padding: 16,
   },
   profileHeaderContent: {
     flexDirection: "row",
     marginBottom: 16,
-    alignItems: "flex-start",
-  },
-  profileHeaderContentPhone: {
-    flexDirection: "column",
-    alignItems: "center",
-    textAlign: "center",
   },
   profileImageContainer: {
+    position: "relative",
     marginRight: 16,
   },
   profileImage: {
@@ -685,24 +556,24 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  profileImageSmall: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-  },
   profileInfo: {
     flex: 1,
     justifyContent: "center",
   },
   profileInfoPhone: {
-    alignItems: "center",
-    marginBottom: 12,
+    flex: 1,
   },
   ownerName: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: "700",
     color: "#1a1a1a",
     marginBottom: 4,
+  },
+  logoutText: {
+    fontSize: 13,
+    color: "#d32f2f",
+    marginLeft: 12,
+    fontWeight: "600",
   },
   ownerRole: {
     fontSize: 14,
@@ -723,17 +594,24 @@ const styles = StyleSheet.create({
   },
   editForm: {
     gap: 8,
-    width: "100%",
   },
   input: {
     borderWidth: 1,
     borderColor: "#ddd",
     borderRadius: 6,
     paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingVertical: 8,
     fontSize: 13,
     color: "#1a1a1a",
     backgroundColor: "#fafafa",
+  },
+  logoutButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 6,
+    backgroundColor: "#ffe0e0",
   },
   textArea: {
     textAlignVertical: "top",
@@ -742,12 +620,6 @@ const styles = StyleSheet.create({
   buttonGroup: {
     flexDirection: "row",
     gap: 8,
-    justifyContent: "flex-end",
-  },
-  buttonGroupPhone: {
-    flexDirection: "row",
-    gap: 6,
-    justifyContent: "center",
   },
   editButton: {
     flexDirection: "row",
@@ -773,25 +645,19 @@ const styles = StyleSheet.create({
   section: {
     backgroundColor: "#fff",
     borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
+    padding: 20,
+    marginBottom: 20,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
-  sectionTablet: {
-    padding: 18,
-    marginBottom: 18,
-  },
   sectionDesktop: {
-    padding: 20,
-    marginBottom: 20,
+    padding: 24,
   },
   sectionPhone: {
-    padding: 12,
-    marginBottom: 12,
+    padding: 16,
   },
   sectionHeader: {
     flexDirection: "row",
@@ -804,16 +670,8 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#1a1a1a",
   },
-  sectionTitleSmall: {
-    fontSize: 14,
-  },
   detailsGrid: {
     gap: 12,
-  },
-  detailsGridTablet: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 14,
   },
   detailsGridDesktop: {
     flexDirection: "row",
@@ -824,13 +682,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#f9f9f9",
     borderRadius: 8,
     padding: 12,
-  },
-  detailCardHalf: {
     flex: 1,
-    minWidth: "48%",
+    minWidth: "45%",
   },
   fullWidth: {
-    width: "100%",
+    minWidth: "100%",
   },
   detailLabel: {
     fontSize: 12,
@@ -846,16 +702,11 @@ const styles = StyleSheet.create({
   },
   // ====== ACTION BUTTONS ======
   actionButtons: {
-    gap: 10,
+    gap: 12,
     marginBottom: 20,
   },
   actionButtonsPhone: {
     gap: 8,
-    marginBottom: 16,
-  },
-  actionButtonsDesktop: {
-    flexDirection: "row",
-    gap: 12,
   },
   secondaryButton: {
     flexDirection: "row",
@@ -886,21 +737,6 @@ const styles = StyleSheet.create({
     color: "#d32f2f",
     fontWeight: "600",
     fontSize: 14,
-  },
-  logoutButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 6,
-    backgroundColor: "#ffe0e0",
-    justifyContent: "center",
-    gap: 8,
-  },
-  logoutText: {
-    fontSize: 13,
-    color: "#d32f2f",
-    fontWeight: "600",
   },
   // ====== RESPONSIVE TEXT ======
   textSmall: {
