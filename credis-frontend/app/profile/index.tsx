@@ -108,6 +108,7 @@ export default function ProfilePage() {
         const storeData: FirstStoreResponse = await storeResponse.json();
         storeData.createdAt = new Date(storeData.createdAt);
         storeData.updatedAt = new Date(storeData.updatedAt);
+        console.log("storeData", storeData)
         console.log("phone number", storeData.data.phone_number)
 
         setStore(storeData);
