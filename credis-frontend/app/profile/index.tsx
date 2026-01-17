@@ -488,7 +488,7 @@ export default function ProfilePage() {
                 {isEditing ? (
                   <TextInput
                     style={styles.input}
-                    value={editedStorePhone}
+                    value={storeOwner.user.phone_number}
                     onChangeText={setEditedStorePhone}
                     placeholderTextColor="#999"
                   />
