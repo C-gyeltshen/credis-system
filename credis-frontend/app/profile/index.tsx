@@ -99,6 +99,8 @@ export default function ProfilePage() {
       setStoreOwner(ownerData);
       setEditedOwnerName(ownerData.user.name);
       setEditedAccountNumber(ownerData.user.accountNumber || "");
+      setEditedStorePhone(ownerData.user.phone_number);
+
 
       if (storeId) {
         const storeResponse = await fetch(`${API_BASE_URL}/stores/${storeId}`);
@@ -108,12 +110,9 @@ export default function ProfilePage() {
         const storeData: FirstStoreResponse = await storeResponse.json();
         storeData.createdAt = new Date(storeData.createdAt);
         storeData.updatedAt = new Date(storeData.updatedAt);
-        console.log("storeData", storeData)
-        console.log("phone number", storeData.data.phone_number)
 
         setStore(storeData);
         setEditedStoreName(storeData.data.name);
-        setEditedStorePhone(storeData.data.phone_number);
       }
 
       setLoading(false);
