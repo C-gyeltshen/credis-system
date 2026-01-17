@@ -88,7 +88,6 @@ export default function ProfilePage() {
       setLoading(true);
       setError(null);
 
-      // Fetch store owner data
       const ownerResponse = await fetch(
         `${API_BASE_URL}/store-owners/${ownerId}`,
       );
@@ -96,15 +95,12 @@ export default function ProfilePage() {
         throw new Error("Failed to fetch store owner data");
       }
       const ownerData: FirstResponse = await ownerResponse.json();
-      console.log(ownerData);
       ownerData.createdAt = new Date(ownerData.createdAt);
 
       setStoreOwner(ownerData);
       setEditedOwnerName(ownerData.user.name);
       setEditedAccountNumber(ownerData.user.accountNumber || "");
-      // console.log("phoneNumber", ownerData.user.phoneNumber)
 
-      // Fetch store data only if storeId exists
       if (storeId) {
         const storeResponse = await fetch(`${API_BASE_URL}/stores/${storeId}`);
         if (!storeResponse.ok) {
@@ -124,14 +120,12 @@ export default function ProfilePage() {
       const errorMessage =
         err instanceof Error ? err.message : "An error occurred";
       setError(errorMessage);
-      console.error("Error fetching profile:", err);
       setLoading(false);
     }
   };
 
   const handleSaveChanges = async () => {
     try {
-      // Update store owner
       if (storeOwner) {
         const ownerUpdateResponse = await fetch(
           `${API_BASE_URL}/store-owners/${ownerId}`,
@@ -148,7 +142,6 @@ export default function ProfilePage() {
           throw new Error("Failed to update store owner");
         }
 
-        // Update local state with new owner data
         const updatedOwner = {
           ...storeOwner,
           user: {
@@ -160,7 +153,6 @@ export default function ProfilePage() {
         setStoreOwner(updatedOwner);
       }
 
-      // Update store if it exists
       if (store && storeId) {
         const storeUpdateResponse = await fetch(
           `${API_BASE_URL}/stores/${storeId}`,
@@ -178,7 +170,6 @@ export default function ProfilePage() {
           throw new Error("Failed to update store");
         }
 
-        // Update local state with new store data
         const updatedStore = {
           ...store,
           data: {
@@ -197,12 +188,10 @@ export default function ProfilePage() {
       const errorMessage =
         err instanceof Error ? err.message : "An error occurred";
       Alert.alert("Error", errorMessage);
-      console.error("Error updating profile:", err);
     }
   };
 
   const handleCancel = () => {
-    // Reset edited values to original
     if (storeOwner) {
       setEditedOwnerName(storeOwner.user.name);
       setEditedAccountNumber(storeOwner.user.accountNumber || "");
@@ -214,13 +203,51 @@ export default function ProfilePage() {
     setIsEditing(false);
   };
 
+  /**
+   * LOGOUT HANDLER
+   * Calls the API, and redirects to login
+   */
+  const handleLogout = () => {
+    Alert.alert("Logout", "Are you sure you want to log out?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Logout",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            setLoading(true);
+            const response = await fetch(`${API_BASE_URL}/store-owners/logout`, {
+              method: "POST", // API typically expects POST for logout
+              headers: {
+                "Content-Type": "application/json",
+              },
+            });
+
+            if (response.ok || response.status === 200) {
+              // Redirect to login page
+              router.replace("/login");
+            } else {
+              throw new Error("Server failed to logout");
+            }
+          } catch (err) {
+            console.error("Logout error:", err);
+            // Even if the API fails, we usually want to force the user out locally
+            router.replace("/login");
+          } finally {
+            setLoading(false);
+          }
+        },
+      },
+    ]);
+  };
+
   if (loading) {
     return (
       <Navigation>
         <View style={styles.container}>
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#1976d2" />
-            <Text style={styles.loadingText}>Loading profile data...</Text>
+            <Text style={styles.loadingText}>Processing...</Text>
           </View>
         </View>
       </Navigation>
@@ -334,7 +361,6 @@ export default function ProfilePage() {
             </View>
           </View>
 
-          {/* Edit/Save/Cancel Buttons */}
           <View style={styles.buttonGroup}>
             {isEditing ? (
               <>
@@ -389,7 +415,6 @@ export default function ProfilePage() {
                 isDesktop && styles.detailsGridDesktop,
               ]}
             >
-              {/* Store Name */}
               <View style={styles.detailCard}>
                 <Text style={styles.detailLabel}>Store Name</Text>
                 {isEditing ? (
@@ -404,46 +429,18 @@ export default function ProfilePage() {
                 )}
               </View>
 
-              {/* Store Owner Phone Number */}
               <View style={styles.detailCard}>
                 <Text style={styles.detailLabel}>Phone Number</Text>
                 <Text style={styles.detailValue}>
                   {storeOwner.user.phone_number}
                 </Text>
               </View>
-              <View style={styles.sectionHeader}>
-                <MaterialIcons name="info" size={24} color="#1976d2" />
-                <Text
-                  style={[
-                    styles.sectionTitle,
-                    isSmallPhone && styles.textSmall,
-                  ]}
-                >
-                  Account Information
+
+              <View style={[styles.detailCard, styles.fullWidth]}>
+                <Text style={styles.detailLabel}>Member Since</Text>
+                <Text style={styles.detailValue}>
+                  {new Date(storeOwner.createdAt).toLocaleDateString()}
                 </Text>
-              </View>
-
-              <View style={styles.detailsGrid}>
-                <View style={styles.detailCard}>
-                  <Text style={styles.detailLabel}>Account Status</Text>
-                  <Text
-                    style={[
-                      styles.detailValue,
-                      {
-                        color: storeOwner.user.isActive ? "#4caf50" : "#d32f2f",
-                      },
-                    ]}
-                  >
-                    {storeOwner.user.isActive ? "Active" : "Inactive"}
-                  </Text>
-                </View>
-
-                <View style={styles.detailCard}>
-                  <Text style={styles.detailLabel}>Member Since</Text>
-                  <Text style={styles.detailValue}>
-                    {new Date(storeOwner.createdAt).toLocaleDateString()}
-                  </Text>
-                </View>
               </View>
             </View>
           </View>
@@ -461,9 +458,11 @@ export default function ProfilePage() {
             <MaterialIcons name="delete-outline" size={20} color="#d32f2f" />
             <Text style={styles.dangerButtonText}>Delete Account</Text>
           </TouchableOpacity>
+          
+          {/* LOGOUT BUTTON */}
           <TouchableOpacity
             style={styles.logoutButton}
-            onPress={() => Alert.alert("Logout", "Are you sure?")}
+            onPress={handleLogout}
           >
             <MaterialIcons name="logout" size={24} color="#d32f2f" />
             {sidebarOpen && <Text style={styles.logoutText}>Logout</Text>}
@@ -522,7 +521,6 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "600",
   },
-  // ====== PROFILE HEADER ======
   profileHeader: {
     backgroundColor: "#fff",
     borderRadius: 12,
@@ -611,10 +609,6 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     backgroundColor: "#ffe0e0",
   },
-  textArea: {
-    textAlignVertical: "top",
-    minHeight: 80,
-  },
   buttonGroup: {
     flexDirection: "row",
     gap: 8,
@@ -639,7 +633,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: 13,
   },
-  // ====== SECTIONS ======
   section: {
     backgroundColor: "#fff",
     borderRadius: 12,
@@ -698,7 +691,6 @@ const styles = StyleSheet.create({
     color: "#1a1a1a",
     fontWeight: "500",
   },
-  // ====== ACTION BUTTONS ======
   actionButtons: {
     gap: 12,
     marginBottom: 20,
@@ -736,7 +728,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: 14,
   },
-  // ====== RESPONSIVE TEXT ======
   textSmall: {
     fontSize: 16,
   },
