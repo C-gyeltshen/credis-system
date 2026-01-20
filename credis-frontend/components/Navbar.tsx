@@ -5,12 +5,12 @@ import {
   StyleSheet,
   TouchableOpacity,
   useWindowDimensions,
-  SafeAreaView,
   ScrollView,
   Alert,
 } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useRouter, usePathname } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface NavItem {
   id: string;
@@ -78,9 +78,7 @@ const Navigation: React.FC<NavigationProps> = ({ children }) => {
       <View style={styles.sidebarHeader}>
         <View style={styles.logoContainer}>
           <MaterialIcons name="dashboard" size={28} color="#fff" />
-          {sidebarOpen && (
-            <Text style={styles.logoText}>Credit System</Text>
-          )}
+          {sidebarOpen && <Text style={styles.logoText}>Credit System</Text>}
         </View>
         <TouchableOpacity
           onPress={() => setSidebarOpen(!sidebarOpen)}
@@ -101,10 +99,7 @@ const Navigation: React.FC<NavigationProps> = ({ children }) => {
           return (
             <TouchableOpacity
               key={item.id}
-              style={[
-                styles.sidebarItem,
-                active && styles.sidebarItemActive,
-              ]}
+              style={[styles.sidebarItem, active && styles.sidebarItemActive]}
               onPress={() => handleNavigation(item.route)}
             >
               <View style={styles.sidebarItemContent}>
@@ -124,9 +119,7 @@ const Navigation: React.FC<NavigationProps> = ({ children }) => {
                   </Text>
                 )}
               </View>
-              {sidebarOpen && active && (
-                <View style={styles.activeIndicator} />
-              )}
+              {sidebarOpen && active && <View style={styles.activeIndicator} />}
             </TouchableOpacity>
           );
         })}
@@ -139,9 +132,7 @@ const Navigation: React.FC<NavigationProps> = ({ children }) => {
           onPress={() => Alert.alert("Logout", "Are you sure?")}
         >
           <MaterialIcons name="logout" size={24} color="#d32f2f" />
-          {sidebarOpen && (
-            <Text style={styles.logoutText}>Logout</Text>
-          )}
+          {sidebarOpen && <Text style={styles.logoutText}>Logout</Text>}
         </TouchableOpacity>
       </View>
     </View>
@@ -155,10 +146,7 @@ const Navigation: React.FC<NavigationProps> = ({ children }) => {
         return (
           <TouchableOpacity
             key={item.id}
-            style={[
-              styles.bottomNavItem,
-              active && styles.bottomNavItemActive,
-            ]}
+            style={[styles.bottomNavItem, active && styles.bottomNavItemActive]}
             onPress={() => handleNavigation(item.route)}
           >
             <MaterialIcons
@@ -185,7 +173,9 @@ const Navigation: React.FC<NavigationProps> = ({ children }) => {
     <SafeAreaView style={styles.container}>
       <View style={styles.mainWrapper}>
         {useSidebar && <SidebarNav />}
-        <View style={[styles.content, useBottomNav && styles.contentWithBottomNav]}>
+        <View
+          style={[styles.content, useBottomNav && styles.contentWithBottomNav]}
+        >
           {children}
         </View>
       </View>
@@ -318,10 +308,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     justifyContent: "space-around",
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    boxShadow: "0 -2px 4px rgba(0, 0, 0, 0.1)",
     elevation: 8,
   },
   bottomNavItem: {
