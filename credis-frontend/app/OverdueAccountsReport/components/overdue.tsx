@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   ScrollView,
@@ -7,7 +7,7 @@ import {
   Alert,
   useWindowDimensions,
 } from "react-native";
-import { Text, TextInput, Button, Card, Chip } from "react-native-paper";
+import { Text, TextInput, Button, Card} from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -711,7 +711,6 @@ export default function OverdueAccountsReport() {
     </Navigation>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -724,10 +723,7 @@ const styles = StyleSheet.create({
     paddingVertical: 24,
     marginBottom: 20,
     elevation: 4,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
   },
   headerContent: {
     flexDirection: "row",
@@ -753,10 +749,7 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 12,
     elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    boxShadow: "0 1px 4px rgba(0, 0, 0, 0.1)",
   },
   tabButton: {
     flex: 1,
@@ -788,10 +781,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 20,
     elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    boxShadow: "0 1px 4px rgba(0, 0, 0, 0.1)",
   },
   filterHeader: {
     flexDirection: "row",
@@ -835,10 +825,7 @@ const styles = StyleSheet.create({
   summaryCard: {
     backgroundColor: "#fff",
     elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    boxShadow: "0 1px 4px rgba(0, 0, 0, 0.1)",
   },
   summaryLabel: {
     fontSize: 12,
@@ -869,10 +856,7 @@ const styles = StyleSheet.create({
   customerCard: {
     backgroundColor: "#fff",
     elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    boxShadow: "0 1px 4px rgba(0, 0, 0, 0.1)",
   },
   customerHeader: {
     flexDirection: "row",
@@ -974,10 +958,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 20,
     elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    boxShadow: "0 1px 4px rgba(0, 0, 0, 0.1)",
   },
   emptyStateTitle: {
     fontSize: 18,
@@ -996,10 +977,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    boxShadow: "0 1px 4px rgba(0, 0, 0, 0.1)",
   },
   legendTitle: {
     fontSize: 16,
