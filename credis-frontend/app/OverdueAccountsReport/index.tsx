@@ -30,15 +30,14 @@ interface ApiResponse {
   success: boolean;
 }
 
-const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_URL;
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export default function HighestBalanceReport() {
   const [loading, setLoading] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const { user } = useAuth();
-  
+
   const STORE_ID = user?.storeId;
 
   useEffect(() => {
@@ -49,7 +48,7 @@ export default function HighestBalanceReport() {
     try {
       setLoading(true);
       const response = await fetch(
-        `${API_BASE_URL}/credits/store/${STORE_ID}/outstanding?limit=20`
+        `${API_BASE_URL}/credits/store/${STORE_ID}/outstanding?limit=20`,
       );
       const data: ApiResponse = await response.json();
       console.log("customer data:", data);
@@ -66,11 +65,12 @@ export default function HighestBalanceReport() {
   };
 
   const handleSMS = (customer: Customer) => {
-    const message = `Dear ${customer.customerName}, this is a friendly reminder regarding your outstanding balance of Nu. ${customer.outstandingBalance.toLocaleString('en-IN')}. Please visit our store to settle the credit. Thank you!`;
-    const url = Platform.OS === "ios" 
-      ? `sms:${customer.customerPhone}&body=${encodeURIComponent(message)}` 
-      : `sms:${customer.customerPhone}?body=${encodeURIComponent(message)}`;
-    
+    const message = `Dear ${customer.customerName}, this is a friendly reminder regarding your outstanding balance of Nu. ${customer.outstandingBalance.toLocaleString("en-IN")}. Please visit our store to settle the credit. Thank you!`;
+    const url =
+      Platform.OS === "ios"
+        ? `sms:${customer.customerPhone}&body=${encodeURIComponent(message)}`
+        : `sms:${customer.customerPhone}?body=${encodeURIComponent(message)}`;
+
     Linking.openURL(url);
   };
 
@@ -81,7 +81,7 @@ export default function HighestBalanceReport() {
         customerId: customer.customerId,
         customerName: customer.customerName,
         customerPhone: customer.customerPhone,
-      }
+      },
     });
   };
 
@@ -91,15 +91,18 @@ export default function HighestBalanceReport() {
     }).format(amount);
   };
 
-  const totalBalance = customers.reduce((sum, c) => sum + c.outstandingBalance, 0);
-  
+  const totalBalance = customers.reduce(
+    (sum, c) => sum + c.outstandingBalance,
+    0,
+  );
+
   return (
     <Navigation>
       <SafeAreaView style={styles.container}>
         <ScrollView showsVerticalScrollIndicator={false}>
           {/* Enhanced Header */}
-          <LinearGradient 
-            colors={["#c62828", "#e53935", "#ef5350"]} 
+          <LinearGradient
+            colors={["#c62828", "#e53935", "#ef5350"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.header}
@@ -107,13 +110,19 @@ export default function HighestBalanceReport() {
             <View style={styles.headerTop}>
               <View style={styles.headerTextContainer}>
                 <Text style={styles.headerTitle}>Remaining Credits</Text>
-                <Text style={styles.headerSubtitle}>Credit Management Dashboard</Text>
+                <Text style={styles.headerSubtitle}>
+                  Credit Management Dashboard
+                </Text>
               </View>
               <View style={styles.iconContainer}>
-                <MaterialIcons name="account-balance-wallet" size={40} color="rgba(255,255,255,0.9)" />
+                <MaterialIcons
+                  name="account-balance-wallet"
+                  size={40}
+                  color="rgba(255,255,255,0.9)"
+                />
               </View>
             </View>
-            
+
             {/* Stats Card */}
             {customers.length > 0 && (
               <View style={styles.statsCard}>
@@ -126,9 +135,15 @@ export default function HighestBalanceReport() {
                 </View>
                 <View style={styles.statDivider} />
                 <View style={styles.statItem}>
-                  <MaterialIcons name="attach-money" size={20} color="#c62828" />
+                  <MaterialIcons
+                    name="attach-money"
+                    size={20}
+                    color="#c62828"
+                  />
                   <View style={styles.statTextContainer}>
-                    <Text style={styles.statValue}>Nu. {formatCurrency(totalBalance)}</Text>
+                    <Text style={styles.statValue}>
+                      Nu. {formatCurrency(totalBalance)}
+                    </Text>
                     <Text style={styles.statLabel}>Total Remaining Credit</Text>
                   </View>
                 </View>
@@ -145,26 +160,38 @@ export default function HighestBalanceReport() {
             <View style={styles.emptyContainer}>
               <MaterialIcons name="inbox" size={80} color="#ccc" />
               <Text style={styles.emptyTitle}>No Remaining Credits</Text>
-              <Text style={styles.emptyText}>All customers have cleared their credits!</Text>
+              <Text style={styles.emptyText}>
+                All customers have cleared their credits!
+              </Text>
             </View>
           ) : (
             <View style={styles.tableContainer}>
               {/* Enhanced Table Header */}
               <View style={styles.tableHeader}>
-                <Text style={[styles.columnHeader, styles.nameColumn]}>CUSTOMER NAME</Text>
-                <Text style={[styles.columnHeader, styles.balanceColumn]}>REMAINING CREDIT</Text>
+                <Text style={[styles.columnHeader, styles.nameColumn]}>
+                  CUSTOMER NAME
+                </Text>
+                <Text style={[styles.columnHeader, styles.balanceColumn]}>
+                  REMAINING CREDIT
+                </Text>
                 <View style={styles.expandColumn} />
               </View>
 
               {/* Enhanced Table Rows */}
               {customers.map((customer, index) => (
                 <View key={customer.customerId} style={styles.rowWrapper}>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={[
-                      styles.row, 
-                      expandedId === customer.customerId && styles.activeRow
+                      styles.row,
+                      expandedId === customer.customerId && styles.activeRow,
                     ]}
-                    onPress={() => setExpandedId(expandedId === customer.customerId ? null : customer.customerId)}
+                    onPress={() =>
+                      setExpandedId(
+                        expandedId === customer.customerId
+                          ? null
+                          : customer.customerId,
+                      )
+                    }
                     activeOpacity={0.7}
                   >
                     {/* Customer Name Cell */}
@@ -173,8 +200,8 @@ export default function HighestBalanceReport() {
                         <View style={styles.rankBadge}>
                           <Text style={styles.rankText}>#{index + 1}</Text>
                         </View>
-                        <Text 
-                          style={styles.cellName} 
+                        <Text
+                          style={styles.cellName}
                           numberOfLines={2}
                           ellipsizeMode="tail"
                         >
@@ -192,10 +219,14 @@ export default function HighestBalanceReport() {
 
                     {/* Expand Icon */}
                     <View style={styles.expandColumn}>
-                      <MaterialIcons 
-                        name={expandedId === customer.customerId ? "expand-less" : "expand-more"} 
-                        size={24} 
-                        color="#666" 
+                      <MaterialIcons
+                        name={
+                          expandedId === customer.customerId
+                            ? "expand-less"
+                            : "expand-more"
+                        }
+                        size={24}
+                        color="#666"
                       />
                     </View>
                   </TouchableOpacity>
@@ -205,17 +236,23 @@ export default function HighestBalanceReport() {
                     <View style={styles.expandedContent}>
                       <View style={styles.phoneContainer}>
                         <View style={styles.phoneIcon}>
-                          <MaterialIcons name="phone-android" size={18} color="#1976d2" />
+                          <MaterialIcons
+                            name="phone-android"
+                            size={18}
+                            color="#1976d2"
+                          />
                         </View>
                         <View>
                           <Text style={styles.phoneLabel}>Phone Number</Text>
-                          <Text style={styles.phoneText}>{customer.customerPhone}</Text>
+                          <Text style={styles.phoneText}>
+                            {customer.customerPhone}
+                          </Text>
                         </View>
                       </View>
-                      
+
                       <View style={styles.actionContainer}>
-                        <TouchableOpacity 
-                          style={[styles.actionBtn, styles.callBtn]} 
+                        <TouchableOpacity
+                          style={[styles.actionBtn, styles.callBtn]}
                           onPress={() => handleCall(customer.customerPhone)}
                           activeOpacity={0.8}
                         >
@@ -223,27 +260,35 @@ export default function HighestBalanceReport() {
                           <Text style={styles.btnText}>Call</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity 
-                          style={[styles.actionBtn, styles.smsBtn]} 
+                        <TouchableOpacity
+                          style={[styles.actionBtn, styles.smsBtn]}
                           onPress={() => handleSMS(customer)}
                           activeOpacity={0.8}
                         >
-                          <MaterialIcons name="message" size={20} color="#fff" />
+                          <MaterialIcons
+                            name="message"
+                            size={20}
+                            color="#fff"
+                          />
                           <Text style={styles.btnText}>Remind</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity 
-                          style={[styles.actionBtn, styles.viewBtn]} 
+                        <TouchableOpacity
+                          style={[styles.actionBtn, styles.viewBtn]}
                           onPress={() => handleViewTransactions(customer)}
                           activeOpacity={0.8}
                         >
-                          <MaterialIcons name="receipt-long" size={20} color="#fff" />
+                          <MaterialIcons
+                            name="receipt-long"
+                            size={20}
+                            color="#fff"
+                          />
                           <Text style={styles.btnText}>View</Text>
                         </TouchableOpacity>
                       </View>
                     </View>
                   )}
-                  
+
                   <View style={styles.rowDivider} />
                 </View>
               ))}
@@ -256,21 +301,18 @@ export default function HighestBalanceReport() {
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: "#f5f7fa" 
+  container: {
+    flex: 1,
+    backgroundColor: "#f5f7fa",
   },
-  header: { 
+  header: {
     paddingTop: 20,
     paddingBottom: 25,
     paddingHorizontal: 20,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
     elevation: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    boxShadow: "0px 4px 8px #0000004D",
   },
   headerTop: {
     flexDirection: "row",
@@ -281,14 +323,14 @@ const styles = StyleSheet.create({
   headerTextContainer: {
     flex: 1,
   },
-  headerTitle: { 
-    fontSize: 26, 
-    fontWeight: "800", 
+  headerTitle: {
+    fontSize: 26,
+    fontWeight: "800",
     color: "#fff",
     marginBottom: 4,
   },
-  headerSubtitle: { 
-    fontSize: 14, 
+  headerSubtitle: {
+    fontSize: 14,
     color: "rgba(255,255,255,0.85)",
     fontWeight: "500",
   },
@@ -306,10 +348,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     elevation: 4,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    boxShadow: "0px 4px 8px #0000004D",
   },
   statItem: {
     flex: 1,
@@ -369,16 +408,13 @@ const styles = StyleSheet.create({
     color: "#666",
     textAlign: "center",
   },
-  tableContainer: { 
+  tableContainer: {
     margin: 16,
     backgroundColor: "#fff",
     borderRadius: 16,
     overflow: "hidden",
     elevation: 3,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    boxShadow: "0px 4px 8px #0000004D",
   },
   tableHeader: {
     flexDirection: "row",
@@ -389,10 +425,10 @@ const styles = StyleSheet.create({
     borderBottomColor: "#e0e0e0",
     alignItems: "center",
   },
-  columnHeader: { 
-    fontSize: 11, 
-    fontWeight: "800", 
-    color: "#555", 
+  columnHeader: {
+    fontSize: 11,
+    fontWeight: "800",
+    color: "#555",
     letterSpacing: 0.8,
     textTransform: "uppercase",
   },
@@ -420,7 +456,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     backgroundColor: "#fff",
   },
-  activeRow: { 
+  activeRow: {
     backgroundColor: "#f8f9ff",
   },
   nameCell: {
@@ -437,26 +473,23 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     elevation: 2,
-    shadowColor: "#c62828",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
+    boxShadow: "0px 2px 4px #c628284D",
   },
   rankText: {
     fontSize: 12,
     fontWeight: "800",
     color: "#fff",
   },
-  cellName: { 
-    fontSize: 15, 
-    fontWeight: "600", 
+  cellName: {
+    fontSize: 15,
+    fontWeight: "600",
     color: "#1a1a1a",
     flex: 1,
     lineHeight: 20,
   },
-  cellBalance: { 
-    fontSize: 16, 
-    fontWeight: "800", 
+  cellBalance: {
+    fontSize: 16,
+    fontWeight: "800",
     color: "#c62828",
     textAlign: "right",
   },
@@ -493,13 +526,13 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
-  phoneText: { 
-    fontSize: 15, 
-    color: "#1a1a1a", 
+  phoneText: {
+    fontSize: 15,
+    color: "#1a1a1a",
     fontWeight: "700",
   },
-  actionContainer: { 
-    flexDirection: "row", 
+  actionContainer: {
+    flexDirection: "row",
     gap: 8,
   },
   actionBtn: {
@@ -512,23 +545,20 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     gap: 6,
     elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+    boxShadow: "0px 2px 4px #00000033",
   },
-  callBtn: { 
+  callBtn: {
     backgroundColor: "#2e7d32",
   },
-  smsBtn: { 
+  smsBtn: {
     backgroundColor: "#1565c0",
   },
   viewBtn: {
     backgroundColor: "#6a1b9a",
   },
-  btnText: { 
-    color: "#fff", 
-    fontWeight: "700", 
+  btnText: {
+    color: "#fff",
+    fontWeight: "700",
     fontSize: 13,
   },
   rowDivider: {
