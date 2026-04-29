@@ -3,12 +3,15 @@ const storeOwnerService = new StoreOwnerService();
 export const authMiddleware = async (c, next) => {
     let token;
     const authHeader = c.req.header("Authorization");
+    console.log("auth header", authHeader);
     if (authHeader?.startsWith("Bearer ")) {
         token = authHeader.slice(7);
+        console.log("auth tokeen from header", token);
     }
     else {
         // Try to get token from cookies
         const cookieHeader = c.req.header("Cookie");
+        console.log("auth token from cookies", cookieHeader);
         if (cookieHeader) {
             const cookies = Object.fromEntries(cookieHeader.split(";").map((cookie) => {
                 const [name, ...rest] = cookie.trim().split("=");
@@ -17,8 +20,9 @@ export const authMiddleware = async (c, next) => {
             token = cookies["accessToken"];
         }
     }
+    console.log("token from routes", token);
     if (!token) {
-        return c.json({ error: "Unauthorized" }, 401);
+        return c.json({ error: "Unauthorized from routes" }, 401);
     }
     const decoded = storeOwnerService.verifyAccessToken(token);
     if (!decoded) {
