@@ -1,4 +1,4 @@
-import { prisma } from "../../lib/prisma.js";
+import { prisma } from "../lib/prisma.js";
 import type { CreateCustomerInput } from "../types/customer.types.js";
 
 export class CustomerRepository {
@@ -7,8 +7,8 @@ export class CustomerRepository {
       data: {
         store: {
           connect: {
-            id: storeId || data.storeId
-          }
+            id: storeId || data.storeId,
+          },
         },
         name: data.name,
         phoneNumber: data.phone_number,
@@ -27,14 +27,13 @@ export class CustomerRepository {
     });
   }
   async findByPhoneNumber(storeId: string, phoneNumber: string) {
-  return await prisma.customer.findUnique({
-    where: {
-      storeId_phoneNumber: {
-        storeId,
-        phoneNumber,
+    return await prisma.customer.findUnique({
+      where: {
+        storeId_phoneNumber: {
+          storeId,
+          phoneNumber,
+        },
       },
-    },
-  });
-}
-
+    });
+  }
 }

@@ -1,4 +1,4 @@
-import { prisma } from "../../lib/prisma.js";
+import { prisma } from "../lib/prisma.js";
 import type {
   CreateCreditInput,
   UpdateCreditInput,
@@ -143,7 +143,7 @@ export class CreditRepository {
 
   async getCustomerSummary(
     customerId: string,
-    storeId?: string
+    storeId?: string,
   ): Promise<CreditSummary> {
     const whereClause = {
       customerId,
@@ -233,7 +233,7 @@ export class CreditRepository {
   async getTransactionsByDateRange(
     startDate: Date,
     endDate: Date,
-    storeId?: string
+    storeId?: string,
   ) {
     return await prisma.credit.findMany({
       where: {

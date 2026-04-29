@@ -1,11 +1,11 @@
-import { prisma } from "../../lib/prisma.js";
+import { prisma } from "../lib/prisma.js";
 import type { CreateStoreInput } from "../types/store.types.js";
 
 export class StoreRepository {
   async create(data: CreateStoreInput) {
     return await prisma.store.create({
       data: {
-        name: data.name
+        name: data.name,
       },
     });
   }
@@ -17,7 +17,6 @@ export class StoreRepository {
       },
     });
   }
-
 
   async findAll() {
     return await prisma.store.findMany({
@@ -33,7 +32,7 @@ export class StoreRepository {
         id,
       },
       data: {
-        ...(data.name && { name: data.name })
+        ...(data.name && { name: data.name }),
       },
     });
   }

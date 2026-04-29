@@ -1,4 +1,4 @@
-import { prisma } from "../../lib/prisma.js";
+import { prisma } from "../lib/prisma.js";
 import type {
   CreateStoreOwnerInput,
   UpdateStoreOwnerInput,
@@ -49,28 +49,27 @@ export class StoreOwnerRepository {
     });
   }
 
-async findByPhoneNumberWithPassword(phoneNumber: string) {
-
-  if (!phoneNumber) {
-    throw new Error('Phone number is required');
-  }
-
-  const userPhoneNumber = phoneNumber
-  console.log("phoneNumber : ", phoneNumber)
-  return await prisma.storeOwner.findUnique({
-    where: {
-      phoneNumber: userPhoneNumber, // This will now be recognized!
-    },
-    select: {
-      id: true,
-      name: true,
-      phoneNumber: true,
-      passwordHash: true,
-      isActive: true,
-      storeId: true
+  async findByPhoneNumberWithPassword(phoneNumber: string) {
+    if (!phoneNumber) {
+      throw new Error("Phone number is required");
     }
-  });
-}
+
+    const userPhoneNumber = phoneNumber;
+    console.log("phoneNumber : ", phoneNumber);
+    return await prisma.storeOwner.findUnique({
+      where: {
+        phoneNumber: userPhoneNumber, // This will now be recognized!
+      },
+      select: {
+        id: true,
+        name: true,
+        phoneNumber: true,
+        passwordHash: true,
+        isActive: true,
+        storeId: true,
+      },
+    });
+  }
 
   async setLastLogin(id: string, date: Date) {
     return await prisma.storeOwner.update({
@@ -90,7 +89,12 @@ async findByPhoneNumberWithPassword(phoneNumber: string) {
       },
     });
   }
-  async saveAccessToken(storeOwnerId: string, refreshTokenId: string, token: string, expiresAt: Date) {
+  async saveAccessToken(
+    storeOwnerId: string,
+    refreshTokenId: string,
+    token: string,
+    expiresAt: Date,
+  ) {
     const tokenHash = await bcrypt.hash(token, 10);
     await prisma.token.create({
       data: {
